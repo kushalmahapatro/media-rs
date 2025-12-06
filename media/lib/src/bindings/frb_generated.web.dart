@@ -24,25 +24,96 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<String> dco_decode_StreamSink_String_Dco(dynamic raw);
+
+  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
-  ThumbnailParams dco_decode_box_autoadd_thumbnail_params(dynamic raw);
+  CompressParams dco_decode_box_autoadd_compress_params(dynamic raw);
+
+  @protected
+  ImageThumbnailParams dco_decode_box_autoadd_image_thumbnail_params(
+    dynamic raw,
+  );
+
+  @protected
+  OutputFormat dco_decode_box_autoadd_output_format(dynamic raw);
+
+  @protected
+  (int, int) dco_decode_box_autoadd_record_u_32_u_32(dynamic raw);
+
+  @protected
+  ThumbnailSizeType dco_decode_box_autoadd_thumbnail_size_type(dynamic raw);
+
+  @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw);
 
   @protected
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
+  int dco_decode_box_autoadd_u_8(dynamic raw);
+
+  @protected
+  VideoThumbnailParams dco_decode_box_autoadd_video_thumbnail_params(
+    dynamic raw,
+  );
+
+  @protected
+  CompressParams dco_decode_compress_params(dynamic raw);
+
+  @protected
+  CompressionEstimate dco_decode_compression_estimate(dynamic raw);
+
+  @protected
+  int dco_decode_i_32(dynamic raw);
+
+  @protected
+  ImageThumbnailParams dco_decode_image_thumbnail_params(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  List<ResolutionPreset> dco_decode_list_resolution_preset(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  ImageThumbnailParams? dco_decode_opt_box_autoadd_image_thumbnail_params(
+    dynamic raw,
+  );
+
+  @protected
+  OutputFormat? dco_decode_opt_box_autoadd_output_format(dynamic raw);
+
+  @protected
+  ThumbnailSizeType? dco_decode_opt_box_autoadd_thumbnail_size_type(
+    dynamic raw,
+  );
+
+  @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+
+  @protected
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
-  ThumbnailParams dco_decode_thumbnail_params(dynamic raw);
+  int? dco_decode_opt_box_autoadd_u_8(dynamic raw);
+
+  @protected
+  OutputFormat dco_decode_output_format(dynamic raw);
+
+  @protected
+  (int, int) dco_decode_record_u_32_u_32(dynamic raw);
+
+  @protected
+  ResolutionPreset dco_decode_resolution_preset(dynamic raw);
+
+  @protected
+  ThumbnailSizeType dco_decode_thumbnail_size_type(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -54,32 +125,128 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int dco_decode_u_8(dynamic raw);
 
   @protected
+  void dco_decode_unit(dynamic raw);
+
+  @protected
   VideoInfo dco_decode_video_info(dynamic raw);
+
+  @protected
+  VideoThumbnailParams dco_decode_video_thumbnail_params(dynamic raw);
 
   @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<String> sse_decode_StreamSink_String_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
-  ThumbnailParams sse_decode_box_autoadd_thumbnail_params(
-      SseDeserializer deserializer);
+  CompressParams sse_decode_box_autoadd_compress_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ImageThumbnailParams sse_decode_box_autoadd_image_thumbnail_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OutputFormat sse_decode_box_autoadd_output_format(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  (int, int) sse_decode_box_autoadd_record_u_32_u_32(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ThumbnailSizeType sse_decode_box_autoadd_thumbnail_size_type(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  int sse_decode_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
+  VideoThumbnailParams sse_decode_box_autoadd_video_thumbnail_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  CompressParams sse_decode_compress_params(SseDeserializer deserializer);
+
+  @protected
+  CompressionEstimate sse_decode_compression_estimate(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  ImageThumbnailParams sse_decode_image_thumbnail_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<ResolutionPreset> sse_decode_list_resolution_preset(
+    SseDeserializer deserializer,
+  );
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  ImageThumbnailParams? sse_decode_opt_box_autoadd_image_thumbnail_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OutputFormat? sse_decode_opt_box_autoadd_output_format(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ThumbnailSizeType? sse_decode_opt_box_autoadd_thumbnail_size_type(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
-  ThumbnailParams sse_decode_thumbnail_params(SseDeserializer deserializer);
+  int? sse_decode_opt_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
+  OutputFormat sse_decode_output_format(SseDeserializer deserializer);
+
+  @protected
+  (int, int) sse_decode_record_u_32_u_32(SseDeserializer deserializer);
+
+  @protected
+  ResolutionPreset sse_decode_resolution_preset(SseDeserializer deserializer);
+
+  @protected
+  ThumbnailSizeType sse_decode_thumbnail_size_type(
+    SseDeserializer deserializer,
+  );
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -91,10 +258,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_u_8(SseDeserializer deserializer);
 
   @protected
+  void sse_decode_unit(SseDeserializer deserializer);
+
+  @protected
   VideoInfo sse_decode_video_info(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
+  VideoThumbnailParams sse_decode_video_thumbnail_params(
+    SseDeserializer deserializer,
+  );
 
   @protected
   bool sse_decode_bool(SseDeserializer deserializer);
@@ -106,15 +278,60 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  String cst_encode_StreamSink_String_Dco(RustStreamSink<String> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
+  }
+
+  @protected
   String cst_encode_String(String raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
   }
 
   @protected
-  JSAny cst_encode_box_autoadd_thumbnail_params(ThumbnailParams raw) {
+  JSAny cst_encode_box_autoadd_compress_params(CompressParams raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_thumbnail_params(raw);
+    return cst_encode_compress_params(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_image_thumbnail_params(
+    ImageThumbnailParams raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_image_thumbnail_params(raw);
+  }
+
+  @protected
+  int cst_encode_box_autoadd_output_format(OutputFormat raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_output_format(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_record_u_32_u_32((int, int) raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_record_u_32_u_32(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_thumbnail_size_type(ThumbnailSizeType raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_thumbnail_size_type(raw);
+  }
+
+  @protected
+  int cst_encode_box_autoadd_u_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_u_32(raw);
   }
 
   @protected
@@ -124,9 +341,59 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  int cst_encode_box_autoadd_u_8(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_u_8(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_video_thumbnail_params(
+    VideoThumbnailParams raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_video_thumbnail_params(raw);
+  }
+
+  @protected
+  JSAny cst_encode_compress_params(CompressParams raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_32(raw.targetBitrateKbps),
+      cst_encode_opt_String(raw.preset),
+      cst_encode_opt_box_autoadd_u_8(raw.crf),
+      cst_encode_opt_box_autoadd_u_32(raw.width),
+      cst_encode_opt_box_autoadd_u_32(raw.height),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_compression_estimate(CompressionEstimate raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.estimatedSizeBytes),
+      cst_encode_u_64(raw.estimatedDurationMs),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_image_thumbnail_params(ImageThumbnailParams raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_opt_box_autoadd_thumbnail_size_type(raw.sizeType),
+      cst_encode_opt_box_autoadd_output_format(raw.format),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_prim_u_8_strict(Uint8List raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_resolution_preset(List<ResolutionPreset> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_resolution_preset).toList().jsify()!;
   }
 
   @protected
@@ -136,19 +403,88 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  JSAny? cst_encode_opt_box_autoadd_image_thumbnail_params(
+    ImageThumbnailParams? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? null
+        : cst_encode_box_autoadd_image_thumbnail_params(raw);
+  }
+
+  @protected
+  int? cst_encode_opt_box_autoadd_output_format(OutputFormat? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_output_format(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_thumbnail_size_type(
+    ThumbnailSizeType? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_thumbnail_size_type(raw);
+  }
+
+  @protected
+  int? cst_encode_opt_box_autoadd_u_32(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_u_32(raw);
+  }
+
+  @protected
   JSAny? cst_encode_opt_box_autoadd_u_64(BigInt? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_u_64(raw);
   }
 
   @protected
-  JSAny cst_encode_thumbnail_params(ThumbnailParams raw) {
+  int? cst_encode_opt_box_autoadd_u_8(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_u_8(raw);
+  }
+
+  @protected
+  JSAny cst_encode_record_u_32_u_32((int, int) raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_u_32(raw.$1), cst_encode_u_32(raw.$2)].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_resolution_preset(ResolutionPreset raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_u_64(raw.timeMs),
-      cst_encode_u_32(raw.maxWidth),
-      cst_encode_u_32(raw.maxHeight)
+      cst_encode_String(raw.name),
+      cst_encode_u_32(raw.width),
+      cst_encode_u_32(raw.height),
+      cst_encode_u_64(raw.bitrate),
+      cst_encode_u_8(raw.crf),
     ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_thumbnail_size_type(ThumbnailSizeType raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    if (raw is ThumbnailSizeType_Icon) {
+      return [0].jsify()!;
+    }
+    if (raw is ThumbnailSizeType_Small) {
+      return [1].jsify()!;
+    }
+    if (raw is ThumbnailSizeType_Medium) {
+      return [2].jsify()!;
+    }
+    if (raw is ThumbnailSizeType_Large) {
+      return [3].jsify()!;
+    }
+    if (raw is ThumbnailSizeType_Larger) {
+      return [4].jsify()!;
+    }
+    if (raw is ThumbnailSizeType_Custom) {
+      return [5, cst_encode_box_autoadd_record_u_32_u_32(raw.field0)].jsify()!;
+    }
+
+    throw Exception('unreachable');
   }
 
   @protected
@@ -167,9 +503,26 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       cst_encode_u_64(raw.sizeBytes),
       cst_encode_opt_box_autoadd_u_64(raw.bitrate),
       cst_encode_opt_String(raw.codecName),
-      cst_encode_opt_String(raw.formatName)
+      cst_encode_opt_String(raw.formatName),
+      cst_encode_list_resolution_preset(raw.suggestions),
     ].jsify()!;
   }
+
+  @protected
+  JSAny cst_encode_video_thumbnail_params(VideoThumbnailParams raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.timeMs),
+      cst_encode_opt_box_autoadd_thumbnail_size_type(raw.sizeType),
+      cst_encode_opt_box_autoadd_output_format(raw.format),
+    ].jsify()!;
+  }
+
+  @protected
+  int cst_encode_i_32(int raw);
+
+  @protected
+  int cst_encode_output_format(OutputFormat raw);
 
   @protected
   int cst_encode_u_32(int raw);
@@ -178,32 +531,148 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int cst_encode_u_8(int raw);
 
   @protected
+  void cst_encode_unit(void raw);
+
+  @protected
   void sse_encode_AnyhowException(
-      AnyhowException self, SseSerializer serializer);
+    AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_String_Dco(
+    RustStreamSink<String> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_thumbnail_params(
-      ThumbnailParams self, SseSerializer serializer);
+  void sse_encode_box_autoadd_compress_params(
+    CompressParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_image_thumbnail_params(
+    ImageThumbnailParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_output_format(
+    OutputFormat self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_record_u_32_u_32(
+    (int, int) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_thumbnail_size_type(
+    ThumbnailSizeType self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_u_8(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_video_thumbnail_params(
+    VideoThumbnailParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_compress_params(
+    CompressParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_compression_estimate(
+    CompressionEstimate self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_image_thumbnail_params(
+    ImageThumbnailParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
-      Uint8List self, SseSerializer serializer);
+    Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_resolution_preset(
+    List<ResolutionPreset> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_image_thumbnail_params(
+    ImageThumbnailParams? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_output_format(
+    OutputFormat? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_thumbnail_size_type(
+    ThumbnailSizeType? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_thumbnail_params(
-      ThumbnailParams self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_u_8(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_output_format(OutputFormat self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_record_u_32_u_32((int, int) self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_resolution_preset(
+    ResolutionPreset self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_thumbnail_size_type(
+    ThumbnailSizeType self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
@@ -215,10 +684,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_u_8(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
   void sse_encode_video_info(VideoInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
+  void sse_encode_video_thumbnail_params(
+    VideoThumbnailParams self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
@@ -229,14 +704,87 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 class RustLibWire implements BaseWire {
   RustLibWire.fromExternalLibrary(ExternalLibrary lib);
 
-  void wire__crate__api__media__generate_thumbnail(
-          NativePortType port_, String path, JSAny params) =>
-      wasmModule.wire__crate__api__media__generate_thumbnail(
-          port_, path, params);
+  void wire__crate__api__media__compress_video(
+    NativePortType port_,
+    String path,
+    String output_path,
+    JSAny params,
+  ) => wasmModule.wire__crate__api__media__compress_video(
+    port_,
+    path,
+    output_path,
+    params,
+  );
+
+  void wire__crate__api__media__estimate_compression(
+    NativePortType port_,
+    String path,
+    String temp_output_path,
+    JSAny params,
+  ) => wasmModule.wire__crate__api__media__estimate_compression(
+    port_,
+    path,
+    temp_output_path,
+    params,
+  );
+
+  void wire__crate__api__media__generate_image_thumbnail(
+    NativePortType port_,
+    String path,
+    String output_path,
+    JSAny? params,
+  ) => wasmModule.wire__crate__api__media__generate_image_thumbnail(
+    port_,
+    path,
+    output_path,
+    params,
+  );
+
+  void wire__crate__api__media__generate_video_thumbnail(
+    NativePortType port_,
+    String path,
+    String output_path,
+    JSAny params,
+  ) => wasmModule.wire__crate__api__media__generate_video_thumbnail(
+    port_,
+    path,
+    output_path,
+    params,
+  );
+
+  void wire__crate__api__media__generate_video_timeline_thumbnails(
+    NativePortType port_,
+    String path,
+    String output_path,
+    JSAny? params,
+    int num_thumbnails,
+    String sink,
+  ) => wasmModule.wire__crate__api__media__generate_video_timeline_thumbnails(
+    port_,
+    path,
+    output_path,
+    params,
+    num_thumbnails,
+    sink,
+  );
 
   void wire__crate__api__media__get_video_info(
-          NativePortType port_, String path) =>
-      wasmModule.wire__crate__api__media__get_video_info(port_, path);
+    NativePortType port_,
+    String path,
+  ) => wasmModule.wire__crate__api__media__get_video_info(port_, path);
+
+  void wire__crate__api__media__output_format_extension(
+    NativePortType port_,
+    int that,
+  ) => wasmModule.wire__crate__api__media__output_format_extension(port_, that);
+
+  void wire__crate__api__media__thumbnail_size_type_dimensions(
+    NativePortType port_,
+    JSAny that,
+  ) => wasmModule.wire__crate__api__media__thumbnail_size_type_dimensions(
+    port_,
+    that,
+  );
 }
 
 @JS('wasm_bindgen')
@@ -245,9 +793,55 @@ external RustLibWasmModule get wasmModule;
 @JS()
 @anonymous
 extension type RustLibWasmModule._(JSObject _) implements JSObject {
-  external void wire__crate__api__media__generate_thumbnail(
-      NativePortType port_, String path, JSAny params);
+  external void wire__crate__api__media__compress_video(
+    NativePortType port_,
+    String path,
+    String output_path,
+    JSAny params,
+  );
+
+  external void wire__crate__api__media__estimate_compression(
+    NativePortType port_,
+    String path,
+    String temp_output_path,
+    JSAny params,
+  );
+
+  external void wire__crate__api__media__generate_image_thumbnail(
+    NativePortType port_,
+    String path,
+    String output_path,
+    JSAny? params,
+  );
+
+  external void wire__crate__api__media__generate_video_thumbnail(
+    NativePortType port_,
+    String path,
+    String output_path,
+    JSAny params,
+  );
+
+  external void wire__crate__api__media__generate_video_timeline_thumbnails(
+    NativePortType port_,
+    String path,
+    String output_path,
+    JSAny? params,
+    int num_thumbnails,
+    String sink,
+  );
 
   external void wire__crate__api__media__get_video_info(
-      NativePortType port_, String path);
+    NativePortType port_,
+    String path,
+  );
+
+  external void wire__crate__api__media__output_format_extension(
+    NativePortType port_,
+    int that,
+  );
+
+  external void wire__crate__api__media__thumbnail_size_type_dimensions(
+    NativePortType port_,
+    JSAny that,
+  );
 }

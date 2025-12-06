@@ -22,25 +22,96 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<String> dco_decode_StreamSink_String_Dco(dynamic raw);
+
+  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
-  ThumbnailParams dco_decode_box_autoadd_thumbnail_params(dynamic raw);
+  CompressParams dco_decode_box_autoadd_compress_params(dynamic raw);
+
+  @protected
+  ImageThumbnailParams dco_decode_box_autoadd_image_thumbnail_params(
+    dynamic raw,
+  );
+
+  @protected
+  OutputFormat dco_decode_box_autoadd_output_format(dynamic raw);
+
+  @protected
+  (int, int) dco_decode_box_autoadd_record_u_32_u_32(dynamic raw);
+
+  @protected
+  ThumbnailSizeType dco_decode_box_autoadd_thumbnail_size_type(dynamic raw);
+
+  @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw);
 
   @protected
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
+  int dco_decode_box_autoadd_u_8(dynamic raw);
+
+  @protected
+  VideoThumbnailParams dco_decode_box_autoadd_video_thumbnail_params(
+    dynamic raw,
+  );
+
+  @protected
+  CompressParams dco_decode_compress_params(dynamic raw);
+
+  @protected
+  CompressionEstimate dco_decode_compression_estimate(dynamic raw);
+
+  @protected
+  int dco_decode_i_32(dynamic raw);
+
+  @protected
+  ImageThumbnailParams dco_decode_image_thumbnail_params(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  List<ResolutionPreset> dco_decode_list_resolution_preset(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  ImageThumbnailParams? dco_decode_opt_box_autoadd_image_thumbnail_params(
+    dynamic raw,
+  );
+
+  @protected
+  OutputFormat? dco_decode_opt_box_autoadd_output_format(dynamic raw);
+
+  @protected
+  ThumbnailSizeType? dco_decode_opt_box_autoadd_thumbnail_size_type(
+    dynamic raw,
+  );
+
+  @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+
+  @protected
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
-  ThumbnailParams dco_decode_thumbnail_params(dynamic raw);
+  int? dco_decode_opt_box_autoadd_u_8(dynamic raw);
+
+  @protected
+  OutputFormat dco_decode_output_format(dynamic raw);
+
+  @protected
+  (int, int) dco_decode_record_u_32_u_32(dynamic raw);
+
+  @protected
+  ResolutionPreset dco_decode_resolution_preset(dynamic raw);
+
+  @protected
+  ThumbnailSizeType dco_decode_thumbnail_size_type(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -52,32 +123,128 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int dco_decode_u_8(dynamic raw);
 
   @protected
+  void dco_decode_unit(dynamic raw);
+
+  @protected
   VideoInfo dco_decode_video_info(dynamic raw);
+
+  @protected
+  VideoThumbnailParams dco_decode_video_thumbnail_params(dynamic raw);
 
   @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<String> sse_decode_StreamSink_String_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
-  ThumbnailParams sse_decode_box_autoadd_thumbnail_params(
-      SseDeserializer deserializer);
+  CompressParams sse_decode_box_autoadd_compress_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ImageThumbnailParams sse_decode_box_autoadd_image_thumbnail_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OutputFormat sse_decode_box_autoadd_output_format(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  (int, int) sse_decode_box_autoadd_record_u_32_u_32(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ThumbnailSizeType sse_decode_box_autoadd_thumbnail_size_type(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  int sse_decode_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
+  VideoThumbnailParams sse_decode_box_autoadd_video_thumbnail_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  CompressParams sse_decode_compress_params(SseDeserializer deserializer);
+
+  @protected
+  CompressionEstimate sse_decode_compression_estimate(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  ImageThumbnailParams sse_decode_image_thumbnail_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<ResolutionPreset> sse_decode_list_resolution_preset(
+    SseDeserializer deserializer,
+  );
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  ImageThumbnailParams? sse_decode_opt_box_autoadd_image_thumbnail_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OutputFormat? sse_decode_opt_box_autoadd_output_format(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ThumbnailSizeType? sse_decode_opt_box_autoadd_thumbnail_size_type(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
-  ThumbnailParams sse_decode_thumbnail_params(SseDeserializer deserializer);
+  int? sse_decode_opt_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
+  OutputFormat sse_decode_output_format(SseDeserializer deserializer);
+
+  @protected
+  (int, int) sse_decode_record_u_32_u_32(SseDeserializer deserializer);
+
+  @protected
+  ResolutionPreset sse_decode_resolution_preset(SseDeserializer deserializer);
+
+  @protected
+  ThumbnailSizeType sse_decode_thumbnail_size_type(
+    SseDeserializer deserializer,
+  );
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -89,19 +256,40 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_u_8(SseDeserializer deserializer);
 
   @protected
+  void sse_decode_unit(SseDeserializer deserializer);
+
+  @protected
   VideoInfo sse_decode_video_info(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
+  VideoThumbnailParams sse_decode_video_thumbnail_params(
+    SseDeserializer deserializer,
+  );
 
   @protected
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(
-      AnyhowException raw) {
+    AnyhowException raw,
+  ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     throw UnimplementedError();
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_StreamSink_String_Dco(
+    RustStreamSink<String> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
   }
 
   @protected
@@ -111,12 +299,56 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  ffi.Pointer<wire_cst_thumbnail_params>
-      cst_encode_box_autoadd_thumbnail_params(ThumbnailParams raw) {
+  ffi.Pointer<wire_cst_compress_params> cst_encode_box_autoadd_compress_params(
+    CompressParams raw,
+  ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ptr = wire.cst_new_box_autoadd_thumbnail_params();
-    cst_api_fill_to_wire_thumbnail_params(raw, ptr.ref);
+    final ptr = wire.cst_new_box_autoadd_compress_params();
+    cst_api_fill_to_wire_compress_params(raw, ptr.ref);
     return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_image_thumbnail_params>
+  cst_encode_box_autoadd_image_thumbnail_params(ImageThumbnailParams raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_image_thumbnail_params();
+    cst_api_fill_to_wire_image_thumbnail_params(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_output_format(
+    OutputFormat raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_output_format(
+      cst_encode_output_format(raw),
+    );
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_record_u_32_u_32>
+  cst_encode_box_autoadd_record_u_32_u_32((int, int) raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_record_u_32_u_32();
+    cst_api_fill_to_wire_record_u_32_u_32(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_thumbnail_size_type>
+  cst_encode_box_autoadd_thumbnail_size_type(ThumbnailSizeType raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_thumbnail_size_type();
+    cst_api_fill_to_wire_thumbnail_size_type(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint32> cst_encode_box_autoadd_u_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_u_32(cst_encode_u_32(raw));
   }
 
   @protected
@@ -126,8 +358,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  ffi.Pointer<ffi.Uint8> cst_encode_box_autoadd_u_8(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_u_8(cst_encode_u_8(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_video_thumbnail_params>
+  cst_encode_box_autoadd_video_thumbnail_params(VideoThumbnailParams raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_video_thumbnail_params();
+    cst_api_fill_to_wire_video_thumbnail_params(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
-      Uint8List raw) {
+    Uint8List raw,
+  ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
     ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
@@ -135,10 +383,56 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_resolution_preset>
+  cst_encode_list_resolution_preset(List<ResolutionPreset> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_resolution_preset(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_resolution_preset(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(
-      String? raw) {
+    String? raw,
+  ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? ffi.nullptr : cst_encode_String(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_image_thumbnail_params>
+  cst_encode_opt_box_autoadd_image_thumbnail_params(ImageThumbnailParams? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_image_thumbnail_params(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_output_format(
+    OutputFormat? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_output_format(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_thumbnail_size_type>
+  cst_encode_opt_box_autoadd_thumbnail_size_type(ThumbnailSizeType? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_thumbnail_size_type(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint32> cst_encode_opt_box_autoadd_u_32(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_32(raw);
   }
 
   @protected
@@ -148,28 +442,148 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  ffi.Pointer<ffi.Uint8> cst_encode_opt_box_autoadd_u_8(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_8(raw);
+  }
+
+  @protected
   int cst_encode_u_64(BigInt raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.toSigned(64).toInt();
   }
 
   @protected
-  void cst_api_fill_to_wire_box_autoadd_thumbnail_params(
-      ThumbnailParams apiObj, ffi.Pointer<wire_cst_thumbnail_params> wireObj) {
-    cst_api_fill_to_wire_thumbnail_params(apiObj, wireObj.ref);
+  void cst_api_fill_to_wire_box_autoadd_compress_params(
+    CompressParams apiObj,
+    ffi.Pointer<wire_cst_compress_params> wireObj,
+  ) {
+    cst_api_fill_to_wire_compress_params(apiObj, wireObj.ref);
   }
 
   @protected
-  void cst_api_fill_to_wire_thumbnail_params(
-      ThumbnailParams apiObj, wire_cst_thumbnail_params wireObj) {
-    wireObj.time_ms = cst_encode_u_64(apiObj.timeMs);
-    wireObj.max_width = cst_encode_u_32(apiObj.maxWidth);
-    wireObj.max_height = cst_encode_u_32(apiObj.maxHeight);
+  void cst_api_fill_to_wire_box_autoadd_image_thumbnail_params(
+    ImageThumbnailParams apiObj,
+    ffi.Pointer<wire_cst_image_thumbnail_params> wireObj,
+  ) {
+    cst_api_fill_to_wire_image_thumbnail_params(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_record_u_32_u_32(
+    (int, int) apiObj,
+    ffi.Pointer<wire_cst_record_u_32_u_32> wireObj,
+  ) {
+    cst_api_fill_to_wire_record_u_32_u_32(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_thumbnail_size_type(
+    ThumbnailSizeType apiObj,
+    ffi.Pointer<wire_cst_thumbnail_size_type> wireObj,
+  ) {
+    cst_api_fill_to_wire_thumbnail_size_type(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_video_thumbnail_params(
+    VideoThumbnailParams apiObj,
+    ffi.Pointer<wire_cst_video_thumbnail_params> wireObj,
+  ) {
+    cst_api_fill_to_wire_video_thumbnail_params(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_compress_params(
+    CompressParams apiObj,
+    wire_cst_compress_params wireObj,
+  ) {
+    wireObj.target_bitrate_kbps = cst_encode_u_32(apiObj.targetBitrateKbps);
+    wireObj.preset = cst_encode_opt_String(apiObj.preset);
+    wireObj.crf = cst_encode_opt_box_autoadd_u_8(apiObj.crf);
+    wireObj.width = cst_encode_opt_box_autoadd_u_32(apiObj.width);
+    wireObj.height = cst_encode_opt_box_autoadd_u_32(apiObj.height);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_compression_estimate(
+    CompressionEstimate apiObj,
+    wire_cst_compression_estimate wireObj,
+  ) {
+    wireObj.estimated_size_bytes = cst_encode_u_64(apiObj.estimatedSizeBytes);
+    wireObj.estimated_duration_ms = cst_encode_u_64(apiObj.estimatedDurationMs);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_image_thumbnail_params(
+    ImageThumbnailParams apiObj,
+    wire_cst_image_thumbnail_params wireObj,
+  ) {
+    wireObj.size_type = cst_encode_opt_box_autoadd_thumbnail_size_type(
+      apiObj.sizeType,
+    );
+    wireObj.format = cst_encode_opt_box_autoadd_output_format(apiObj.format);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_record_u_32_u_32(
+    (int, int) apiObj,
+    wire_cst_record_u_32_u_32 wireObj,
+  ) {
+    wireObj.field0 = cst_encode_u_32(apiObj.$1);
+    wireObj.field1 = cst_encode_u_32(apiObj.$2);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_resolution_preset(
+    ResolutionPreset apiObj,
+    wire_cst_resolution_preset wireObj,
+  ) {
+    wireObj.name = cst_encode_String(apiObj.name);
+    wireObj.width = cst_encode_u_32(apiObj.width);
+    wireObj.height = cst_encode_u_32(apiObj.height);
+    wireObj.bitrate = cst_encode_u_64(apiObj.bitrate);
+    wireObj.crf = cst_encode_u_8(apiObj.crf);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_thumbnail_size_type(
+    ThumbnailSizeType apiObj,
+    wire_cst_thumbnail_size_type wireObj,
+  ) {
+    if (apiObj is ThumbnailSizeType_Icon) {
+      wireObj.tag = 0;
+      return;
+    }
+    if (apiObj is ThumbnailSizeType_Small) {
+      wireObj.tag = 1;
+      return;
+    }
+    if (apiObj is ThumbnailSizeType_Medium) {
+      wireObj.tag = 2;
+      return;
+    }
+    if (apiObj is ThumbnailSizeType_Large) {
+      wireObj.tag = 3;
+      return;
+    }
+    if (apiObj is ThumbnailSizeType_Larger) {
+      wireObj.tag = 4;
+      return;
+    }
+    if (apiObj is ThumbnailSizeType_Custom) {
+      var pre_field0 = cst_encode_box_autoadd_record_u_32_u_32(apiObj.field0);
+      wireObj.tag = 5;
+      wireObj.kind.Custom.field0 = pre_field0;
+      return;
+    }
   }
 
   @protected
   void cst_api_fill_to_wire_video_info(
-      VideoInfo apiObj, wire_cst_video_info wireObj) {
+    VideoInfo apiObj,
+    wire_cst_video_info wireObj,
+  ) {
     wireObj.duration_ms = cst_encode_u_64(apiObj.durationMs);
     wireObj.width = cst_encode_u_32(apiObj.width);
     wireObj.height = cst_encode_u_32(apiObj.height);
@@ -177,7 +591,26 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     wireObj.bitrate = cst_encode_opt_box_autoadd_u_64(apiObj.bitrate);
     wireObj.codec_name = cst_encode_opt_String(apiObj.codecName);
     wireObj.format_name = cst_encode_opt_String(apiObj.formatName);
+    wireObj.suggestions = cst_encode_list_resolution_preset(apiObj.suggestions);
   }
+
+  @protected
+  void cst_api_fill_to_wire_video_thumbnail_params(
+    VideoThumbnailParams apiObj,
+    wire_cst_video_thumbnail_params wireObj,
+  ) {
+    wireObj.time_ms = cst_encode_u_64(apiObj.timeMs);
+    wireObj.size_type = cst_encode_opt_box_autoadd_thumbnail_size_type(
+      apiObj.sizeType,
+    );
+    wireObj.format = cst_encode_opt_box_autoadd_output_format(apiObj.format);
+  }
+
+  @protected
+  int cst_encode_i_32(int raw);
+
+  @protected
+  int cst_encode_output_format(OutputFormat raw);
 
   @protected
   int cst_encode_u_32(int raw);
@@ -186,32 +619,148 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int cst_encode_u_8(int raw);
 
   @protected
+  void cst_encode_unit(void raw);
+
+  @protected
   void sse_encode_AnyhowException(
-      AnyhowException self, SseSerializer serializer);
+    AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_String_Dco(
+    RustStreamSink<String> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_thumbnail_params(
-      ThumbnailParams self, SseSerializer serializer);
+  void sse_encode_box_autoadd_compress_params(
+    CompressParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_image_thumbnail_params(
+    ImageThumbnailParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_output_format(
+    OutputFormat self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_record_u_32_u_32(
+    (int, int) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_thumbnail_size_type(
+    ThumbnailSizeType self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_u_8(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_video_thumbnail_params(
+    VideoThumbnailParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_compress_params(
+    CompressParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_compression_estimate(
+    CompressionEstimate self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_image_thumbnail_params(
+    ImageThumbnailParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
-      Uint8List self, SseSerializer serializer);
+    Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_resolution_preset(
+    List<ResolutionPreset> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_image_thumbnail_params(
+    ImageThumbnailParams? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_output_format(
+    OutputFormat? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_thumbnail_size_type(
+    ThumbnailSizeType? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_thumbnail_params(
-      ThumbnailParams self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_u_8(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_output_format(OutputFormat self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_record_u_32_u_32((int, int) self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_resolution_preset(
+    ResolutionPreset self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_thumbnail_size_type(
+    ThumbnailSizeType self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
@@ -223,10 +772,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_u_8(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
   void sse_encode_video_info(VideoInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
+  void sse_encode_video_thumbnail_params(
+    VideoThumbnailParams self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
@@ -247,11 +802,11 @@ class RustLibWire implements BaseWire {
 
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-      _lookup;
+  _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
   RustLibWire(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+    : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
   RustLibWire.fromLookup(
@@ -264,33 +819,200 @@ class RustLibWire implements BaseWire {
 
   late final _store_dart_post_cobjectPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(DartPostCObjectFnType)>>(
-    'store_dart_post_cobject',
-  );
+        'store_dart_post_cobject',
+      );
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
 
-  void wire__crate__api__media__generate_thumbnail(
+  void wire__crate__api__media__compress_video(
     int port_,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
-    ffi.Pointer<wire_cst_thumbnail_params> params,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> output_path,
+    ffi.Pointer<wire_cst_compress_params> params,
   ) {
-    return _wire__crate__api__media__generate_thumbnail(port_, path, params);
+    return _wire__crate__api__media__compress_video(
+      port_,
+      path,
+      output_path,
+      params,
+    );
   }
 
-  late final _wire__crate__api__media__generate_thumbnailPtr = _lookup<
-      ffi.NativeFunction<
+  late final _wire__crate__api__media__compress_videoPtr =
+      _lookup<
+        ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_thumbnail_params>,
-          )>>('frbgen_media_wire__crate__api__media__generate_thumbnail');
-  late final _wire__crate__api__media__generate_thumbnail =
-      _wire__crate__api__media__generate_thumbnailPtr.asFunction<
-          void Function(
-            int,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_thumbnail_params>,
-          )>();
+            ffi.Pointer<wire_cst_compress_params>,
+          )
+        >
+      >('frbgen_media_wire__crate__api__media__compress_video');
+  late final _wire__crate__api__media__compress_video =
+      _wire__crate__api__media__compress_videoPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_compress_params>,
+            )
+          >();
+
+  void wire__crate__api__media__estimate_compression(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> temp_output_path,
+    ffi.Pointer<wire_cst_compress_params> params,
+  ) {
+    return _wire__crate__api__media__estimate_compression(
+      port_,
+      path,
+      temp_output_path,
+      params,
+    );
+  }
+
+  late final _wire__crate__api__media__estimate_compressionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_compress_params>,
+          )
+        >
+      >('frbgen_media_wire__crate__api__media__estimate_compression');
+  late final _wire__crate__api__media__estimate_compression =
+      _wire__crate__api__media__estimate_compressionPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_compress_params>,
+            )
+          >();
+
+  void wire__crate__api__media__generate_image_thumbnail(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> output_path,
+    ffi.Pointer<wire_cst_image_thumbnail_params> params,
+  ) {
+    return _wire__crate__api__media__generate_image_thumbnail(
+      port_,
+      path,
+      output_path,
+      params,
+    );
+  }
+
+  late final _wire__crate__api__media__generate_image_thumbnailPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_image_thumbnail_params>,
+          )
+        >
+      >('frbgen_media_wire__crate__api__media__generate_image_thumbnail');
+  late final _wire__crate__api__media__generate_image_thumbnail =
+      _wire__crate__api__media__generate_image_thumbnailPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_image_thumbnail_params>,
+            )
+          >();
+
+  void wire__crate__api__media__generate_video_thumbnail(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> output_path,
+    ffi.Pointer<wire_cst_video_thumbnail_params> params,
+  ) {
+    return _wire__crate__api__media__generate_video_thumbnail(
+      port_,
+      path,
+      output_path,
+      params,
+    );
+  }
+
+  late final _wire__crate__api__media__generate_video_thumbnailPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_video_thumbnail_params>,
+          )
+        >
+      >('frbgen_media_wire__crate__api__media__generate_video_thumbnail');
+  late final _wire__crate__api__media__generate_video_thumbnail =
+      _wire__crate__api__media__generate_video_thumbnailPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_video_thumbnail_params>,
+            )
+          >();
+
+  void wire__crate__api__media__generate_video_timeline_thumbnails(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> output_path,
+    ffi.Pointer<wire_cst_image_thumbnail_params> params,
+    int num_thumbnails,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> sink,
+  ) {
+    return _wire__crate__api__media__generate_video_timeline_thumbnails(
+      port_,
+      path,
+      output_path,
+      params,
+      num_thumbnails,
+      sink,
+    );
+  }
+
+  late final _wire__crate__api__media__generate_video_timeline_thumbnailsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_image_thumbnail_params>,
+            ffi.Uint32,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >(
+        'frbgen_media_wire__crate__api__media__generate_video_timeline_thumbnails',
+      );
+  late final _wire__crate__api__media__generate_video_timeline_thumbnails =
+      _wire__crate__api__media__generate_video_timeline_thumbnailsPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_image_thumbnail_params>,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
 
   void wire__crate__api__media__get_video_info(
     int port_,
@@ -299,28 +1021,135 @@ class RustLibWire implements BaseWire {
     return _wire__crate__api__media__get_video_info(port_, path);
   }
 
-  late final _wire__crate__api__media__get_video_infoPtr = _lookup<
-      ffi.NativeFunction<
+  late final _wire__crate__api__media__get_video_infoPtr =
+      _lookup<
+        ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )>>('frbgen_media_wire__crate__api__media__get_video_info');
+          )
+        >
+      >('frbgen_media_wire__crate__api__media__get_video_info');
   late final _wire__crate__api__media__get_video_info =
-      _wire__crate__api__media__get_video_infoPtr.asFunction<
-          void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
+      _wire__crate__api__media__get_video_infoPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
 
-  ffi.Pointer<wire_cst_thumbnail_params>
-      cst_new_box_autoadd_thumbnail_params() {
-    return _cst_new_box_autoadd_thumbnail_params();
+  void wire__crate__api__media__output_format_extension(int port_, int that) {
+    return _wire__crate__api__media__output_format_extension(port_, that);
   }
 
-  late final _cst_new_box_autoadd_thumbnail_paramsPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Pointer<wire_cst_thumbnail_params> Function()>>(
-      'frbgen_media_cst_new_box_autoadd_thumbnail_params');
-  late final _cst_new_box_autoadd_thumbnail_params =
-      _cst_new_box_autoadd_thumbnail_paramsPtr
-          .asFunction<ffi.Pointer<wire_cst_thumbnail_params> Function()>();
+  late final _wire__crate__api__media__output_format_extensionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+        'frbgen_media_wire__crate__api__media__output_format_extension',
+      );
+  late final _wire__crate__api__media__output_format_extension =
+      _wire__crate__api__media__output_format_extensionPtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__api__media__thumbnail_size_type_dimensions(
+    int port_,
+    ffi.Pointer<wire_cst_thumbnail_size_type> that,
+  ) {
+    return _wire__crate__api__media__thumbnail_size_type_dimensions(
+      port_,
+      that,
+    );
+  }
+
+  late final _wire__crate__api__media__thumbnail_size_type_dimensionsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_thumbnail_size_type>,
+          )
+        >
+      >('frbgen_media_wire__crate__api__media__thumbnail_size_type_dimensions');
+  late final _wire__crate__api__media__thumbnail_size_type_dimensions =
+      _wire__crate__api__media__thumbnail_size_type_dimensionsPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_thumbnail_size_type>)
+          >();
+
+  ffi.Pointer<wire_cst_compress_params> cst_new_box_autoadd_compress_params() {
+    return _cst_new_box_autoadd_compress_params();
+  }
+
+  late final _cst_new_box_autoadd_compress_paramsPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_compress_params> Function()>
+      >('frbgen_media_cst_new_box_autoadd_compress_params');
+  late final _cst_new_box_autoadd_compress_params =
+      _cst_new_box_autoadd_compress_paramsPtr
+          .asFunction<ffi.Pointer<wire_cst_compress_params> Function()>();
+
+  ffi.Pointer<wire_cst_image_thumbnail_params>
+  cst_new_box_autoadd_image_thumbnail_params() {
+    return _cst_new_box_autoadd_image_thumbnail_params();
+  }
+
+  late final _cst_new_box_autoadd_image_thumbnail_paramsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_image_thumbnail_params> Function()
+        >
+      >('frbgen_media_cst_new_box_autoadd_image_thumbnail_params');
+  late final _cst_new_box_autoadd_image_thumbnail_params =
+      _cst_new_box_autoadd_image_thumbnail_paramsPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_image_thumbnail_params> Function()
+          >();
+
+  ffi.Pointer<ffi.Int32> cst_new_box_autoadd_output_format(int value) {
+    return _cst_new_box_autoadd_output_format(value);
+  }
+
+  late final _cst_new_box_autoadd_output_formatPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
+        'frbgen_media_cst_new_box_autoadd_output_format',
+      );
+  late final _cst_new_box_autoadd_output_format =
+      _cst_new_box_autoadd_output_formatPtr
+          .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
+  ffi.Pointer<wire_cst_record_u_32_u_32>
+  cst_new_box_autoadd_record_u_32_u_32() {
+    return _cst_new_box_autoadd_record_u_32_u_32();
+  }
+
+  late final _cst_new_box_autoadd_record_u_32_u_32Ptr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_record_u_32_u_32> Function()>
+      >('frbgen_media_cst_new_box_autoadd_record_u_32_u_32');
+  late final _cst_new_box_autoadd_record_u_32_u_32 =
+      _cst_new_box_autoadd_record_u_32_u_32Ptr
+          .asFunction<ffi.Pointer<wire_cst_record_u_32_u_32> Function()>();
+
+  ffi.Pointer<wire_cst_thumbnail_size_type>
+  cst_new_box_autoadd_thumbnail_size_type() {
+    return _cst_new_box_autoadd_thumbnail_size_type();
+  }
+
+  late final _cst_new_box_autoadd_thumbnail_size_typePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_thumbnail_size_type> Function()>
+      >('frbgen_media_cst_new_box_autoadd_thumbnail_size_type');
+  late final _cst_new_box_autoadd_thumbnail_size_type =
+      _cst_new_box_autoadd_thumbnail_size_typePtr
+          .asFunction<ffi.Pointer<wire_cst_thumbnail_size_type> Function()>();
+
+  ffi.Pointer<ffi.Uint32> cst_new_box_autoadd_u_32(int value) {
+    return _cst_new_box_autoadd_u_32(value);
+  }
+
+  late final _cst_new_box_autoadd_u_32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint32> Function(ffi.Uint32)>>(
+        'frbgen_media_cst_new_box_autoadd_u_32',
+      );
+  late final _cst_new_box_autoadd_u_32 = _cst_new_box_autoadd_u_32Ptr
+      .asFunction<ffi.Pointer<ffi.Uint32> Function(int)>();
 
   ffi.Pointer<ffi.Uint64> cst_new_box_autoadd_u_64(int value) {
     return _cst_new_box_autoadd_u_64(value);
@@ -328,10 +1157,38 @@ class RustLibWire implements BaseWire {
 
   late final _cst_new_box_autoadd_u_64Ptr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint64> Function(ffi.Uint64)>>(
-    'frbgen_media_cst_new_box_autoadd_u_64',
-  );
+        'frbgen_media_cst_new_box_autoadd_u_64',
+      );
   late final _cst_new_box_autoadd_u_64 = _cst_new_box_autoadd_u_64Ptr
       .asFunction<ffi.Pointer<ffi.Uint64> Function(int)>();
+
+  ffi.Pointer<ffi.Uint8> cst_new_box_autoadd_u_8(int value) {
+    return _cst_new_box_autoadd_u_8(value);
+  }
+
+  late final _cst_new_box_autoadd_u_8Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint8> Function(ffi.Uint8)>>(
+        'frbgen_media_cst_new_box_autoadd_u_8',
+      );
+  late final _cst_new_box_autoadd_u_8 = _cst_new_box_autoadd_u_8Ptr
+      .asFunction<ffi.Pointer<ffi.Uint8> Function(int)>();
+
+  ffi.Pointer<wire_cst_video_thumbnail_params>
+  cst_new_box_autoadd_video_thumbnail_params() {
+    return _cst_new_box_autoadd_video_thumbnail_params();
+  }
+
+  late final _cst_new_box_autoadd_video_thumbnail_paramsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_video_thumbnail_params> Function()
+        >
+      >('frbgen_media_cst_new_box_autoadd_video_thumbnail_params');
+  late final _cst_new_box_autoadd_video_thumbnail_params =
+      _cst_new_box_autoadd_video_thumbnail_paramsPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_video_thumbnail_params> Function()
+          >();
 
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
     int len,
@@ -339,67 +1196,32 @@ class RustLibWire implements BaseWire {
     return _cst_new_list_prim_u_8_strict(len);
   }
 
-  late final _cst_new_list_prim_u_8_strictPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(
-              ffi.Int32)>>('frbgen_media_cst_new_list_prim_u_8_strict');
+  late final _cst_new_list_prim_u_8_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(ffi.Int32)
+        >
+      >('frbgen_media_cst_new_list_prim_u_8_strict');
   late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
       .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
 
-  ffi.Pointer<CVideoInfo> media_get_video_info(ffi.Pointer<ffi.Char> path) {
-    return _media_get_video_info(path);
-  }
-
-  late final _media_get_video_infoPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<CVideoInfo> Function(
-              ffi.Pointer<ffi.Char>)>>('media_get_video_info');
-  late final _media_get_video_info = _media_get_video_infoPtr
-      .asFunction<ffi.Pointer<CVideoInfo> Function(ffi.Pointer<ffi.Char>)>();
-
-  ffi.Pointer<CBuffer> media_generate_thumbnail(
-    ffi.Pointer<ffi.Char> path,
-    int time_ms,
-    int max_width,
-    int max_height,
+  ffi.Pointer<wire_cst_list_resolution_preset> cst_new_list_resolution_preset(
+    int len,
   ) {
-    return _media_generate_thumbnail(path, time_ms, max_width, max_height);
+    return _cst_new_list_resolution_preset(len);
   }
 
-  late final _media_generate_thumbnailPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<CBuffer> Function(
-            ffi.Pointer<ffi.Char>,
-            ffi.Uint64,
-            ffi.Uint32,
-            ffi.Uint32,
-          )>>('media_generate_thumbnail');
-  late final _media_generate_thumbnail =
-      _media_generate_thumbnailPtr.asFunction<
-          ffi.Pointer<CBuffer> Function(
-              ffi.Pointer<ffi.Char>, int, int, int)>();
-
-  void media_free_video_info(ffi.Pointer<CVideoInfo> ptr) {
-    return _media_free_video_info(ptr);
-  }
-
-  late final _media_free_video_infoPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<CVideoInfo>)>>(
-    'media_free_video_info',
-  );
-  late final _media_free_video_info = _media_free_video_infoPtr
-      .asFunction<void Function(ffi.Pointer<CVideoInfo>)>();
-
-  void media_free_buffer(ffi.Pointer<CBuffer> ptr) {
-    return _media_free_buffer(ptr);
-  }
-
-  late final _media_free_bufferPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<CBuffer>)>>(
-    'media_free_buffer',
-  );
-  late final _media_free_buffer =
-      _media_free_bufferPtr.asFunction<void Function(ffi.Pointer<CBuffer>)>();
+  late final _cst_new_list_resolution_presetPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_resolution_preset> Function(ffi.Int32)
+        >
+      >('frbgen_media_cst_new_list_resolution_preset');
+  late final _cst_new_list_resolution_preset =
+      _cst_new_list_resolution_presetPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_resolution_preset> Function(int)
+          >();
 
   int dummy_method_to_enforce_bundling() {
     return _dummy_method_to_enforce_bundling();
@@ -407,20 +1229,20 @@ class RustLibWire implements BaseWire {
 
   late final _dummy_method_to_enforce_bundlingPtr =
       _lookup<ffi.NativeFunction<ffi.Int64 Function()>>(
-    'dummy_method_to_enforce_bundling',
-  );
+        'dummy_method_to_enforce_bundling',
+      );
   late final _dummy_method_to_enforce_bundling =
       _dummy_method_to_enforce_bundlingPtr.asFunction<int Function()>();
 }
 
 typedef DartPort = ffi.Int64;
 typedef DartDartPort = int;
-typedef DartPostCObjectFnTypeFunction = ffi.Bool Function(
-    DartPort port_id, ffi.Pointer<ffi.Void> message);
-typedef DartDartPostCObjectFnTypeFunction = bool Function(
-    DartDartPort port_id, ffi.Pointer<ffi.Void> message);
-typedef DartPostCObjectFnType
-    = ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
+typedef DartPostCObjectFnTypeFunction =
+    ffi.Bool Function(DartPort port_id, ffi.Pointer<ffi.Void> message);
+typedef DartDartPostCObjectFnTypeFunction =
+    bool Function(DartDartPort port_id, ffi.Pointer<ffi.Void> message);
+typedef DartPostCObjectFnType =
+    ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
 
 final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
@@ -429,20 +1251,59 @@ final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
   external int len;
 }
 
-final class wire_cst_thumbnail_params extends ffi.Struct {
+final class wire_cst_compress_params extends ffi.Struct {
+  @ffi.Uint32()
+  external int target_bitrate_kbps;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> preset;
+
+  external ffi.Pointer<ffi.Uint8> crf;
+
+  external ffi.Pointer<ffi.Uint32> width;
+
+  external ffi.Pointer<ffi.Uint32> height;
+}
+
+final class wire_cst_record_u_32_u_32 extends ffi.Struct {
+  @ffi.Uint32()
+  external int field0;
+
+  @ffi.Uint32()
+  external int field1;
+}
+
+final class wire_cst_ThumbnailSizeType_Custom extends ffi.Struct {
+  external ffi.Pointer<wire_cst_record_u_32_u_32> field0;
+}
+
+final class ThumbnailSizeTypeKind extends ffi.Union {
+  external wire_cst_ThumbnailSizeType_Custom Custom;
+}
+
+final class wire_cst_thumbnail_size_type extends ffi.Struct {
+  @ffi.Int32()
+  external int tag;
+
+  external ThumbnailSizeTypeKind kind;
+}
+
+final class wire_cst_image_thumbnail_params extends ffi.Struct {
+  external ffi.Pointer<wire_cst_thumbnail_size_type> size_type;
+
+  external ffi.Pointer<ffi.Int32> format;
+}
+
+final class wire_cst_video_thumbnail_params extends ffi.Struct {
   @ffi.Uint64()
   external int time_ms;
 
-  @ffi.Uint32()
-  external int max_width;
+  external ffi.Pointer<wire_cst_thumbnail_size_type> size_type;
 
-  @ffi.Uint32()
-  external int max_height;
+  external ffi.Pointer<ffi.Int32> format;
 }
 
-final class CVideoInfo extends ffi.Struct {
-  @ffi.Uint64()
-  external int duration_ms;
+final class wire_cst_resolution_preset extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
 
   @ffi.Uint32()
   external int width;
@@ -451,24 +1312,25 @@ final class CVideoInfo extends ffi.Struct {
   external int height;
 
   @ffi.Uint64()
-  external int size_bytes;
-
-  @ffi.Bool()
-  external bool has_bitrate;
-
-  @ffi.Uint64()
   external int bitrate;
 
-  external ffi.Pointer<ffi.Char> codec_name;
-
-  external ffi.Pointer<ffi.Char> format_name;
+  @ffi.Uint8()
+  external int crf;
 }
 
-final class CBuffer extends ffi.Struct {
-  external ffi.Pointer<ffi.Uint8> data;
+final class wire_cst_list_resolution_preset extends ffi.Struct {
+  external ffi.Pointer<wire_cst_resolution_preset> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_compression_estimate extends ffi.Struct {
+  @ffi.Uint64()
+  external int estimated_size_bytes;
 
   @ffi.Uint64()
-  external int len;
+  external int estimated_duration_ms;
 }
 
 final class wire_cst_video_info extends ffi.Struct {
@@ -489,4 +1351,6 @@ final class wire_cst_video_info extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> codec_name;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> format_name;
+
+  external ffi.Pointer<wire_cst_list_resolution_preset> suggestions;
 }

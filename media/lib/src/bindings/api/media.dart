@@ -5,42 +5,201 @@
 
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
+part 'media.freezed.dart';
 
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `CompressParams`, `CompressProgress`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `CompressProgress`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Exposed via FRB
 Future<VideoInfo> getVideoInfo({required String path}) =>
     RustLib.instance.api.crateApiMediaGetVideoInfo(path: path);
 
-/// returns PNG bytes of a thumbnail
-Future<Uint8List> generateThumbnail(
-        {required String path, required ThumbnailParams params}) =>
-    RustLib.instance.api
-        .crateApiMediaGenerateThumbnail(path: path, params: params);
+Future<String> generateVideoThumbnail({
+  required String path,
+  required String outputPath,
+  required VideoThumbnailParams params,
+}) => RustLib.instance.api.crateApiMediaGenerateVideoThumbnail(
+  path: path,
+  outputPath: outputPath,
+  params: params,
+);
 
-class ThumbnailParams {
-  final BigInt timeMs;
-  final int maxWidth;
-  final int maxHeight;
+Stream<String> generateVideoTimelineThumbnails({
+  required String path,
+  required String outputPath,
+  ImageThumbnailParams? params,
+  required int numThumbnails,
+}) => RustLib.instance.api.crateApiMediaGenerateVideoTimelineThumbnails(
+  path: path,
+  outputPath: outputPath,
+  params: params,
+  numThumbnails: numThumbnails,
+);
 
-  const ThumbnailParams({
-    required this.timeMs,
-    required this.maxWidth,
-    required this.maxHeight,
+Future<String> generateImageThumbnail({
+  required String path,
+  required String outputPath,
+  ImageThumbnailParams? params,
+}) => RustLib.instance.api.crateApiMediaGenerateImageThumbnail(
+  path: path,
+  outputPath: outputPath,
+  params: params,
+);
+
+Future<CompressionEstimate> estimateCompression({
+  required String path,
+  required String tempOutputPath,
+  required CompressParams params,
+}) => RustLib.instance.api.crateApiMediaEstimateCompression(
+  path: path,
+  tempOutputPath: tempOutputPath,
+  params: params,
+);
+
+Future<String> compressVideo({
+  required String path,
+  required String outputPath,
+  required CompressParams params,
+}) => RustLib.instance.api.crateApiMediaCompressVideo(
+  path: path,
+  outputPath: outputPath,
+  params: params,
+);
+
+class CompressParams {
+  final int targetBitrateKbps;
+  final String? preset;
+  final int? crf;
+  final int? width;
+  final int? height;
+
+  const CompressParams({
+    required this.targetBitrateKbps,
+    this.preset,
+    this.crf,
+    this.width,
+    this.height,
   });
 
   @override
-  int get hashCode => timeMs.hashCode ^ maxWidth.hashCode ^ maxHeight.hashCode;
+  int get hashCode =>
+      targetBitrateKbps.hashCode ^
+      preset.hashCode ^
+      crf.hashCode ^
+      width.hashCode ^
+      height.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ThumbnailParams &&
+      other is CompressParams &&
           runtimeType == other.runtimeType &&
-          timeMs == other.timeMs &&
-          maxWidth == other.maxWidth &&
-          maxHeight == other.maxHeight;
+          targetBitrateKbps == other.targetBitrateKbps &&
+          preset == other.preset &&
+          crf == other.crf &&
+          width == other.width &&
+          height == other.height;
+}
+
+class CompressionEstimate {
+  final BigInt estimatedSizeBytes;
+  final BigInt estimatedDurationMs;
+
+  const CompressionEstimate({
+    required this.estimatedSizeBytes,
+    required this.estimatedDurationMs,
+  });
+
+  @override
+  int get hashCode =>
+      estimatedSizeBytes.hashCode ^ estimatedDurationMs.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompressionEstimate &&
+          runtimeType == other.runtimeType &&
+          estimatedSizeBytes == other.estimatedSizeBytes &&
+          estimatedDurationMs == other.estimatedDurationMs;
+}
+
+class ImageThumbnailParams {
+  final ThumbnailSizeType? sizeType;
+  final OutputFormat? format;
+
+  const ImageThumbnailParams({this.sizeType, this.format});
+
+  @override
+  int get hashCode => sizeType.hashCode ^ format.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ImageThumbnailParams &&
+          runtimeType == other.runtimeType &&
+          sizeType == other.sizeType &&
+          format == other.format;
+}
+
+enum OutputFormat {
+  webp,
+  jpeg,
+  png;
+
+  Future<void> extension_() =>
+      RustLib.instance.api.crateApiMediaOutputFormatExtension(that: this);
+}
+
+class ResolutionPreset {
+  final String name;
+  final int width;
+  final int height;
+  final BigInt bitrate;
+  final int crf;
+
+  const ResolutionPreset({
+    required this.name,
+    required this.width,
+    required this.height,
+    required this.bitrate,
+    required this.crf,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      width.hashCode ^
+      height.hashCode ^
+      bitrate.hashCode ^
+      crf.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ResolutionPreset &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          width == other.width &&
+          height == other.height &&
+          bitrate == other.bitrate &&
+          crf == other.crf;
+}
+
+@freezed
+sealed class ThumbnailSizeType with _$ThumbnailSizeType {
+  const ThumbnailSizeType._();
+
+  const factory ThumbnailSizeType.icon() = ThumbnailSizeType_Icon;
+  const factory ThumbnailSizeType.small() = ThumbnailSizeType_Small;
+  const factory ThumbnailSizeType.medium() = ThumbnailSizeType_Medium;
+  const factory ThumbnailSizeType.large() = ThumbnailSizeType_Large;
+  const factory ThumbnailSizeType.larger() = ThumbnailSizeType_Larger;
+  const factory ThumbnailSizeType.custom((int, int) field0) =
+      ThumbnailSizeType_Custom;
+
+  Future<(int, int)> dimensions() =>
+      RustLib.instance.api.crateApiMediaThumbnailSizeTypeDimensions(that: this);
 }
 
 class VideoInfo {
@@ -51,6 +210,7 @@ class VideoInfo {
   final BigInt? bitrate;
   final String? codecName;
   final String? formatName;
+  final List<ResolutionPreset> suggestions;
 
   const VideoInfo({
     required this.durationMs,
@@ -60,6 +220,7 @@ class VideoInfo {
     this.bitrate,
     this.codecName,
     this.formatName,
+    required this.suggestions,
   });
 
   @override
@@ -70,7 +231,8 @@ class VideoInfo {
       sizeBytes.hashCode ^
       bitrate.hashCode ^
       codecName.hashCode ^
-      formatName.hashCode;
+      formatName.hashCode ^
+      suggestions.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -83,5 +245,30 @@ class VideoInfo {
           sizeBytes == other.sizeBytes &&
           bitrate == other.bitrate &&
           codecName == other.codecName &&
-          formatName == other.formatName;
+          formatName == other.formatName &&
+          suggestions == other.suggestions;
+}
+
+class VideoThumbnailParams {
+  final BigInt timeMs;
+  final ThumbnailSizeType? sizeType;
+  final OutputFormat? format;
+
+  const VideoThumbnailParams({
+    required this.timeMs,
+    this.sizeType,
+    this.format,
+  });
+
+  @override
+  int get hashCode => timeMs.hashCode ^ sizeType.hashCode ^ format.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VideoThumbnailParams &&
+          runtimeType == other.runtimeType &&
+          timeMs == other.timeMs &&
+          sizeType == other.sizeType &&
+          format == other.format;
 }

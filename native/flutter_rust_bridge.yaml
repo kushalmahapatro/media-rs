@@ -1,0 +1,11 @@
+
+rust_input: crate::api::media
+
+rust_root: ./
+dart_output: ../media/lib/src/bindings/
+c_output: frb_bindings.h
+
+default_external_library_loader_web_prefix: pkg/
+
+full_dep: true  
+

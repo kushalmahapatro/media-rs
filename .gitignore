@@ -1,0 +1,8 @@
+
+# FVM Version Cache
+.fvm/
+native/target/*
+example/.dart_tool/
+example/build/
+media/.dart_tool/
+media/build/

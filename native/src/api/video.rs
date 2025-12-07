@@ -128,17 +128,44 @@ fn generate_resolution_presets(
     presets
 }
 
-pub fn generate_thumbnail(path: &str, params: &VideoThumbnailParams) -> Result<Vec<u8>> {
-    init_ffmpeg()?;
+pub fn generate_empty_thumbnail(
+    size: ThumbnailSizeType,
+    format: OutputFormat,
+    output_path: &PathBuf,
+) -> Result<()> {
+    let (w, h) = size.dimensions();
+    let img = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::new(w, h);
+    let _ = match format {
+        OutputFormat::JPEG => img.save_with_format(&output_path, image::ImageFormat::Jpeg),
+        OutputFormat::PNG => img.save_with_format(&output_path, image::ImageFormat::Png),
+        OutputFormat::WEBP => img.save_with_format(&output_path, image::ImageFormat::WebP),
+    };
 
-    let mut ictx =
-        ffmpeg::format::input(&path).with_context(|| format!("Failed to open input: {}", path))?;
+    Ok(())
+}
 
-    let stream_index = ictx
+pub fn generate_thumbnail(
+    path: &str,
+    params: &VideoThumbnailParams,
+) -> Result<(Vec<u8>, u32, u32), (Error, u32, u32)> {
+    init_ffmpeg().map_err(|e| (e, 0, 0))?;
+
+    let mut ictx = ffmpeg::format::input(&path)
+        .with_context(|| format!("Failed to open input: {}", path))
+        .map_err(|e| (e, 0, 0))?;
+
+    let stream = ictx
         .streams()
         .best(ffmpeg::media::Type::Video)
-        .ok_or_else(|| anyhow::anyhow!("No video stream found"))?
-        .index();
+        .ok_or_else(|| (anyhow::anyhow!("No video stream found"), 0, 0))?;
+
+    let stream_index = stream.index();
+
+    let context = ffmpeg::codec::context::Context::from_parameters(stream.parameters())
+        .map_err(|e| (e.into(), 0, 0))?;
+    let mut decoder = context.decoder().video().map_err(|e| (e.into(), 0, 0))?;
+    let width = decoder.width();
+    let height = decoder.height();
 
     let duration_us = ictx.duration();
 
@@ -152,20 +179,8 @@ pub fn generate_thumbnail(path: &str, params: &VideoThumbnailParams) -> Result<V
         }
     }
 
-    // seek expects timestamp in AV_TIME_BASE if no stream is specified (or implicit default)
-    // Actually rust-ffmpeg `seek` on input context:
-    // "Seek to the given timestamp (in AV_TIME_BASE) in the input stream."
-    ictx.seek(ts, ts..ts)?;
-
-    let mut decoder = {
-        let stream = ictx
-            .stream(stream_index)
-            .ok_or_else(|| anyhow::anyhow!("Video stream not found"))?;
-        let codec_params = stream.parameters();
-        ffmpeg::codec::context::Context::from_parameters(codec_params)?
-            .decoder()
-            .video()?
-    };
+    ictx.seek(ts, ts..ts)
+        .map_err(|e| (e.into(), width, height))?;
 
     let mut scaler = None::<ffmpeg::software::scaling::Context>;
     let mut decoded = ffmpeg::util::frame::video::Video::empty();
@@ -176,7 +191,9 @@ pub fn generate_thumbnail(path: &str, params: &VideoThumbnailParams) -> Result<V
             continue;
         }
 
-        decoder.send_packet(&packet)?;
+        decoder
+            .send_packet(&packet)
+            .map_err(|e| (e.into(), width, height))?;
         while decoder.receive_frame(&mut decoded).is_ok() {
             // lazily init scaler based on real video size
             if scaler.is_none() {
@@ -185,7 +202,7 @@ pub fn generate_thumbnail(path: &str, params: &VideoThumbnailParams) -> Result<V
 
                 let size = params
                     .size_type
-                    .unwrap_or_else(|| ThumbnailSizeType::Medium)
+                    .unwrap_or_else(|| ThumbnailSizeType::Custom((width, height)))
                     .dimensions();
 
                 let (dst_w, dst_h) = scale_to_fit(src_w, src_h, size.0, size.1);
@@ -196,27 +213,40 @@ pub fn generate_thumbnail(path: &str, params: &VideoThumbnailParams) -> Result<V
                     dst_h,
                 );
 
-                scaler = Some(ffmpeg::software::scaling::Context::get(
-                    decoded.format(),
-                    src_w,
-                    src_h,
-                    ffmpeg::format::Pixel::RGB24,
-                    dst_w,
-                    dst_h,
-                    ffmpeg::software::scaling::flag::Flags::BILINEAR,
-                )?);
+                scaler = Some(
+                    ffmpeg::software::scaling::Context::get(
+                        decoded.format(),
+                        src_w,
+                        src_h,
+                        ffmpeg::format::Pixel::RGB24,
+                        dst_w,
+                        dst_h,
+                        ffmpeg::software::scaling::flag::Flags::BILINEAR,
+                    )
+                    .map_err(|e| (e.into(), width, height))?,
+                );
             }
 
             if let Some(ref mut scaler_ctx) = scaler {
                 let output_format = params.format.unwrap_or(OutputFormat::PNG);
-                scaler_ctx.run(&decoded, &mut rgb_frame)?;
+                scaler_ctx
+                    .run(&decoded, &mut rgb_frame)
+                    .map_err(|e| (e.into(), width, height))?;
                 // encode rgb_frame as PNG
-                return encode_png_from_rgb_frame(&rgb_frame, output_format);
+                let result = encode_png_from_rgb_frame(&rgb_frame, output_format)
+                    .map_err(|e| (e.into(), width, height))?;
+
+                // Return result AND dimensions
+                return Ok((result.0, result.1, result.2));
             }
         }
     }
 
-    Err(anyhow::anyhow!("Could not decode frame for thumbnail"))
+    Err((
+        anyhow::anyhow!("Could not decode frame for thumbnail"),
+        width,
+        height,
+    ))
 }
 
 fn scale_to_fit(src_w: u32, src_h: u32, max_w: u32, max_h: u32) -> (u32, u32) {
@@ -239,7 +269,7 @@ fn scale_to_fit(src_w: u32, src_h: u32, max_w: u32, max_h: u32) -> (u32, u32) {
 fn encode_png_from_rgb_frame(
     frame: &ffmpeg::util::frame::video::Video,
     format: OutputFormat,
-) -> Result<Vec<u8>> {
+) -> Result<(Vec<u8>, u32, u32)> {
     use image::codecs::jpeg::JpegEncoder;
     use image::codecs::png::PngEncoder;
     use image::codecs::webp::WebPEncoder;
@@ -280,7 +310,7 @@ fn encode_png_from_rgb_frame(
         }
     }
 
-    Ok(out)
+    Ok((out, width, height))
 }
 
 pub fn get_file_name_without_extension(path: &str) -> PathBuf {
@@ -811,7 +841,6 @@ fn perform_compression(
                 audio_decoder = Some(decoder_ctx);
                 audio_encoder = Some(encoder_opened);
                 audio_resampler = Some(resampler);
-                // audio_fifo = Some(fifo);
             }
         }
     }

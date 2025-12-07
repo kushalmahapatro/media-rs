@@ -98,18 +98,21 @@ void frbgen_media_wire__crate__api__media__estimate_compression(int64_t port_,
 void frbgen_media_wire__crate__api__media__generate_image_thumbnail(int64_t port_,
                                                                     struct wire_cst_list_prim_u_8_strict *path,
                                                                     struct wire_cst_list_prim_u_8_strict *output_path,
-                                                                    struct wire_cst_image_thumbnail_params *params);
+                                                                    struct wire_cst_image_thumbnail_params *params,
+                                                                    struct wire_cst_list_prim_u_8_strict *suffix);
 
 void frbgen_media_wire__crate__api__media__generate_video_thumbnail(int64_t port_,
                                                                     struct wire_cst_list_prim_u_8_strict *path,
                                                                     struct wire_cst_list_prim_u_8_strict *output_path,
-                                                                    struct wire_cst_video_thumbnail_params *params);
+                                                                    struct wire_cst_video_thumbnail_params *params,
+                                                                    bool *empty_image_fallback);
 
 void frbgen_media_wire__crate__api__media__generate_video_timeline_thumbnails(int64_t port_,
                                                                               struct wire_cst_list_prim_u_8_strict *path,
                                                                               struct wire_cst_list_prim_u_8_strict *output_path,
                                                                               struct wire_cst_image_thumbnail_params *params,
                                                                               uint32_t num_thumbnails,
+                                                                              bool *empty_image_fallback,
                                                                               struct wire_cst_list_prim_u_8_strict *sink);
 
 void frbgen_media_wire__crate__api__media__get_video_info(int64_t port_,
@@ -119,6 +122,8 @@ void frbgen_media_wire__crate__api__media__output_format_extension(int64_t port_
 
 void frbgen_media_wire__crate__api__media__thumbnail_size_type_dimensions(int64_t port_,
                                                                           struct wire_cst_thumbnail_size_type *that);
+
+bool *frbgen_media_cst_new_box_autoadd_bool(bool value);
 
 struct wire_cst_compress_params *frbgen_media_cst_new_box_autoadd_compress_params(void);
 
@@ -143,6 +148,7 @@ struct wire_cst_list_prim_u_8_strict *frbgen_media_cst_new_list_prim_u_8_strict(
 struct wire_cst_list_resolution_preset *frbgen_media_cst_new_list_resolution_preset(int32_t len);
 static int64_t dummy_method_to_enforce_bundling(void) {
     int64_t dummy_var = 0;
+    dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_bool);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_compress_params);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_image_thumbnail_params);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_output_format);

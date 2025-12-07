@@ -67,24 +67,24 @@ impl ThumbnailSizeType {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoThumbnailParams {
-    pub time_ms: u64, // position to grab framen
-    pub size_type: Option<ThumbnailSizeType>,
-    pub format: Option<OutputFormat>,
+    pub time_ms: u64,                         // position to grab framen
+    pub size_type: Option<ThumbnailSizeType>, // if None, use default size as per the videos aspect ratio
+    pub format: Option<OutputFormat>,         // defaults to PNG
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ImageThumbnailParams {
-    pub size_type: Option<ThumbnailSizeType>,
-    pub format: Option<OutputFormat>,
+    pub size_type: Option<ThumbnailSizeType>, // if None, use default size as per the aspect ratio
+    pub format: Option<OutputFormat>,         // defaults to PNG
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CompressParams {
-    pub target_bitrate_kbps: u32,
-    pub preset: Option<String>, // e.g. "veryfast"
-    pub crf: Option<u8>,
-    pub width: Option<u32>,
-    pub height: Option<u32>,
+    pub target_bitrate_kbps: u32, // target bitrate in kbps
+    pub preset: Option<String>,   // e.g. "veryfast"
+    pub crf: Option<u8>,          // quality, 0-51, lower is better
+    pub width: Option<u32>,       // if None, use original width
+    pub height: Option<u32>,      // if None, use original height
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -109,8 +109,9 @@ pub async fn generate_video_thumbnail(
     path: String,
     output_path: String,
     params: VideoThumbnailParams,
+    empty_image_fallback: Option<bool>,
 ) -> Result<String, Error> {
-    let thumbnail = video::generate_thumbnail(&path, &params)?;
+    let result = video::generate_thumbnail(&path, &params);
 
     let filename_without_extension = get_file_name_without_extension(&path);
     let base_output_dir = check_output_path(&output_path)?;
@@ -125,9 +126,27 @@ pub async fn generate_video_thumbnail(
     let output_path = base_output_dir.join(output_file_name);
     let output_path_str = output_path.to_string_lossy().to_string();
 
-    std::fs::write(output_path, thumbnail)?;
+    match result {
+        Ok((thumbnail, _, _)) => {
+            std::fs::write(&output_path, thumbnail)?;
+            Ok(output_path_str)
+        }
+        Err((e, w, h)) => {
+            eprintln!("Error generating thumbnail (fallback to empty): {:?}", e);
+            if empty_image_fallback.unwrap_or(false) {
+                let size = if w > 0 && h > 0 {
+                    ThumbnailSizeType::Custom((w, h))
+                } else {
+                    params.size_type.unwrap_or(ThumbnailSizeType::Medium)
+                };
 
-    Ok(output_path_str)
+                video::generate_empty_thumbnail(size, output_format, &output_path)?;
+                Ok(output_path_str)
+            } else {
+                Err(e)
+            }
+        }
+    }
 }
 
 pub fn generate_video_timeline_thumbnails(
@@ -135,6 +154,7 @@ pub fn generate_video_timeline_thumbnails(
     output_path: String,
     params: Option<ImageThumbnailParams>,
     num_thumbnails: u32,
+    empty_image_fallback: Option<bool>,
     sink: StreamSink<String>,
 ) -> anyhow::Result<()> {
     let filename_without_extension = get_file_name_without_extension(&path);
@@ -153,12 +173,16 @@ pub fn generate_video_timeline_thumbnails(
     let time_ms = duration_ms / num_thumbnails as u64;
 
     for i in 0..num_thumbnails {
+        let mut time = time_ms * i as u64;
+        if time > duration_ms {
+            time = duration_ms;
+        }
         let params = VideoThumbnailParams {
-            time_ms: time_ms * i as u64,
+            time_ms: time,
             size_type: Some(size),
             format: Some(output_format),
         };
-        let thumbnail = video::generate_thumbnail(&path, &params).unwrap();
+        let thumbnail = video::generate_thumbnail(&path, &params);
         let output_path = base_output_dir.join(format!(
             "thumbnail_{}_{}.{}",
             filename_without_extension.display(),
@@ -166,9 +190,27 @@ pub fn generate_video_timeline_thumbnails(
             output_format.extension()
         ));
         let output_path_str = output_path.to_string_lossy().to_string();
-        std::fs::write(output_path, thumbnail).unwrap();
-        sink.add(output_path_str)
-            .map_err(|_| anyhow::anyhow!("Sink closed"))?;
+
+        match thumbnail {
+            Ok(thumbnail) => {
+                std::fs::write(&output_path, thumbnail.0).unwrap();
+                sink.add(output_path_str)
+                    .map_err(|_| anyhow::anyhow!("Sink closed"))?;
+            }
+            Err((e, w, h)) => {
+                eprintln!("Error generating thumbnail: {:?}", e);
+                if empty_image_fallback.unwrap_or(false) {
+                    let size = if w > 0 && h > 0 {
+                        ThumbnailSizeType::Custom((w, h))
+                    } else {
+                        size
+                    };
+                    video::generate_empty_thumbnail(size, output_format, &output_path)?;
+                    sink.add(output_path_str)
+                        .map_err(|_| anyhow::anyhow!("Sink closed"))?;
+                }
+            }
+        }
     }
     Ok(())
 }
@@ -177,6 +219,7 @@ pub async fn generate_image_thumbnail(
     path: String,
     output_path: String,
     params: Option<ImageThumbnailParams>,
+    suffix: Option<String>,
 ) -> Result<String, Error> {
     let filename_without_extension = get_file_name_without_extension(&path);
     let base_output_dir = check_output_path(&output_path)?;
@@ -191,10 +234,17 @@ pub async fn generate_image_thumbnail(
         ),
         None => (OutputFormat::PNG, ThumbnailSizeType::Medium.dimensions()),
     };
+    let mut suffix = suffix.unwrap_or_default();
+    if suffix.is_empty() {
+        suffix = "".to_string();
+    } else {
+        suffix = format!("_{}", suffix);
+    }
 
     let output_file_name = format!(
-        "thumbnail_{}.{}",
+        "thumbnail_{}{}.{}",
         filename_without_extension.display(),
+        suffix,
         output_format.extension()
     );
     let output_path = base_output_dir.join(output_file_name);

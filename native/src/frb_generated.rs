@@ -112,6 +112,7 @@ fn wire__crate__api__media__generate_image_thumbnail_impl(
     path: impl CstDecode<String>,
     output_path: impl CstDecode<String>,
     params: impl CstDecode<Option<crate::api::media::ImageThumbnailParams>>,
+    suffix: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -123,6 +124,7 @@ fn wire__crate__api__media__generate_image_thumbnail_impl(
             let api_path = path.cst_decode();
             let api_output_path = output_path.cst_decode();
             let api_params = params.cst_decode();
+            let api_suffix = suffix.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || async move {
@@ -130,6 +132,7 @@ fn wire__crate__api__media__generate_image_thumbnail_impl(
                             api_path,
                             api_output_path,
                             api_params,
+                            api_suffix,
                         )
                         .await?;
                         Ok(output_ok)
@@ -145,6 +148,7 @@ fn wire__crate__api__media__generate_video_thumbnail_impl(
     path: impl CstDecode<String>,
     output_path: impl CstDecode<String>,
     params: impl CstDecode<crate::api::media::VideoThumbnailParams>,
+    empty_image_fallback: impl CstDecode<Option<bool>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -156,6 +160,7 @@ fn wire__crate__api__media__generate_video_thumbnail_impl(
             let api_path = path.cst_decode();
             let api_output_path = output_path.cst_decode();
             let api_params = params.cst_decode();
+            let api_empty_image_fallback = empty_image_fallback.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || async move {
@@ -163,6 +168,7 @@ fn wire__crate__api__media__generate_video_thumbnail_impl(
                             api_path,
                             api_output_path,
                             api_params,
+                            api_empty_image_fallback,
                         )
                         .await?;
                         Ok(output_ok)
@@ -179,6 +185,7 @@ fn wire__crate__api__media__generate_video_timeline_thumbnails_impl(
     output_path: impl CstDecode<String>,
     params: impl CstDecode<Option<crate::api::media::ImageThumbnailParams>>,
     num_thumbnails: impl CstDecode<u32>,
+    empty_image_fallback: impl CstDecode<Option<bool>>,
     sink: impl CstDecode<StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
@@ -192,6 +199,7 @@ fn wire__crate__api__media__generate_video_timeline_thumbnails_impl(
             let api_output_path = output_path.cst_decode();
             let api_params = params.cst_decode();
             let api_num_thumbnails = num_thumbnails.cst_decode();
+            let api_empty_image_fallback = empty_image_fallback.cst_decode();
             let api_sink = sink.cst_decode();
             move |context| {
                 transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
@@ -201,6 +209,7 @@ fn wire__crate__api__media__generate_video_timeline_thumbnails_impl(
                             api_output_path,
                             api_params,
                             api_num_thumbnails,
+                            api_empty_image_fallback,
                             api_sink,
                         )?;
                         Ok(output_ok)
@@ -282,6 +291,12 @@ fn wire__crate__api__media__thumbnail_size_type_dimensions_impl(
 
 // Section: dart2rust
 
+impl CstDecode<bool> for bool {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> bool {
+        self
+    }
+}
 impl CstDecode<i32> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> i32 {
@@ -338,6 +353,13 @@ impl SseDecode for String {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <Vec<u8>>::sse_decode(deserializer);
         return String::from_utf8(inner).unwrap();
+    }
+}
+
+impl SseDecode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u8().unwrap() != 0
     }
 }
 
@@ -422,6 +444,17 @@ impl SseDecode for Option<String> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<bool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<bool>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -632,13 +665,6 @@ impl SseDecode for crate::api::media::VideoThumbnailParams {
             size_type: var_sizeType,
             format: var_format,
         };
-    }
-}
-
-impl SseDecode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_u8().unwrap() != 0
     }
 }
 
@@ -878,6 +904,13 @@ impl SseEncode for String {
     }
 }
 
+impl SseEncode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
 impl SseEncode for crate::api::media::CompressParams {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -938,6 +971,16 @@ impl SseEncode for Option<String> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <String>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<bool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <bool>::sse_encode(value, serializer);
         }
     }
 }
@@ -1117,13 +1160,6 @@ impl SseEncode for crate::api::media::VideoThumbnailParams {
     }
 }
 
-impl SseEncode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_u8(self as _).unwrap();
-    }
-}
-
 #[cfg(not(target_family = "wasm"))]
 mod io {
     // This file is automatically generated, so please do not edit it.
@@ -1166,6 +1202,12 @@ mod io {
         fn cst_decode(self) -> String {
             let vec: Vec<u8> = self.cst_decode();
             String::from_utf8(vec).unwrap()
+        }
+    }
+    impl CstDecode<bool> for *mut bool {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> bool {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
         }
     }
     impl CstDecode<crate::api::media::CompressParams> for *mut wire_cst_compress_params {
@@ -1481,8 +1523,15 @@ mod io {
         path: *mut wire_cst_list_prim_u_8_strict,
         output_path: *mut wire_cst_list_prim_u_8_strict,
         params: *mut wire_cst_image_thumbnail_params,
+        suffix: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__api__media__generate_image_thumbnail_impl(port_, path, output_path, params)
+        wire__crate__api__media__generate_image_thumbnail_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            suffix,
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -1491,8 +1540,15 @@ mod io {
         path: *mut wire_cst_list_prim_u_8_strict,
         output_path: *mut wire_cst_list_prim_u_8_strict,
         params: *mut wire_cst_video_thumbnail_params,
+        empty_image_fallback: *mut bool,
     ) {
-        wire__crate__api__media__generate_video_thumbnail_impl(port_, path, output_path, params)
+        wire__crate__api__media__generate_video_thumbnail_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            empty_image_fallback,
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -1502,6 +1558,7 @@ mod io {
         output_path: *mut wire_cst_list_prim_u_8_strict,
         params: *mut wire_cst_image_thumbnail_params,
         num_thumbnails: u32,
+        empty_image_fallback: *mut bool,
         sink: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__api__media__generate_video_timeline_thumbnails_impl(
@@ -1510,6 +1567,7 @@ mod io {
             output_path,
             params,
             num_thumbnails,
+            empty_image_fallback,
             sink,
         )
     }
@@ -1536,6 +1594,11 @@ mod io {
         that: *mut wire_cst_thumbnail_size_type,
     ) {
         wire__crate__api__media__thumbnail_size_type_dimensions_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_bool(value: bool) -> *mut bool {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
 
     #[unsafe(no_mangle)]
@@ -1963,6 +2026,12 @@ mod web {
             self.as_string().expect("non-UTF-8 string, or not a string")
         }
     }
+    impl CstDecode<bool> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> bool {
+            self.is_truthy()
+        }
+    }
     impl CstDecode<i32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> i32 {
@@ -2030,8 +2099,15 @@ mod web {
         path: String,
         output_path: String,
         params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        suffix: Option<String>,
     ) {
-        wire__crate__api__media__generate_image_thumbnail_impl(port_, path, output_path, params)
+        wire__crate__api__media__generate_image_thumbnail_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            suffix,
+        )
     }
 
     #[wasm_bindgen]
@@ -2040,8 +2116,15 @@ mod web {
         path: String,
         output_path: String,
         params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        empty_image_fallback: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
-        wire__crate__api__media__generate_video_thumbnail_impl(port_, path, output_path, params)
+        wire__crate__api__media__generate_video_thumbnail_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            empty_image_fallback,
+        )
     }
 
     #[wasm_bindgen]
@@ -2051,6 +2134,7 @@ mod web {
         output_path: String,
         params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         num_thumbnails: u32,
+        empty_image_fallback: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         sink: String,
     ) {
         wire__crate__api__media__generate_video_timeline_thumbnails_impl(
@@ -2059,6 +2143,7 @@ mod web {
             output_path,
             params,
             num_thumbnails,
+            empty_image_fallback,
             sink,
         )
     }

@@ -28,6 +28,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
+  bool dco_decode_bool(dynamic raw);
+
+  @protected
+  bool dco_decode_box_autoadd_bool(dynamic raw);
+
+  @protected
   CompressParams dco_decode_box_autoadd_compress_params(dynamic raw);
 
   @protected
@@ -78,6 +84,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
+
+  @protected
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
 
   @protected
   ImageThumbnailParams? dco_decode_opt_box_autoadd_image_thumbnail_params(
@@ -141,6 +150,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
+
+  @protected
+  bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
   CompressParams sse_decode_box_autoadd_compress_params(
@@ -209,6 +224,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
+
+  @protected
   ImageThumbnailParams? sse_decode_opt_box_autoadd_image_thumbnail_params(
     SseDeserializer deserializer,
   );
@@ -267,9 +285,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
-
-  @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(
     AnyhowException raw,
   ) {
@@ -296,6 +311,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Bool> cst_encode_box_autoadd_bool(bool raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_bool(cst_encode_bool(raw));
   }
 
   @protected
@@ -399,6 +420,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? ffi.nullptr : cst_encode_String(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Bool> cst_encode_opt_box_autoadd_bool(bool? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_bool(raw);
   }
 
   @protected
@@ -607,6 +634,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  bool cst_encode_bool(bool raw);
+
+  @protected
   int cst_encode_i_32(int raw);
 
   @protected
@@ -635,6 +665,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_compress_params(
@@ -718,6 +754,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_image_thumbnail_params(
     ImageThumbnailParams? self,
     SseSerializer serializer,
@@ -782,9 +821,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     VideoThumbnailParams self,
     SseSerializer serializer,
   );
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
 }
 
 // Section: wire_class
@@ -901,12 +937,14 @@ class RustLibWire implements BaseWire {
     ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> output_path,
     ffi.Pointer<wire_cst_image_thumbnail_params> params,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> suffix,
   ) {
     return _wire__crate__api__media__generate_image_thumbnail(
       port_,
       path,
       output_path,
       params,
+      suffix,
     );
   }
 
@@ -918,6 +956,7 @@ class RustLibWire implements BaseWire {
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_image_thumbnail_params>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
           )
         >
       >('frbgen_media_wire__crate__api__media__generate_image_thumbnail');
@@ -929,6 +968,7 @@ class RustLibWire implements BaseWire {
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_image_thumbnail_params>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
           >();
 
@@ -937,12 +977,14 @@ class RustLibWire implements BaseWire {
     ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> output_path,
     ffi.Pointer<wire_cst_video_thumbnail_params> params,
+    ffi.Pointer<ffi.Bool> empty_image_fallback,
   ) {
     return _wire__crate__api__media__generate_video_thumbnail(
       port_,
       path,
       output_path,
       params,
+      empty_image_fallback,
     );
   }
 
@@ -954,6 +996,7 @@ class RustLibWire implements BaseWire {
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_video_thumbnail_params>,
+            ffi.Pointer<ffi.Bool>,
           )
         >
       >('frbgen_media_wire__crate__api__media__generate_video_thumbnail');
@@ -965,6 +1008,7 @@ class RustLibWire implements BaseWire {
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_video_thumbnail_params>,
+              ffi.Pointer<ffi.Bool>,
             )
           >();
 
@@ -974,6 +1018,7 @@ class RustLibWire implements BaseWire {
     ffi.Pointer<wire_cst_list_prim_u_8_strict> output_path,
     ffi.Pointer<wire_cst_image_thumbnail_params> params,
     int num_thumbnails,
+    ffi.Pointer<ffi.Bool> empty_image_fallback,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> sink,
   ) {
     return _wire__crate__api__media__generate_video_timeline_thumbnails(
@@ -982,6 +1027,7 @@ class RustLibWire implements BaseWire {
       output_path,
       params,
       num_thumbnails,
+      empty_image_fallback,
       sink,
     );
   }
@@ -995,6 +1041,7 @@ class RustLibWire implements BaseWire {
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_image_thumbnail_params>,
             ffi.Uint32,
+            ffi.Pointer<ffi.Bool>,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
           )
         >
@@ -1010,6 +1057,7 @@ class RustLibWire implements BaseWire {
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_image_thumbnail_params>,
               int,
+              ffi.Pointer<ffi.Bool>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
           >();
@@ -1072,6 +1120,17 @@ class RustLibWire implements BaseWire {
           .asFunction<
             void Function(int, ffi.Pointer<wire_cst_thumbnail_size_type>)
           >();
+
+  ffi.Pointer<ffi.Bool> cst_new_box_autoadd_bool(bool value) {
+    return _cst_new_box_autoadd_bool(value);
+  }
+
+  late final _cst_new_box_autoadd_boolPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Bool> Function(ffi.Bool)>>(
+        'frbgen_media_cst_new_box_autoadd_bool',
+      );
+  late final _cst_new_box_autoadd_bool = _cst_new_box_autoadd_boolPtr
+      .asFunction<ffi.Pointer<ffi.Bool> Function(bool)>();
 
   ffi.Pointer<wire_cst_compress_params> cst_new_box_autoadd_compress_params() {
     return _cst_new_box_autoadd_compress_params();

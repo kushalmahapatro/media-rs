@@ -19,10 +19,12 @@ Future<String> generateVideoThumbnail({
   required String path,
   required String outputPath,
   required VideoThumbnailParams params,
+  bool? emptyImageFallback,
 }) => RustLib.instance.api.crateApiMediaGenerateVideoThumbnail(
   path: path,
   outputPath: outputPath,
   params: params,
+  emptyImageFallback: emptyImageFallback,
 );
 
 Stream<String> generateVideoTimelineThumbnails({
@@ -30,21 +32,25 @@ Stream<String> generateVideoTimelineThumbnails({
   required String outputPath,
   ImageThumbnailParams? params,
   required int numThumbnails,
+  bool? emptyImageFallback,
 }) => RustLib.instance.api.crateApiMediaGenerateVideoTimelineThumbnails(
   path: path,
   outputPath: outputPath,
   params: params,
   numThumbnails: numThumbnails,
+  emptyImageFallback: emptyImageFallback,
 );
 
 Future<String> generateImageThumbnail({
   required String path,
   required String outputPath,
   ImageThumbnailParams? params,
+  String? suffix,
 }) => RustLib.instance.api.crateApiMediaGenerateImageThumbnail(
   path: path,
   outputPath: outputPath,
   params: params,
+  suffix: suffix,
 );
 
 Future<CompressionEstimate> estimateCompression({

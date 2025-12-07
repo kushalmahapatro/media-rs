@@ -30,6 +30,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
+  bool dco_decode_bool(dynamic raw);
+
+  @protected
+  bool dco_decode_box_autoadd_bool(dynamic raw);
+
+  @protected
   CompressParams dco_decode_box_autoadd_compress_params(dynamic raw);
 
   @protected
@@ -80,6 +86,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
+
+  @protected
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
 
   @protected
   ImageThumbnailParams? dco_decode_opt_box_autoadd_image_thumbnail_params(
@@ -143,6 +152,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
+
+  @protected
+  bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
   CompressParams sse_decode_box_autoadd_compress_params(
@@ -211,6 +226,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
+
+  @protected
   ImageThumbnailParams? sse_decode_opt_box_autoadd_image_thumbnail_params(
     SseDeserializer deserializer,
   );
@@ -269,9 +287,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
-
-  @protected
   String cst_encode_AnyhowException(AnyhowException raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     throw UnimplementedError();
@@ -294,6 +309,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String cst_encode_String(String raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
+  }
+
+  @protected
+  bool cst_encode_box_autoadd_bool(bool raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_bool(raw);
   }
 
   @protected
@@ -400,6 +421,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? cst_encode_opt_String(String? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_String(raw);
+  }
+
+  @protected
+  bool? cst_encode_opt_box_autoadd_bool(bool? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_bool(raw);
   }
 
   @protected
@@ -519,6 +546,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  bool cst_encode_bool(bool raw);
+
+  @protected
   int cst_encode_i_32(int raw);
 
   @protected
@@ -547,6 +577,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_compress_params(
@@ -630,6 +666,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_image_thumbnail_params(
     ImageThumbnailParams? self,
     SseSerializer serializer,
@@ -694,9 +733,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     VideoThumbnailParams self,
     SseSerializer serializer,
   );
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
 }
 
 // Section: wire_class
@@ -733,11 +769,13 @@ class RustLibWire implements BaseWire {
     String path,
     String output_path,
     JSAny? params,
+    String? suffix,
   ) => wasmModule.wire__crate__api__media__generate_image_thumbnail(
     port_,
     path,
     output_path,
     params,
+    suffix,
   );
 
   void wire__crate__api__media__generate_video_thumbnail(
@@ -745,11 +783,13 @@ class RustLibWire implements BaseWire {
     String path,
     String output_path,
     JSAny params,
+    bool? empty_image_fallback,
   ) => wasmModule.wire__crate__api__media__generate_video_thumbnail(
     port_,
     path,
     output_path,
     params,
+    empty_image_fallback,
   );
 
   void wire__crate__api__media__generate_video_timeline_thumbnails(
@@ -758,6 +798,7 @@ class RustLibWire implements BaseWire {
     String output_path,
     JSAny? params,
     int num_thumbnails,
+    bool? empty_image_fallback,
     String sink,
   ) => wasmModule.wire__crate__api__media__generate_video_timeline_thumbnails(
     port_,
@@ -765,6 +806,7 @@ class RustLibWire implements BaseWire {
     output_path,
     params,
     num_thumbnails,
+    empty_image_fallback,
     sink,
   );
 
@@ -812,6 +854,7 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     String path,
     String output_path,
     JSAny? params,
+    String? suffix,
   );
 
   external void wire__crate__api__media__generate_video_thumbnail(
@@ -819,6 +862,7 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     String path,
     String output_path,
     JSAny params,
+    bool? empty_image_fallback,
   );
 
   external void wire__crate__api__media__generate_video_timeline_thumbnails(
@@ -827,6 +871,7 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     String output_path,
     JSAny? params,
     int num_thumbnails,
+    bool? empty_image_fallback,
     String sink,
   );
 

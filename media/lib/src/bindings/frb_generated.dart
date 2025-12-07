@@ -91,12 +91,14 @@ abstract class RustLibApi extends BaseApi {
     required String path,
     required String outputPath,
     ImageThumbnailParams? params,
+    String? suffix,
   });
 
   Future<String> crateApiMediaGenerateVideoThumbnail({
     required String path,
     required String outputPath,
     required VideoThumbnailParams params,
+    bool? emptyImageFallback,
   });
 
   Stream<String> crateApiMediaGenerateVideoTimelineThumbnails({
@@ -104,6 +106,7 @@ abstract class RustLibApi extends BaseApi {
     required String outputPath,
     ImageThumbnailParams? params,
     required int numThumbnails,
+    bool? emptyImageFallback,
   });
 
   Future<VideoInfo> crateApiMediaGetVideoInfo({required String path});
@@ -199,6 +202,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required String path,
     required String outputPath,
     ImageThumbnailParams? params,
+    String? suffix,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -206,11 +210,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           var arg0 = cst_encode_String(path);
           var arg1 = cst_encode_String(outputPath);
           var arg2 = cst_encode_opt_box_autoadd_image_thumbnail_params(params);
+          var arg3 = cst_encode_opt_String(suffix);
           return wire.wire__crate__api__media__generate_image_thumbnail(
             port_,
             arg0,
             arg1,
             arg2,
+            arg3,
           );
         },
         codec: DcoCodec(
@@ -218,7 +224,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: dco_decode_AnyhowException,
         ),
         constMeta: kCrateApiMediaGenerateImageThumbnailConstMeta,
-        argValues: [path, outputPath, params],
+        argValues: [path, outputPath, params, suffix],
         apiImpl: this,
       ),
     );
@@ -227,7 +233,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiMediaGenerateImageThumbnailConstMeta =>
       const TaskConstMeta(
         debugName: "generate_image_thumbnail",
-        argNames: ["path", "outputPath", "params"],
+        argNames: ["path", "outputPath", "params", "suffix"],
       );
 
   @override
@@ -235,6 +241,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required String path,
     required String outputPath,
     required VideoThumbnailParams params,
+    bool? emptyImageFallback,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -242,11 +249,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           var arg0 = cst_encode_String(path);
           var arg1 = cst_encode_String(outputPath);
           var arg2 = cst_encode_box_autoadd_video_thumbnail_params(params);
+          var arg3 = cst_encode_opt_box_autoadd_bool(emptyImageFallback);
           return wire.wire__crate__api__media__generate_video_thumbnail(
             port_,
             arg0,
             arg1,
             arg2,
+            arg3,
           );
         },
         codec: DcoCodec(
@@ -254,7 +263,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: dco_decode_AnyhowException,
         ),
         constMeta: kCrateApiMediaGenerateVideoThumbnailConstMeta,
-        argValues: [path, outputPath, params],
+        argValues: [path, outputPath, params, emptyImageFallback],
         apiImpl: this,
       ),
     );
@@ -263,7 +272,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiMediaGenerateVideoThumbnailConstMeta =>
       const TaskConstMeta(
         debugName: "generate_video_thumbnail",
-        argNames: ["path", "outputPath", "params"],
+        argNames: ["path", "outputPath", "params", "emptyImageFallback"],
       );
 
   @override
@@ -272,6 +281,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required String outputPath,
     ImageThumbnailParams? params,
     required int numThumbnails,
+    bool? emptyImageFallback,
   }) {
     final sink = RustStreamSink<String>();
     unawaited(
@@ -284,7 +294,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               params,
             );
             var arg3 = cst_encode_u_32(numThumbnails);
-            var arg4 = cst_encode_StreamSink_String_Dco(sink);
+            var arg4 = cst_encode_opt_box_autoadd_bool(emptyImageFallback);
+            var arg5 = cst_encode_StreamSink_String_Dco(sink);
             return wire
                 .wire__crate__api__media__generate_video_timeline_thumbnails(
                   port_,
@@ -293,6 +304,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
                   arg2,
                   arg3,
                   arg4,
+                  arg5,
                 );
           },
           codec: DcoCodec(
@@ -300,7 +312,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             decodeErrorData: dco_decode_AnyhowException,
           ),
           constMeta: kCrateApiMediaGenerateVideoTimelineThumbnailsConstMeta,
-          argValues: [path, outputPath, params, numThumbnails, sink],
+          argValues: [
+            path,
+            outputPath,
+            params,
+            numThumbnails,
+            emptyImageFallback,
+            sink,
+          ],
           apiImpl: this,
         ),
       ),
@@ -311,7 +330,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiMediaGenerateVideoTimelineThumbnailsConstMeta =>
       const TaskConstMeta(
         debugName: "generate_video_timeline_thumbnails",
-        argNames: ["path", "outputPath", "params", "numThumbnails", "sink"],
+        argNames: [
+          "path",
+          "outputPath",
+          "params",
+          "numThumbnails",
+          "emptyImageFallback",
+          "sink",
+        ],
       );
 
   @override
@@ -412,6 +438,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as String;
+  }
+
+  @protected
+  bool dco_decode_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
+  }
+
+  @protected
+  bool dco_decode_box_autoadd_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
   }
 
   @protected
@@ -533,6 +571,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   String? dco_decode_opt_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_String(raw);
+  }
+
+  @protected
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_bool(raw);
   }
 
   @protected
@@ -709,6 +753,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  bool sse_decode_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint8() != 0;
+  }
+
+  @protected
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_bool(deserializer));
+  }
+
+  @protected
   CompressParams sse_decode_box_autoadd_compress_params(
     SseDeserializer deserializer,
   ) {
@@ -849,6 +905,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_bool(deserializer));
     } else {
       return null;
     }
@@ -1048,9 +1115,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  bool sse_decode_bool(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getUint8() != 0;
+  bool cst_encode_bool(bool raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw;
   }
 
   @protected
@@ -1113,6 +1180,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint8(self ? 1 : 0);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self, serializer);
   }
 
   @protected
@@ -1255,6 +1334,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_String(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_bool(self, serializer);
     }
   }
 
@@ -1421,11 +1510,5 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_u_64(self.timeMs, serializer);
     sse_encode_opt_box_autoadd_thumbnail_size_type(self.sizeType, serializer);
     sse_encode_opt_box_autoadd_output_format(self.format, serializer);
-  }
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putUint8(self ? 1 : 0);
   }
 }

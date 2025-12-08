@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -mmacosx-version-min=11.0 -O3 -DNDEBUG -arch arm64 -mmacosx-version-min=11.0 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/tai.dir/tai.cc.o -o tai  ../libheif/libheif.a libtestframework.a ../libheif/libheif.a /Users/km/Projects/media-rs/third_party/libheif_build_macos_arm64/libde265_install/lib/libde265.a

@@ -1,0 +1,11 @@
+prefix=/Users/km/Projects/media-rs/third_party/libheif_install/ios/iphoneos/arm64
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libheif
+Description: HEIF image codec library
+Version: 1.18.0
+Libs: -L${libdir} -lheif -lde265
+Cflags: -I${includedir}
+Requires:

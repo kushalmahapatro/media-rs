@@ -1,0 +1,13 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/cmake_install.cmake",
+		"/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/heifio/cmake_install.cmake",
+		"/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/tests/cmake_install.cmake",
+		"/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/libheif/cmake_install.cmake",
+		"/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/libheif/plugins/cmake_install.cmake",
+		"/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/gdk-pixbuf/cmake_install.cmake",
+		"/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/gnome/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -10,6 +10,148 @@ fn init_ffmpeg() -> Result<()> {
     ffmpeg::init().context("Failed to initialize ffmpeg")
 }
 
+/// Get video rotation from display matrix side data
+/// Returns rotation in degrees (0, 90, 180, 270) or None if not found
+fn get_video_rotation(stream: &ffmpeg::format::stream::Stream) -> Option<i32> {
+    use ffmpeg::codec::packet::side_data::Type as SideDataType;
+
+    // Check stream side data for display matrix
+    for side_data in stream.side_data() {
+        if side_data.kind() == SideDataType::DisplayMatrix {
+            let data = side_data.data();
+            if data.len() >= 36 {
+                // 9 * 4 bytes (int32_t)
+                unsafe {
+                    // Parse display matrix manually
+                    // Matrix format: [a, b, u, c, d, v, x, y, w] as int32_t (fixed-point 16.16)
+                    let matrix_ptr = data.as_ptr() as *const i32;
+                    let matrix = std::slice::from_raw_parts(matrix_ptr, 9);
+
+                    // Extract matrix values (fixed-point 16.16 format)
+                    let a = matrix[0] as f64 / (1i64 << 16) as f64;
+                    let b = matrix[1] as f64 / (1i64 << 16) as f64;
+                    let _c = matrix[3] as f64 / (1i64 << 16) as f64;
+                    let _d = matrix[4] as f64 / (1i64 << 16) as f64;
+
+                    // Calculate rotation angle from transformation matrix
+                    // FFmpeg display matrix format: [a, b, c, d] represents rotation
+                    // The matrix is: [a b]  which rotates counter-clockwise
+                    //                [c d]
+                    // For 90° counter-clockwise: a=0, b=1, c=-1, d=0
+                    // For 90° clockwise: a=0, b=-1, c=1, d=0
+                    // For 180°: a=-1, b=0, c=0, d=-1
+                    //
+                    // The display matrix indicates how the video is stored (rotation needed to display correctly)
+                    // If matrix indicates 90° CCW, the video is stored rotated 90° CCW
+                    // To correct it, we need to rotate 90° CW (which is 270° CCW)
+                    //
+                    // We use atan2(b, a) to get the rotation angle (note: positive b, not -b)
+                    // This gives us the counter-clockwise rotation of the stored video
+                    let angle_rad = b.atan2(a);
+                    let angle_deg = angle_rad.to_degrees();
+
+                    // Normalize to 0, 90, 180, 270
+                    let matrix_rotation = ((angle_deg.round() as i32 % 360 + 360) % 360) / 90 * 90;
+
+                    // The matrix rotation is the counter-clockwise rotation of the stored video
+                    // To correct it, we need to rotate in the opposite direction
+                    // So if stored is 90° CCW, we need 270° CCW (which is 90° CW)
+                    // Return the matrix rotation as-is - the correction code will rotate in opposite direction
+                    return Some(matrix_rotation);
+                }
+            }
+        }
+    }
+
+    // Also check metadata for rotation tag (some formats store it there, especially MOV)
+    if let Some(rotation_str) = stream.metadata().get("rotate") {
+        if let Ok(rotation) = rotation_str.parse::<i32>() {
+            return Some(((rotation % 360 + 360) % 360) / 90 * 90);
+        }
+    }
+
+    // Check format metadata as well (MOV files often have it there)
+    // Note: We'd need access to format context metadata, but stream metadata should work
+
+    None
+}
+
+/// Get video rotation from format context (for MOV files that store it in format metadata)
+fn get_video_rotation_from_format(ictx: &ffmpeg::format::context::Input) -> Option<i32> {
+    // Check format metadata for rotation (MOV files often store it here)
+    if let Some(rotation_str) = ictx.metadata().get("rotate") {
+        if let Ok(rotation) = rotation_str.parse::<i32>() {
+            return Some(((rotation % 360 + 360) % 360) / 90 * 90);
+        }
+    }
+    None
+}
+
+/// Get display dimensions accounting for rotation
+/// Returns (display_width, display_height, rotation_degrees)
+fn get_display_dimensions(
+    stream: &ffmpeg::format::stream::Stream,
+    stored_width: u32,
+    stored_height: u32,
+) -> (u32, u32, i32) {
+    // Try to get rotation from stream side data or metadata
+    let rotation = get_video_rotation(stream).unwrap_or(0);
+
+    match rotation {
+        90 | 270 => (stored_height, stored_width, rotation),
+        _ => (stored_width, stored_height, rotation),
+    }
+}
+
+/// Get display dimensions accounting for rotation (with format context for MOV files)
+/// Returns (display_width, display_height, rotation_degrees)
+fn get_display_dimensions_with_format(
+    ictx: &ffmpeg::format::context::Input,
+    stream: &ffmpeg::format::stream::Stream,
+    stored_width: u32,
+    stored_height: u32,
+) -> (u32, u32, i32) {
+    // Try stream first, then format metadata (MOV files often use format metadata)
+    let rotation = get_video_rotation(stream)
+        .or_else(|| get_video_rotation_from_format(ictx))
+        .unwrap_or(0);
+
+    match rotation {
+        90 | 270 => (stored_height, stored_width, rotation),
+        _ => (stored_width, stored_height, rotation),
+    }
+}
+
+/// Find the best available H.264 encoder (LGPL-compliant)
+/// Priority: VideoToolbox (macOS/iOS) > OpenH264 > built-in encoder
+/// Note: MediaCodec is disabled to avoid NDK linking issues
+fn find_h264_encoder() -> Result<ffmpeg::Codec> {
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    {
+        // VideoToolbox is LGPL-compliant (Apple's framework, not GPL code)
+        if let Some(codec) = ffmpeg::encoder::find_by_name("h264_videotoolbox") {
+            eprintln!("INFO: Using h264_videotoolbox encoder.");
+            return Ok(codec);
+        }
+    }
+
+    // Try OpenH264 (BSD-licensed, LGPL-compatible)
+    if let Some(codec) = ffmpeg::encoder::find_by_name("libopenh264") {
+        eprintln!("INFO: Using libopenh264 encoder.");
+        return Ok(codec);
+    }
+
+    // Fall back to built-in encoder (if available)
+    ffmpeg::encoder::find(ffmpeg::codec::Id::H264).ok_or_else(|| {
+        anyhow::anyhow!(
+            "No H.264 encoder found. Available options:\n\
+                - macOS/iOS: Enable VideoToolbox with --enable-videotoolbox\n\
+                - All platforms: Build OpenH264 and enable with --enable-libopenh264\n\
+                - Built-in encoder (if available in FFmpeg build)"
+        )
+    })
+}
+
 pub fn get_video_info(path: &str) -> Result<crate::api::media::VideoInfo> {
     init_ffmpeg()?;
 
@@ -22,8 +164,13 @@ pub fn get_video_info(path: &str) -> Result<crate::api::media::VideoInfo> {
     let context = ffmpeg::codec::context::Context::from_parameters(stream.parameters())?;
     let decoder = context.decoder().video()?;
 
-    let width = decoder.width();
-    let height = decoder.height();
+    let stored_width = decoder.width();
+    let stored_height = decoder.height();
+
+    // Get display dimensions accounting for rotation (check both stream and format metadata for MOV files)
+    let (display_width, display_height, _rotation) =
+        get_display_dimensions_with_format(&ictx, &stream, stored_width, stored_height);
+
     let duration = ictx.duration(); // AV_TIME_BASE
 
     let duration_ms = (duration as f64 / ffmpeg::ffi::AV_TIME_BASE as f64 * 1000.0) as u64;
@@ -43,13 +190,14 @@ pub fn get_video_info(path: &str) -> Result<crate::api::media::VideoInfo> {
     let codec_name = decoder.codec().map(|c| c.name().to_string());
     let format_name = ictx.format().name().to_string();
 
-    // Generate Suggestions
-    let suggestions = generate_resolution_presets(width, height, bitrate.unwrap_or(0));
+    // Generate Suggestions using display dimensions (corrected for rotation)
+    let suggestions =
+        generate_resolution_presets(display_width, display_height, bitrate.unwrap_or(0));
 
     Ok(crate::api::media::VideoInfo {
         duration_ms,
-        width,
-        height,
+        width: display_width,
+        height: display_height,
         size_bytes,
         bitrate,
         codec_name: Some(codec_name.unwrap_or_default()),
@@ -164,8 +312,12 @@ pub fn generate_thumbnail(
     let context = ffmpeg::codec::context::Context::from_parameters(stream.parameters())
         .map_err(|e| (e.into(), 0, 0))?;
     let mut decoder = context.decoder().video().map_err(|e| (e.into(), 0, 0))?;
-    let width = decoder.width();
-    let height = decoder.height();
+    let stored_width = decoder.width();
+    let stored_height = decoder.height();
+
+    // Get rotation and display dimensions (check both stream and format metadata for MOV files)
+    let (display_width, display_height, rotation) =
+        get_display_dimensions_with_format(&ictx, &stream, stored_width, stored_height);
 
     let duration_us = ictx.duration();
 
@@ -180,7 +332,7 @@ pub fn generate_thumbnail(
     }
 
     ictx.seek(ts, ts..ts)
-        .map_err(|e| (e.into(), width, height))?;
+        .map_err(|e| (e.into(), display_width, display_height))?;
 
     let mut scaler = None::<ffmpeg::software::scaling::Context>;
     let mut decoded = ffmpeg::util::frame::video::Video::empty();
@@ -193,19 +345,26 @@ pub fn generate_thumbnail(
 
         decoder
             .send_packet(&packet)
-            .map_err(|e| (e.into(), width, height))?;
+            .map_err(|e| (e.into(), display_width, display_height))?;
         while decoder.receive_frame(&mut decoded).is_ok() {
             // lazily init scaler based on real video size
             if scaler.is_none() {
                 let src_w = decoded.width();
                 let src_h = decoded.height();
 
+                // Use display dimensions for thumbnail size calculation
                 let size = params
                     .size_type
-                    .unwrap_or_else(|| ThumbnailSizeType::Custom((width, height)))
+                    .unwrap_or_else(|| ThumbnailSizeType::Custom((display_width, display_height)))
                     .dimensions();
 
-                let (dst_w, dst_h) = scale_to_fit(src_w, src_h, size.0, size.1);
+                // Scale to fit, but account for rotation in target dimensions
+                let (dst_w, dst_h) = if rotation == 90 || rotation == 270 {
+                    // For rotated videos, swap target dimensions
+                    scale_to_fit(src_w, src_h, size.1, size.0)
+                } else {
+                    scale_to_fit(src_w, src_h, size.0, size.1)
+                };
 
                 rgb_frame = ffmpeg::util::frame::video::Video::new(
                     ffmpeg::format::Pixel::RGB24,
@@ -213,6 +372,12 @@ pub fn generate_thumbnail(
                     dst_h,
                 );
 
+                // Set color range on decoded frame to avoid deprecated pixel format warnings
+                // Use Limited/MPEG range (default for most video) unless we detect Full range
+                use ffmpeg::util::color::Range;
+                decoded.set_color_range(Range::Limited);
+
+                // Use FAST_BILINEAR to avoid deprecated pixel format warnings
                 scaler = Some(
                     ffmpeg::software::scaling::Context::get(
                         decoded.format(),
@@ -221,9 +386,9 @@ pub fn generate_thumbnail(
                         ffmpeg::format::Pixel::RGB24,
                         dst_w,
                         dst_h,
-                        ffmpeg::software::scaling::flag::Flags::BILINEAR,
+                        ffmpeg::software::scaling::flag::Flags::FAST_BILINEAR,
                     )
-                    .map_err(|e| (e.into(), width, height))?,
+                    .map_err(|e| (e.into(), display_width, display_height))?,
                 );
             }
 
@@ -231,12 +396,14 @@ pub fn generate_thumbnail(
                 let output_format = params.format.unwrap_or(OutputFormat::PNG);
                 scaler_ctx
                     .run(&decoded, &mut rgb_frame)
-                    .map_err(|e| (e.into(), width, height))?;
-                // encode rgb_frame as PNG
-                let result = encode_png_from_rgb_frame(&rgb_frame, output_format)
-                    .map_err(|e| (e.into(), width, height))?;
+                    .map_err(|e| (e.into(), display_width, display_height))?;
 
-                // Return result AND dimensions
+                // Apply rotation to the thumbnail image
+                let result =
+                    encode_png_from_rgb_frame_with_rotation(&rgb_frame, output_format, rotation)
+                        .map_err(|e| (e.into(), display_width, display_height))?;
+
+                // Return result AND display dimensions (corrected for rotation)
                 return Ok((result.0, result.1, result.2));
             }
         }
@@ -244,8 +411,8 @@ pub fn generate_thumbnail(
 
     Err((
         anyhow::anyhow!("Could not decode frame for thumbnail"),
-        width,
-        height,
+        display_width,
+        display_height,
     ))
 }
 
@@ -270,6 +437,14 @@ fn encode_png_from_rgb_frame(
     frame: &ffmpeg::util::frame::video::Video,
     format: OutputFormat,
 ) -> Result<(Vec<u8>, u32, u32)> {
+    encode_png_from_rgb_frame_with_rotation(frame, format, 0)
+}
+
+fn encode_png_from_rgb_frame_with_rotation(
+    frame: &ffmpeg::util::frame::video::Video,
+    format: OutputFormat,
+    rotation: i32,
+) -> Result<(Vec<u8>, u32, u32)> {
     use image::codecs::jpeg::JpegEncoder;
     use image::codecs::png::PngEncoder;
     use image::codecs::webp::WebPEncoder;
@@ -291,26 +466,74 @@ fn encode_png_from_rgb_frame(
         buf.extend_from_slice(row);
     }
 
-    let img: ImageBuffer<Rgb<u8>, _> = ImageBuffer::from_raw(width, height, buf)
+    let mut img: ImageBuffer<Rgb<u8>, _> = ImageBuffer::from_raw(width, height, buf)
         .ok_or_else(|| anyhow::anyhow!("Failed to create image buffer"))?;
+
+    // Apply rotation to the image
+    // The rotation value from display matrix indicates the rotation needed to display correctly
+    // FFmpeg's display matrix: rotation value means "rotate this much CCW to display correctly"
+    // If rotation is 90, it means "rotate 90° CCW to display correctly"
+    // This means the video frames are stored rotated 270° CCW (or 90° CW) from correct orientation
+    // To correct it, we need to rotate in the OPPOSITE direction
+    // The image crate's rotate functions rotate counter-clockwise:
+    // - rotate90() = 90° CCW
+    // - rotate270() = 270° CCW = 90° CW
+    // So if display matrix says "90° CCW needed", video is stored at 270° CCW, rotate 90° CCW = rotate90()
+    // If display matrix says "270° CCW needed", video is stored at 90° CCW, rotate 270° CCW = rotate270()
+    let (final_width, final_height) = match rotation {
+        90 => {
+            // Display matrix says "rotate 90° CCW to display", so video is stored at 270° CCW
+            // Rotate 90° CCW (rotate90) to correct it
+            img = image::DynamicImage::ImageRgb8(img).rotate90().into_rgb8();
+            (height, width)
+        }
+        180 => {
+            // Display matrix says "rotate 180° CCW to display", so video is stored at 180° CCW
+            // Rotate 180° CCW (rotate180) to correct it
+            img = image::DynamicImage::ImageRgb8(img).rotate180().into_rgb8();
+            (width, height)
+        }
+        270 => {
+            // Display matrix says "rotate 270° CCW to display", so video is stored at 90° CCW
+            // Rotate 270° CCW (rotate270) to correct it
+            img = image::DynamicImage::ImageRgb8(img).rotate270().into_rgb8();
+            (height, width)
+        }
+        _ => (width, height),
+    };
 
     let mut out = Vec::new();
     match format {
         OutputFormat::PNG => {
             let encoder = PngEncoder::new(&mut out);
-            encoder.write_image(img.as_raw(), width, height, ExtendedColorType::Rgb8)?;
+            encoder.write_image(
+                img.as_raw(),
+                final_width,
+                final_height,
+                ExtendedColorType::Rgb8,
+            )?;
         }
         OutputFormat::JPEG => {
             let encoder = JpegEncoder::new(&mut out);
-            encoder.write_image(img.as_raw(), width, height, ExtendedColorType::Rgb8)?;
+            encoder.write_image(
+                img.as_raw(),
+                final_width,
+                final_height,
+                ExtendedColorType::Rgb8,
+            )?;
         }
         OutputFormat::WEBP => {
             let encoder = WebPEncoder::new_lossless(&mut out);
-            encoder.write_image(img.as_raw(), width, height, ExtendedColorType::Rgb8)?;
+            encoder.write_image(
+                img.as_raw(),
+                final_width,
+                final_height,
+                ExtendedColorType::Rgb8,
+            )?;
         }
     }
 
-    Ok((out, width, height))
+    Ok((out, final_width, final_height))
 }
 
 pub fn get_file_name_without_extension(path: &str) -> PathBuf {
@@ -474,16 +697,19 @@ pub fn estimate_compression(
     let mut valid_samples = 0;
 
     for (i, res) in results.into_iter().enumerate() {
-        if let Ok((speed, size_rate)) = res {
-            println!(
-                "Sample {}: Speed={:.2}x, SizeRate={:.2} bytes/ms",
-                i, speed, size_rate
-            );
-            total_speed_x += speed;
-            total_size_per_ms += size_rate;
-            valid_samples += 1;
-        } else {
-            println!("Sample {}: Failed", i);
+        match res {
+            Ok((speed, size_rate)) => {
+                println!(
+                    "Sample {}: Speed={:.2}x, SizeRate={:.2} bytes/ms",
+                    i, speed, size_rate
+                );
+                total_speed_x += speed;
+                total_size_per_ms += size_rate;
+                valid_samples += 1;
+            }
+            Err(e) => {
+                eprintln!("Sample {}: Failed with error: {:?}", i, e);
+            }
         }
     }
 
@@ -491,6 +717,7 @@ pub fn estimate_compression(
 
     // Fallback if all samples failed
     if valid_samples == 0 {
+        eprintln!("All compression samples failed. Attempting fallback...");
         let temp_path = format!(
             "{}/{}.est.fallback.mp4",
             base_output_dir.display(),
@@ -500,20 +727,34 @@ pub fn estimate_compression(
             perform_compression(path, &temp_path, params, Some(0), Some(sample_duration_ms));
         std::fs::remove_file(&temp_path).ok();
 
-        if let Ok(stats) = result {
-            if stats.processed_duration_ms > 0 && stats.elapsed_ms > 0 {
-                let speed = stats.processed_duration_ms as f64 / stats.elapsed_ms as f64;
-                let size_rate =
-                    stats.encoded_size_bytes as f64 / stats.processed_duration_ms as f64;
-                total_speed_x += speed;
-                total_size_per_ms += size_rate;
-                valid_samples += 1;
+        match result {
+            Ok(stats) => {
+                if stats.processed_duration_ms > 0 && stats.elapsed_ms > 0 {
+                    let speed = stats.processed_duration_ms as f64 / stats.elapsed_ms as f64;
+                    let size_rate =
+                        stats.encoded_size_bytes as f64 / stats.processed_duration_ms as f64;
+                    total_speed_x += speed;
+                    total_size_per_ms += size_rate;
+                    valid_samples += 1;
+                    eprintln!("Fallback sample succeeded");
+                } else {
+                    eprintln!(
+                        "Fallback sample returned invalid stats: duration={}, elapsed={}",
+                        stats.processed_duration_ms, stats.elapsed_ms
+                    );
+                }
+            }
+            Err(e) => {
+                eprintln!("Fallback sample also failed: {:?}", e);
             }
         }
     }
 
     if valid_samples == 0 {
-        return Err(anyhow::anyhow!("Failed to estimate compression"));
+        return Err(anyhow::anyhow!(
+            "Failed to estimate compression: All samples failed. This may indicate that H.264 encoder is not available in FFmpeg build. \
+            Consider enabling OpenH264 (BSD-licensed, LGPL-compatible) in FFmpeg build configuration."
+        ));
     }
 
     // Size Use Average Video Rate
@@ -663,8 +904,17 @@ fn perform_compression(
         .flags()
         .contains(ffmpeg::format::flag::Flags::GLOBAL_HEADER);
 
-    let codec = ffmpeg_next::encoder::find(ffmpeg::codec::Id::H264)
-        .ok_or_else(|| anyhow::anyhow!("codec not found"))?;
+    // Find H.264 encoder (LGPL-compliant)
+    // Priority: VideoToolbox (macOS/iOS) > OpenH264 > built-in encoder
+    let codec = find_h264_encoder().map_err(|e| {
+        anyhow::anyhow!(
+            "H.264 encoder not found. Error: {:?}. \
+                FFmpeg needs either VideoToolbox (macOS/iOS), OpenH264, or built-in H.264 encoder.",
+            e
+        )
+    })?;
+
+    eprintln!("Using H.264 encoder: {}", codec.name());
 
     // Calculate target dimensions
     // Calculate target dimensions (Clamped)
@@ -708,23 +958,55 @@ fn perform_compression(
     }
 
     // 2. Open encoder
+    // Note: FFmpeg's built-in H.264 encoder (without libx264) has limited options
+    // We try with options first, then fall back to minimal configuration if needed
     let mut opts = ffmpeg::Dictionary::new();
+
+    // Built-in encoder might not support preset, so we only set it if available
     if let Some(ref p) = params.preset {
         opts.set("preset", p);
     }
-    // Adding tune can sometimes help init requirements
-    // opts.set("tune", "zerolatency");
 
+    // CRF might not be supported by built-in encoder
     if let Some(crf) = params.crf {
         opts.set("crf", &crf.to_string());
     }
-    // Set bitrate in dictionary as fallback/primary depending on CRF
-    opts.set("b", &format!("{}", params.target_bitrate_kbps * 1000));
+
+    // Always set bitrate (required for built-in encoder)
+    opts.set("b", &format!("{}", final_bitrate_kbps * 1000));
+
+    // Profile might not be supported, but try it
     opts.set("profile", "high");
 
-    let mut encoder = encoder_setup
-        .open_as_with(codec, opts)
-        .map_err(|e| anyhow::anyhow!("Error opening encoder (native h264): {e:?}"))?;
+    // Try to open encoder with options
+    let mut encoder = match encoder_setup.open_as_with(codec, opts) {
+        Ok(enc) => enc,
+        Err(e) => {
+            // If opening with options fails, recreate encoder_setup and try with minimal options
+            eprintln!("Warning: Failed to open H.264 encoder with full options: {:?}. Trying minimal configuration...", e);
+            let encoder_ctx_minimal = ffmpeg::codec::context::Context::new_with_codec(codec);
+            let mut encoder_setup_minimal = encoder_ctx_minimal.encoder().video()?;
+            encoder_setup_minimal.set_width(target_width);
+            encoder_setup_minimal.set_height(target_height);
+            encoder_setup_minimal.set_bit_rate((final_bitrate_kbps * 1000) as usize);
+            encoder_setup_minimal.set_time_base(ffmpeg::util::rational::Rational(1, 30));
+            encoder_setup_minimal.set_format(ffmpeg::format::Pixel::YUV420P);
+            if global_header {
+                encoder_setup_minimal.set_flags(ffmpeg::codec::flag::Flags::GLOBAL_HEADER);
+            }
+            let mut minimal_opts = ffmpeg::Dictionary::new();
+            minimal_opts.set("b", &format!("{}", final_bitrate_kbps * 1000));
+            encoder_setup_minimal
+                .open_as_with(codec, minimal_opts)
+                .map_err(|e2| {
+                    anyhow::anyhow!(
+                        "Failed to open H.264 encoder even with minimal options. Error: {:?}. Codec: {:?}",
+                        e2,
+                        codec.name()
+                    )
+                })?
+        }
+    };
 
     // 2. Add video stream
     let video_ost_index = {
@@ -869,6 +1151,10 @@ fn perform_compression(
         target_height,
     );
 
+    // Set color range on converted frame to avoid deprecated pixel format warnings
+    use ffmpeg::util::color::Range;
+    converted.set_color_range(Range::Limited);
+
     // Audio frames reusable
     let mut decoded_audio = ffmpeg::util::frame::audio::Audio::empty();
 
@@ -1002,24 +1288,34 @@ fn perform_compression(
                     ) {
                         decoder.send_packet(&packet)?;
                         while decoder.receive_frame(&mut decoded_audio).is_ok() {
+                            // Skip empty or invalid audio frames
+                            if decoded_audio.samples() == 0 {
+                                continue;
+                            }
                             // Resample
-                            // Calculate output samples manually (resampler.get_out_samples not exposed?)
-                            // Formula: in_samples * out_rate / in_rate + padding
+                            // Calculate output samples: use max to ensure we have enough space
+                            // FFmpeg resampler formula: ceil(in_samples * out_rate / in_rate)
                             let in_rate = decoder.rate() as u64;
                             let out_rate = encoder.rate() as u64;
                             let in_samples = decoded_audio.samples() as u64;
 
-                            // Add generous padding for rounding/compensation
-                            let out_samples_est = (in_samples * out_rate / in_rate) + 128;
+                            // Calculate exact output samples needed (with ceiling for rounding)
+                            let out_samples_est =
+                                ((in_samples * out_rate + in_rate - 1) / in_rate) as usize;
+                            // Add some padding for resampler delay/compensation (typically 32-64 samples)
+                            let out_samples_with_padding = out_samples_est + 64;
 
                             let mut resampled = ffmpeg::util::frame::audio::Audio::new(
                                 encoder.format(),
-                                out_samples_est as usize,
+                                out_samples_with_padding,
                                 encoder.channel_layout(),
                             );
                             resampled.set_rate(encoder.rate());
 
                             resampler.run(&decoded_audio, &mut resampled)?;
+
+                            // Get actual number of samples produced by resampler
+                            let actual_samples = resampled.samples();
 
                             // Manual Buffering
                             // Append planar data to buffers
@@ -1036,16 +1332,14 @@ fn perform_compression(
                             if resampled.planes() >= 2 {
                                 let p0 = resampled.plane::<f32>(0);
                                 let p1 = resampled.plane::<f32>(1);
-                                lb.extend_from_slice(p0);
-                                rb.extend_from_slice(p1);
+                                // Only copy the actual samples produced, not the padding
+                                lb.extend_from_slice(&p0[0..actual_samples]);
+                                rb.extend_from_slice(&p1[0..actual_samples]);
                             } else {
-                                // Mono to Stereo logic if needed, or just map p0 to both?
-                                // Resampler was set to Stereo, so it should output 2 planes (FLTP).
-                                // If not, maybe just 1 plane with interleaved? No, FLTP is planar.
-                                // If 1 plane, it might be mono. I'll clone p0.
+                                // Mono to Stereo: duplicate the single plane
                                 let p0 = resampled.plane::<f32>(0);
-                                lb.extend_from_slice(p0);
-                                rb.extend_from_slice(p0);
+                                lb.extend_from_slice(&p0[0..actual_samples]);
+                                rb.extend_from_slice(&p0[0..actual_samples]);
                             }
 
                             // Encode chunks
@@ -1140,17 +1434,46 @@ fn perform_compression(
     if let (Some(encoder), Some(out_idx), Some(out_tb)) =
         (audio_encoder.as_mut(), audio_ost_index, audio_ost_time_base)
     {
+        // First, flush the resampler to get any remaining samples
+        if let (Some(decoder), Some(resampler), Some(lb), Some(rb)) = (
+            audio_decoder.as_mut(),
+            audio_resampler.as_mut(),
+            left_buffer.as_mut(),
+            right_buffer.as_mut(),
+        ) {
+            // Flush resampler with empty frame
+            let mut empty_frame = ffmpeg::util::frame::audio::Audio::empty();
+            let mut flushed_resampled = ffmpeg::util::frame::audio::Audio::new(
+                encoder.format(),
+                1024, // Allocate space for flushed samples
+                encoder.channel_layout(),
+            );
+            flushed_resampled.set_rate(encoder.rate());
+
+            // Try to flush resampler (may not produce output, but worth trying)
+            if resampler.run(&empty_frame, &mut flushed_resampled).is_ok() {
+                let flushed_samples = flushed_resampled.samples();
+                if flushed_samples > 0 {
+                    if flushed_resampled.planes() >= 2 {
+                        let p0 = flushed_resampled.plane::<f32>(0);
+                        let p1 = flushed_resampled.plane::<f32>(1);
+                        lb.extend_from_slice(&p0[0..flushed_samples]);
+                        rb.extend_from_slice(&p1[0..flushed_samples]);
+                    } else {
+                        let p0 = flushed_resampled.plane::<f32>(0);
+                        lb.extend_from_slice(&p0[0..flushed_samples]);
+                        rb.extend_from_slice(&p0[0..flushed_samples]);
+                    }
+                }
+            }
+        }
+
         // Flush remaining buffer
         if let (Some(lb), Some(rb)) = (left_buffer.as_mut(), right_buffer.as_mut()) {
-            if lb.len() > 0 {
-                let frame_size = 1024; // Standard frame size
-                let pad_len = frame_size - lb.len();
-                if pad_len > 0 {
-                    // Pad with silence
-                    lb.extend(std::iter::repeat(0.0).take(pad_len));
-                    rb.extend(std::iter::repeat(0.0).take(pad_len));
-                }
+            let frame_size = encoder.frame_size() as usize;
 
+            // Encode any remaining complete frames
+            while lb.len() >= frame_size && rb.len() >= frame_size {
                 let mut frame_to_encode = ffmpeg::util::frame::audio::Audio::new(
                     encoder.format(),
                     frame_size,
@@ -1166,6 +1489,9 @@ fn perform_compression(
                     p1.copy_from_slice(&rb[0..frame_size]);
                 }
                 frame_to_encode.set_pts(audio_pts_counter);
+                if let Some(pts) = audio_pts_counter {
+                    audio_pts_counter = Some(pts + frame_size as i64);
+                }
                 encoder.send_frame(&frame_to_encode).ok();
 
                 let mut encoded_pkt = ffmpeg::Packet::empty();
@@ -1175,9 +1501,50 @@ fn perform_compression(
                     encoded_size_bytes += encoded_pkt.size() as u64;
                     encoded_pkt.write_interleaved(&mut octx).ok();
                 }
+
+                lb.drain(0..frame_size);
+                rb.drain(0..frame_size);
+            }
+
+            // Pad and encode final incomplete frame if any samples remain
+            if lb.len() > 0 {
+                let pad_len = frame_size - lb.len();
+                if pad_len > 0 && pad_len < frame_size {
+                    // Pad with silence
+                    lb.extend(std::iter::repeat(0.0).take(pad_len));
+                    rb.extend(std::iter::repeat(0.0).take(pad_len));
+                }
+
+                if lb.len() >= frame_size {
+                    let mut frame_to_encode = ffmpeg::util::frame::audio::Audio::new(
+                        encoder.format(),
+                        frame_size,
+                        encoder.channel_layout(),
+                    );
+                    frame_to_encode.set_rate(encoder.rate());
+                    {
+                        let p0 = frame_to_encode.plane_mut::<f32>(0);
+                        p0.copy_from_slice(&lb[0..frame_size]);
+                    }
+                    {
+                        let p1 = frame_to_encode.plane_mut::<f32>(1);
+                        p1.copy_from_slice(&rb[0..frame_size]);
+                    }
+                    frame_to_encode.set_pts(audio_pts_counter);
+                    encoder.send_frame(&frame_to_encode).ok();
+
+                    let mut encoded_pkt = ffmpeg::Packet::empty();
+                    while encoder.receive_packet(&mut encoded_pkt).is_ok() {
+                        encoded_pkt.set_stream(out_idx);
+                        encoded_pkt.rescale_ts(encoder.time_base(), out_tb);
+                        encoded_size_bytes += encoded_pkt.size() as u64;
+                        encoded_pkt.write_interleaved(&mut octx).ok();
+                    }
+                }
             }
         }
 
+        // Flush encoder
         encoder.send_eof().ok();
         let mut encoded_pkt = ffmpeg::Packet::empty();
         while encoder.receive_packet(&mut encoded_pkt).is_ok() {

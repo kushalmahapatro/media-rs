@@ -87,7 +87,7 @@ class ImageLabViewModel extends ChangeNotifier {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: false,
         initialDirectory: _pickedFileDirectory?.path,
-        type: FileType.image,
+        // type: FileType.image,
       );
 
       if (result != null && result.files.single.path != null) {

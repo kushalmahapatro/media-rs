@@ -1,0 +1,10 @@
+libavcodec/x86/lossless_videoencdsp_init.o: \
+  libavcodec/x86/lossless_videoencdsp_init.c libavutil/attributes.h \
+  libavutil/cpu.h libavutil/version.h libavutil/macros.h \
+  libavutil/avconfig.h libavutil/x86/asm.h config.h libavutil/x86/cpu.h \
+  libavutil/cpu_internal.h libavcodec/lossless_videoencdsp.h \
+  libavcodec/mathops.h libavutil/attributes_internal.h \
+  libavutil/common.h libavutil/error.h libavutil/intmath.h \
+  libavutil/x86/intmath.h libavutil/internal.h libavutil/libm.h \
+  libavutil/mathematics.h libavutil/rational.h libavutil/intfloat.h \
+  libavcodec/x86/mathops.h

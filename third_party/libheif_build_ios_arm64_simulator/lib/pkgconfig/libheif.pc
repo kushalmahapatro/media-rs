@@ -1,0 +1,14 @@
+prefix=/Users/km/Projects/media-rs/third_party/libheif_build_ios_arm64_simulator
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libheif
+Description: HEIF image codec.
+URL: https://github.com/strukturag/libheif
+Version: 1.18.0
+Requires:
+Requires.private: libde265
+Libs: -L${libdir} -lheif
+Libs.private: -lc++
+Cflags: -I${includedir}

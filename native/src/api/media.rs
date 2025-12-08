@@ -1,6 +1,7 @@
 use crate::api::video::{self, check_output_path, get_file_name_without_extension};
 use crate::frb_generated::StreamSink;
 use anyhow::{Context, Error};
+use image::{DynamicImage, ImageBuffer, Rgb};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -128,7 +129,8 @@ pub async fn generate_video_thumbnail(
 
     match result {
         Ok((thumbnail, _, _)) => {
-            std::fs::write(&output_path, thumbnail)?;
+            std::fs::write(&output_path, thumbnail)
+                .with_context(|| format!("Failed to write thumbnail to: {}", output_path.display()))?;
             Ok(output_path_str)
         }
         Err((e, w, h)) => {
@@ -250,29 +252,395 @@ pub async fn generate_image_thumbnail(
     let output_path = base_output_dir.join(output_file_name);
     let output_path_str = output_path.to_string_lossy().to_string();
 
-    let img = image::open(path).context("Failed to open or decode image file")?;
+    // Try to decode image - use libheif for HEIC (via image crate integration), FFmpeg for other formats
+    // The image crate integration in libheif-rs v2.5+ handles HEIC decoding automatically
+    let img = if path.to_lowercase().ends_with(".heic") || path.to_lowercase().ends_with(".heif") {
+        // For HEIC files, try image crate first (which will use libheif via integration)
+        // If that fails, fall back to direct libheif decoding, then FFmpeg
+        match image::open(&path) {
+            Ok(img) => img,
+            Err(image_err) => {
+                // Try direct libheif decoding
+                match decode_heic_with_libheif(&path) {
+                    Ok(img) => img,
+                    Err(heif_err) => {
+                        // Fall back to FFmpeg
+                        decode_image_with_ffmpeg(&path).with_context(|| {
+                            format!(
+                                "Failed to decode HEIC image. image crate error: {:?}, libheif error: {:?}",
+                                image_err, heif_err
+                            )
+                        })?
+                    }
+                }
+            }
+        }
+    } else {
+        // For non-HEIC files, try FFmpeg first, then image crate
+        match decode_image_with_ffmpeg(&path) {
+            Ok(img) => img,
+            Err(ffmpeg_err) => {
+                // Fall back to image crate for common formats
+                image::open(&path).with_context(|| {
+                    format!(
+                        "Failed to open or decode image file. FFmpeg error: {:?}",
+                        ffmpeg_err
+                    )
+                })?
+            }
+        }
+    };
 
     let thumbnail = img.thumbnail(size.0, size.1);
 
     match output_format {
         OutputFormat::JPEG => {
             thumbnail
-                .save_with_format(output_path, image::ImageFormat::Jpeg)
+                .save_with_format(&output_path, image::ImageFormat::Jpeg)
                 .context("Failed to save JPEG thumbnail")?;
         }
         OutputFormat::PNG => {
             thumbnail
-                .save_with_format(output_path, image::ImageFormat::Png)
+                .save_with_format(&output_path, image::ImageFormat::Png)
                 .context("Failed to save PNG thumbnail")?;
         }
         OutputFormat::WEBP => {
             thumbnail
-                .save_with_format(output_path, image::ImageFormat::WebP)
+                .save_with_format(&output_path, image::ImageFormat::WebP)
                 .context("Failed to save WebP thumbnail")?;
         }
     }
 
     Ok(output_path_str)
+}
+
+/// Decode HEIC/HEIF images using libheif-rs (more reliable than FFmpeg for HEIC)
+fn decode_heic_with_libheif(path: &str) -> Result<DynamicImage, Error> {
+    use libheif_rs::{ColorSpace, HeifContext, LibHeif, RgbChroma};
+
+    // Read file into memory
+    let data =
+        std::fs::read(path).with_context(|| format!("Failed to read HEIC file: {}", path))?;
+
+    // Decode HEIC using libheif
+    let ctx = HeifContext::read_from_bytes(&data)
+        .with_context(|| format!("Failed to parse HEIC file: {}", path))?;
+
+    let handle = ctx
+        .primary_image_handle()
+        .with_context(|| format!("Failed to get primary image handle from HEIC: {}", path))?;
+
+    // Create libheif instance for decoding
+    let lib_heif = LibHeif::new();
+
+    // Decode to RGB (libheif handles the conversion internally)
+    let img = lib_heif
+        .decode(&handle, ColorSpace::Rgb(RgbChroma::Rgb), None)
+        .with_context(|| format!("Failed to decode HEIC image: {}", path))?;
+
+    let width = img.width();
+    let height = img.height();
+
+    // Get the interleaved RGB plane
+    let planes = img.planes();
+    let plane = planes
+        .interleaved
+        .ok_or_else(|| anyhow::anyhow!("HEIC image does not have interleaved RGB plane"))?;
+
+    let stride = plane.stride;
+    let plane_data = &plane.data;
+
+    // Convert libheif buffer → image crate buffer
+    // libheif gives you a buffer with stride; we need tightly-packed RGB
+    let mut rgb = Vec::with_capacity((width * height * 3) as usize);
+    for y in 0..height {
+        let row_start = (y as usize) * stride;
+        let row_end = row_start + (width * 3) as usize;
+        if row_end <= plane_data.len() {
+            rgb.extend_from_slice(&plane_data[row_start..row_end]);
+        } else {
+            return Err(anyhow::anyhow!(
+                "HEIC frame data incomplete: row {} exceeds buffer (stride={}, width={}, data_len={})",
+                y, stride, width, plane_data.len()
+            ));
+        }
+    }
+
+    // Create RGB8 image buffer
+    let img_buf: ImageBuffer<Rgb<u8>, Vec<u8>> = ImageBuffer::from_raw(width, height, rgb)
+        .ok_or_else(|| anyhow::anyhow!("Failed to build image buffer from HEIC data"))?;
+
+    Ok(DynamicImage::ImageRgb8(img_buf))
+}
+
+/// Decode an image file using FFmpeg (supports HEIC and other formats not supported by image crate)
+#[cfg(test)]
+pub fn decode_image_with_ffmpeg(path: &str) -> Result<DynamicImage, Error> {
+    decode_image_with_ffmpeg_impl(path)
+}
+
+#[cfg(not(test))]
+fn decode_image_with_ffmpeg(path: &str) -> Result<DynamicImage, Error> {
+    decode_image_with_ffmpeg_impl(path)
+}
+
+fn decode_image_with_ffmpeg_impl(path: &str) -> Result<DynamicImage, Error> {
+    use ffmpeg_next as ffmpeg;
+
+    ffmpeg::init().context("Failed to initialize ffmpeg")?;
+
+    let mut ictx = ffmpeg::format::input(path)
+        .with_context(|| format!("Failed to open image file with FFmpeg: {}", path))?;
+
+    // Find the best video stream (images are treated as single-frame videos in FFmpeg)
+    let stream = ictx
+        .streams()
+        .best(ffmpeg::media::Type::Video)
+        .ok_or_else(|| anyhow::anyhow!("No video/image stream found in file"))?;
+
+    let stream_index = stream.index();
+    let context = ffmpeg::codec::context::Context::from_parameters(stream.parameters())?;
+    let mut decoder = context.decoder().video()?;
+
+    // Start with decoder dimensions, but track the maximum dimensions from all frames
+    // HEIC images may decode with progressive dimensions, so we need to track the largest
+    let mut max_width = decoder.width();
+    let mut max_height = decoder.height();
+
+    let mut decoded = ffmpeg::util::frame::video::Video::empty();
+    let mut frame_decoded = false;
+
+    // Process all packets - HEIC may decode in multiple passes or tiles
+    for (stream, packet) in ictx.packets() {
+        if stream.index() != stream_index {
+            continue;
+        }
+
+        decoder.send_packet(&packet)?;
+
+        // Receive all frames from this packet
+        while decoder.receive_frame(&mut decoded).is_ok() {
+            frame_decoded = true;
+            let frame_w = decoded.width();
+            let frame_h = decoded.height();
+
+            if frame_w > 0 && frame_h > 0 {
+                // Track the maximum dimensions (HEIC might decode in tiles)
+                if frame_w > max_width {
+                    max_width = frame_w;
+                }
+                if frame_h > max_height {
+                    max_height = frame_h;
+                }
+            }
+        }
+    }
+
+    // Flush decoder to get any remaining frames (critical for HEIC)
+    // HEIC often requires flushing to get the final complete frame
+    decoder.send_eof().ok();
+    while decoder.receive_frame(&mut decoded).is_ok() {
+        frame_decoded = true;
+        let frame_w = decoded.width();
+        let frame_h = decoded.height();
+        if frame_w > 0 && frame_h > 0 {
+            // Track the maximum dimensions
+            if frame_w > max_width {
+                max_width = frame_w;
+            }
+            if frame_h > max_height {
+                max_height = frame_h;
+            }
+        }
+    }
+
+    if !frame_decoded {
+        return Err(anyhow::anyhow!("Failed to decode any frame from image"));
+    }
+
+    // Now decode with the correct dimensions to get the full image
+    // Reinitialize decoder to decode from the beginning
+    drop(ictx); // Drop the old input context
+    let mut ictx = ffmpeg::format::input(path)
+        .with_context(|| format!("Failed to reopen image file with FFmpeg: {}", path))?;
+
+    let stream = ictx
+        .streams()
+        .best(ffmpeg::media::Type::Video)
+        .ok_or_else(|| anyhow::anyhow!("No video/image stream found in file"))?;
+
+    let context = ffmpeg::codec::context::Context::from_parameters(stream.parameters())?;
+    let mut decoder = context.decoder().video()?;
+
+    // Create RGB frame with maximum dimensions to ensure we capture the full image
+    // We'll keep the largest frame we decode (which should be the complete image)
+    let mut rgb_frame =
+        ffmpeg::util::frame::video::Video::new(ffmpeg::format::Pixel::RGB24, max_width, max_height);
+
+    let stream_index = stream.index();
+    let mut decoded = ffmpeg::util::frame::video::Video::empty();
+    let mut scaler: Option<ffmpeg::software::scaling::Context> = None;
+    let mut last_frame_width = 0u32;
+    let mut last_frame_height = 0u32;
+    let mut best_frame_size = 0u32;
+
+    // Process all packets again with correct dimensions
+    // For HEIC, we want to keep the largest frame (which should be the complete image)
+    for (stream, packet) in ictx.packets() {
+        if stream.index() != stream_index {
+            continue;
+        }
+
+        decoder.send_packet(&packet)?;
+        while decoder.receive_frame(&mut decoded).is_ok() {
+            if decoded.width() > 0 && decoded.height() > 0 {
+                let frame_size = decoded.width() * decoded.height();
+
+                // Only use frames that match the maximum dimensions we found
+                // This ensures we get the complete image, not partial tiles or upscaled partial frames
+                // HEIC may decode in progressive passes, so we wait for the full-resolution frame
+                if decoded.width() == max_width && decoded.height() == max_height {
+                    // This is the complete frame at full resolution
+                    // Create or update scaler based on actual frame dimensions
+                    if scaler.is_none()
+                        || decoded.width() != last_frame_width
+                        || decoded.height() != last_frame_height
+                    {
+                        scaler = Some(ffmpeg::software::scaling::Context::get(
+                            decoded.format(),
+                            decoded.width(),
+                            decoded.height(),
+                            ffmpeg::format::Pixel::RGB24,
+                            max_width,
+                            max_height,
+                            ffmpeg::software::scaling::flag::Flags::FAST_BILINEAR,
+                        )?);
+                        last_frame_width = decoded.width();
+                        last_frame_height = decoded.height();
+                    }
+
+                    if let Some(ref mut scaler_ctx) = scaler {
+                        // Scale this complete frame to RGB
+                        scaler_ctx.run(&decoded, &mut rgb_frame)?;
+                        best_frame_size = frame_size;
+                    }
+                } else if frame_size > best_frame_size {
+                    // If we get a larger frame than expected, update max dimensions
+                    // This shouldn't happen often, but handle it just in case
+                    if decoded.width() > max_width {
+                        max_width = decoded.width();
+                    }
+                    if decoded.height() > max_height {
+                        max_height = decoded.height();
+                    }
+                    // Recreate rgb_frame with new dimensions
+                    rgb_frame = ffmpeg::util::frame::video::Video::new(
+                        ffmpeg::format::Pixel::RGB24,
+                        max_width,
+                        max_height,
+                    );
+                    best_frame_size = frame_size;
+                }
+            }
+        }
+    }
+
+    // Flush decoder to get final complete frame
+    decoder.send_eof().ok();
+    while decoder.receive_frame(&mut decoded).is_ok() {
+        if decoded.width() > 0 && decoded.height() > 0 {
+            let frame_size = decoded.width() * decoded.height();
+
+            // Only use frames that match the maximum dimensions
+            if decoded.width() == max_width && decoded.height() == max_height {
+                // This is the complete frame at full resolution
+                if scaler.is_none()
+                    || decoded.width() != last_frame_width
+                    || decoded.height() != last_frame_height
+                {
+                    scaler = Some(ffmpeg::software::scaling::Context::get(
+                        decoded.format(),
+                        decoded.width(),
+                        decoded.height(),
+                        ffmpeg::format::Pixel::RGB24,
+                        max_width,
+                        max_height,
+                        ffmpeg::software::scaling::flag::Flags::FAST_BILINEAR,
+                    )?);
+                    last_frame_width = decoded.width();
+                    last_frame_height = decoded.height();
+                }
+
+                if let Some(ref mut scaler_ctx) = scaler {
+                    scaler_ctx.run(&decoded, &mut rgb_frame)?;
+                    best_frame_size = frame_size;
+                }
+            } else if frame_size > best_frame_size {
+                // Update max dimensions if we find a larger frame
+                if decoded.width() > max_width {
+                    max_width = decoded.width();
+                }
+                if decoded.height() > max_height {
+                    max_height = decoded.height();
+                }
+                rgb_frame = ffmpeg::util::frame::video::Video::new(
+                    ffmpeg::format::Pixel::RGB24,
+                    max_width,
+                    max_height,
+                );
+                best_frame_size = frame_size;
+            }
+        }
+    }
+
+    // Verify we got a complete frame
+    if best_frame_size == 0 {
+        return Err(anyhow::anyhow!(
+            "Failed to decode any complete frame from image"
+        ));
+    }
+
+    // Convert FFmpeg RGB frame to image::DynamicImage
+    let data = rgb_frame.data(0);
+    let stride = rgb_frame.stride(0) as usize;
+    let actual_width_usize = max_width as usize;
+    let actual_height_usize = max_height as usize;
+
+    let mut buf = Vec::with_capacity(actual_width_usize * actual_height_usize * 3);
+
+    // Copy frame data, handling stride correctly
+    for y in 0..actual_height_usize {
+        let row_start = y * stride;
+        let row_end = row_start + (actual_width_usize * 3);
+        if row_end <= data.len() {
+            buf.extend_from_slice(&data[row_start..row_end]);
+        } else {
+            // If stride is larger than expected, only copy what we need
+            let available = data.len().saturating_sub(row_start);
+            let to_copy = (actual_width_usize * 3).min(available);
+            if to_copy > 0 {
+                buf.extend_from_slice(&data[row_start..row_start + to_copy]);
+                // Pad with zeros if needed (shouldn't happen for valid frames)
+                if to_copy < (actual_width_usize * 3) {
+                    buf.resize(actual_width_usize * actual_height_usize * 3, 0);
+                    break;
+                }
+            } else {
+                return Err(anyhow::anyhow!(
+                    "Frame data incomplete: row {} exceeds buffer (stride={}, width={}, data_len={})",
+                    y,
+                    stride,
+                    max_width,
+                    data.len()
+                ));
+            }
+        }
+    }
+
+    let img_buffer = image::ImageBuffer::<image::Rgb<u8>, _>::from_raw(max_width, max_height, buf)
+        .ok_or_else(|| anyhow::anyhow!("Failed to create image buffer from FFmpeg frame"))?;
+
+    Ok(image::DynamicImage::ImageRgb8(img_buffer))
 }
 
 pub fn estimate_compression(

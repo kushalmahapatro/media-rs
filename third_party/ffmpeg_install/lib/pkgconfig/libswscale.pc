@@ -1,7 +1,7 @@
-prefix=/Users/km/Projects/media-rs/third_party/ffmpeg_install
+prefix=/Users/mkus7697/Projects/KATIM/media-rs/third_party/ffmpeg_install
 exec_prefix=${prefix}
-libdir=/Users/km/Projects/media-rs/third_party/ffmpeg_build_arm64/lib
-includedir=/Users/km/Projects/media-rs/third_party/ffmpeg_build_arm64/include
+libdir=/Users/mkus7697/Projects/KATIM/media-rs/third_party/ffmpeg_build_arm64/lib
+includedir=/Users/mkus7697/Projects/KATIM/media-rs/third_party/ffmpeg_build_arm64/include
 
 Name: libswscale
 Description: FFmpeg image rescaling library

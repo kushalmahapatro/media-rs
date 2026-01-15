@@ -1,0 +1,2 @@
+/Users/mkus7697/Library/Android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar qc libheifio.a CMakeFiles/heifio.dir/decoder_y4m.cc.o CMakeFiles/heifio.dir/encoder.cc.o CMakeFiles/heifio.dir/encoder_y4m.cc.o CMakeFiles/heifio.dir/exif.cc.o CMakeFiles/heifio.dir/stubs.cc.o
+/Users/mkus7697/Library/Android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib libheifio.a

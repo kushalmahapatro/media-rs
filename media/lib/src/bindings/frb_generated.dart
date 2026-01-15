@@ -514,14 +514,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   CompressParams dco_decode_compress_params(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return CompressParams(
       targetBitrateKbps: dco_decode_u_32(arr[0]),
       preset: dco_decode_opt_String(arr[1]),
       crf: dco_decode_opt_box_autoadd_u_8(arr[2]),
       width: dco_decode_opt_box_autoadd_u_32(arr[3]),
       height: dco_decode_opt_box_autoadd_u_32(arr[4]),
+      sampleDurationMs: dco_decode_opt_box_autoadd_u_64(arr[5]),
     );
   }
 
@@ -838,12 +839,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_crf = sse_decode_opt_box_autoadd_u_8(deserializer);
     var var_width = sse_decode_opt_box_autoadd_u_32(deserializer);
     var var_height = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_sampleDurationMs = sse_decode_opt_box_autoadd_u_64(deserializer);
     return CompressParams(
       targetBitrateKbps: var_targetBitrateKbps,
       preset: var_preset,
       crf: var_crf,
       width: var_width,
       height: var_height,
+      sampleDurationMs: var_sampleDurationMs,
     );
   }
 
@@ -1277,6 +1280,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_box_autoadd_u_8(self.crf, serializer);
     sse_encode_opt_box_autoadd_u_32(self.width, serializer);
     sse_encode_opt_box_autoadd_u_32(self.height, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.sampleDurationMs, serializer);
   }
 
   @protected

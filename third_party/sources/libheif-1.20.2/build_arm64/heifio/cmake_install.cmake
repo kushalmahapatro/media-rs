@@ -1,8 +1,8 @@
-# Install script for directory: /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/heifio
+# Install script for directory: /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/heifio
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/Users/km/Projects/media-rs/third_party/libheif_build_macos_arm64")
+  set(CMAKE_INSTALL_PREFIX "/Users/mkus7697/Projects/KATIM/media-rs/third_party/libheif_build_macos_arm64")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,6 +40,6 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/heifio/install_local_manifest.txt"
+  file(WRITE "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_arm64/heifio/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

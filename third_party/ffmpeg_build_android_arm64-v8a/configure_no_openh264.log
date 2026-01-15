@@ -1,6 +1,6 @@
-install prefix            /Users/km/Projects/media-rs/third_party/ffmpeg_build_android_arm64-v8a
+install prefix            /Users/mkus7697/Projects/KATIM/media-rs/third_party/ffmpeg_build_android_arm64-v8a
 source path               .
-C compiler                /Users/km/Library/Android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+C compiler                /Users/mkus7697/Library/Android/sdk/ndk/27.3.13750724//toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
 C library                 bionic
 host C compiler           clang
 host C library            
@@ -32,7 +32,7 @@ External libraries:
 jni                     zlib
 
 External libraries providing hardware acceleration:
-v4l2_m2m
+cuda_llvm               v4l2_m2m
 
 Libraries:
 avcodec                 avutil                  swscale
@@ -524,3 +524,15 @@ Enabled indevs:
 Enabled outdevs:
 
 License: LGPL version 2.1 or later
+config.h is unchanged
+config_components.h is unchanged
+libavutil/avconfig.h is unchanged
+libavfilter/filter_list.c is unchanged
+libavcodec/codec_list.c is unchanged
+libavcodec/parser_list.c is unchanged
+libavcodec/bsf_list.c is unchanged
+libavformat/demuxer_list.c is unchanged
+libavformat/muxer_list.c is unchanged
+libavdevice/indev_list.c is unchanged
+libavdevice/outdev_list.c is unchanged
+libavformat/protocol_list.c is unchanged

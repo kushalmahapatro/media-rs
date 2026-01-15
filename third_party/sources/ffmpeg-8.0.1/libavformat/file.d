@@ -7,5 +7,4 @@ libavformat/file.o: libavformat/file.c config_components.h \
   libavutil/version.h libavutil/intmath.h libavutil/x86/intmath.h \
   libavutil/log.h libavutil/pixfmt.h libavutil/channel_layout.h \
   libavutil/dict.h libavutil/samplefmt.h libavformat/avio.h \
-  libavformat/version_major.h libavformat/os_support.h libavformat/url.h \
-  libavcodec/ffjni.h libavcodec/jni.h
+  libavformat/version_major.h libavformat/os_support.h libavformat/url.h

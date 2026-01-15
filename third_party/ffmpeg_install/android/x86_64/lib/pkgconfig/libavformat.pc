@@ -1,7 +1,7 @@
-prefix=/Users/km/Projects/media-rs/third_party/ffmpeg_install/android/x86_64
+prefix=/Users/mkus7697/Projects/KATIM/media-rs/third_party/ffmpeg_install/android/x86_64
 exec_prefix=${prefix}
-libdir=/Users/km/Projects/media-rs/third_party/ffmpeg_build_android_x86_64/lib
-includedir=/Users/km/Projects/media-rs/third_party/ffmpeg_build_android_x86_64/include
+libdir=${prefix}/lib
+includedir=${prefix}/include
 
 Name: libavformat
 Description: FFmpeg container format library

@@ -384,6 +384,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       cst_encode_opt_box_autoadd_u_8(raw.crf),
       cst_encode_opt_box_autoadd_u_32(raw.width),
       cst_encode_opt_box_autoadd_u_32(raw.height),
+      cst_encode_opt_box_autoadd_u_64(raw.sampleDurationMs),
     ].jsify()!;
   }
 

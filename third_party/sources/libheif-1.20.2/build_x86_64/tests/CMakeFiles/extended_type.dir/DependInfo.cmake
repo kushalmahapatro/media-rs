@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/tests/extended_type.cc" "tests/CMakeFiles/extended_type.dir/extended_type.cc.o" "gcc" "tests/CMakeFiles/extended_type.dir/extended_type.cc.o.d"
+  "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/tests/extended_type.cc" "tests/CMakeFiles/extended_type.dir/extended_type.cc.o" "gcc" "tests/CMakeFiles/extended_type.dir/extended_type.cc.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

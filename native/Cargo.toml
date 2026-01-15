@@ -9,7 +9,7 @@ crate-type = ["cdylib", "rlib", "staticlib"]
 
 [dependencies]
 flutter_rust_bridge = "=2.11.1"
-ffmpeg-next = { version = "8", default-features = false, features = [
+ffmpeg-next = { version = "8.0.0", default-features = false, features = [
     "codec",
     "format",
     "software-scaling",
@@ -27,3 +27,4 @@ libheif-sys = { version = "5.0" }
 
 [patch.crates-io]
 ffmpeg-sys-next = { path = "../third_party/rust-ffmpeg-sys" }
+ffmpeg-next = { path = "../third_party/rust-ffmpeg" }

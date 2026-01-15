@@ -1,7 +1,7 @@
-prefix=/Users/km/Projects/media-rs/third_party/ffmpeg_build_x86_64
+prefix=/Users/mkus7697/Projects/KATIM/media-rs/third_party/ffmpeg_build_x86_64
 exec_prefix=${prefix}
-libdir=/Users/km/Projects/media-rs/third_party/ffmpeg_build_x86_64/lib
-includedir=/Users/km/Projects/media-rs/third_party/ffmpeg_build_x86_64/include
+libdir=/Users/mkus7697/Projects/KATIM/media-rs/third_party/ffmpeg_build_x86_64/lib
+includedir=/Users/mkus7697/Projects/KATIM/media-rs/third_party/ffmpeg_build_x86_64/include
 
 Name: libavutil
 Description: FFmpeg utility library

@@ -1,3 +1,55 @@
 {
-  "dart.flutterSdkPath": ".fvm/versions/3.38.4"
+  "dart.flutterSdkPath": ".fvm/versions/3.38.5",
+  "rust-analyzer.linkedProjects": [
+    "native/Cargo.toml"
+  ],
+  "rust-analyzer.cargo.buildScripts.enable": true,
+  "rust-analyzer.procMacro.enable": true,
+  "dart.enableSdkFormatter": true,
+  "dart.lineLength": 120,
+  "dart.insertArgumentPlaceholders": false,
+  "dart.promptToGetPackages": false,
+  "dart.runPubGetOnPubspecChanges": "always",
+  "files.associations": {
+    "Makefile.android": "makefile",
+    "Makefile.apple": "makefile",
+    "Makefile.windows": "makefile",
+    "Makefile.linux": "makefile",
+    "Makefile.devtool": "makefile",
+    "*.rs": "rust",
+    "*.toml": "toml",
+    "*.yaml": "yaml",
+    "*.yml": "yaml",
+    "Makefile": "makefile"
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.rulers": [
+      120
+    ]
+  },
+  "[yaml]": {
+    "editor.formatOnSave": true
+  },
+  "[toml]": {
+    "editor.formatOnSave": true
+  },
+  "search.exclude": {
+    "**/target": true,
+    "**/node_modules": true,
+    "**/.dart_tool": true,
+    "**/build": true,
+    "**/.fvm": true
+  },
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "rust-analyzer.server.path": "rust-analyzer",
+  "rust-analyzer.imports.granularity.group": "module",
+  "rust-analyzer.imports.prefix": "crate"
 }

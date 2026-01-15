@@ -26,5 +26,5 @@
 
 #include <string>
 
-std::string tests_data_directory = "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/tests/data";
-std::string libheifio_tests_data_directory = "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/tests/data/heifio";
+std::string tests_data_directory = "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/tests/data";
+std::string libheifio_tests_data_directory = "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/tests/data/heifio";

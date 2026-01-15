@@ -87,13 +87,17 @@ class VideoLabViewModel extends ChangeNotifier {
   bool _isCompressing = false;
   bool get isCompressing => _isCompressing;
 
+  bool _isDownscaling = false;
+  bool get isDownscaling => _isDownscaling;
+
   String? _compressionError;
   String? get compressionError => _compressionError;
 
+  String? _downscaleError;
+  String? get downscaleError => _downscaleError;
+
   // --- Timeline State ---
-  final TextEditingController numThumbnailsController = TextEditingController(
-    text: "10",
-  );
+  final TextEditingController numThumbnailsController = TextEditingController(text: "10");
   final List<String> _timelineThumbnails = [];
   List<String> get timelineThumbnails => List.unmodifiable(_timelineThumbnails);
 
@@ -125,11 +129,7 @@ class VideoLabViewModel extends ChangeNotifier {
 
   // Aggregated Error Getter
   String? get activeError {
-    return _infoError ??
-        _thumbnailError ??
-        _estimationError ??
-        _compressionError ??
-        _timelineError;
+    return _infoError ?? _thumbnailError ?? _estimationError ?? _compressionError ?? _timelineError;
   }
 
   void dismissError() {
@@ -240,9 +240,7 @@ class VideoLabViewModel extends ChangeNotifier {
   }
 
   Future<void> runEstimation() async {
-    if (_selectedPath == null ||
-        _videoInfo == null ||
-        _compressedOutputPath == null) {
+    if (_selectedPath == null || _videoInfo == null || _compressedOutputPath == null) {
       return;
     }
 
@@ -256,7 +254,7 @@ class VideoLabViewModel extends ChangeNotifier {
     final int targetBitrateKbps = _targetBitrateKbps ?? 1000;
     final int targetCrf = _targetCrf ?? 28;
     final String preset = "veryfast";
-
+    final BigInt sampleDurationMs = BigInt.from(3000);
     try {
       final estimate = await estimateCompression(
         path: _selectedPath!,
@@ -267,6 +265,7 @@ class VideoLabViewModel extends ChangeNotifier {
           height: height,
           preset: preset,
           crf: targetCrf,
+          sampleDurationMs: sampleDurationMs,
         ),
       );
       _estimate = estimate;
@@ -323,12 +322,11 @@ class VideoLabViewModel extends ChangeNotifier {
       notifyListeners();
     }
     _compressedDuration = BigInt.from(stopwatch.elapsedMilliseconds);
+    notifyListeners();
   }
 
   Future<void> runTimelineGeneration() async {
-    if (_selectedPath == null ||
-        _generatingTimeline ||
-        _thumbnailOutputPath == null) {
+    if (_selectedPath == null || _generatingTimeline || _thumbnailOutputPath == null) {
       return;
     }
 
@@ -347,15 +345,9 @@ class VideoLabViewModel extends ChangeNotifier {
     try {
       final stream = generateVideoTimelineThumbnails(
         path: _selectedPath!,
-        outputPath: join(
-          _thumbnailOutputPath!,
-          "timeline_${DateTime.now().millisecondsSinceEpoch}",
-        ),
+        outputPath: join(_thumbnailOutputPath!, "timeline_${DateTime.now().millisecondsSinceEpoch}"),
         numThumbnails: numThumbnails,
-        params: const ImageThumbnailParams(
-          sizeType: ThumbnailSizeType.small(),
-          format: OutputFormat.webp,
-        ),
+        params: const ImageThumbnailParams(sizeType: ThumbnailSizeType.small(), format: OutputFormat.webp),
       );
 
       _timelineSubscription = stream.listen(

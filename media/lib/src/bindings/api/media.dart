@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'media.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `decode_image_with_ffmpeg`
+// These functions are ignored because they are not marked as `pub`: `decode_heic_with_libheif`, `decode_image_with_ffmpeg_impl`, `decode_image_with_ffmpeg`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `CompressProgress`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
@@ -80,6 +80,7 @@ class CompressParams {
   final int? crf;
   final int? width;
   final int? height;
+  final BigInt? sampleDurationMs;
 
   const CompressParams({
     required this.targetBitrateKbps,
@@ -87,6 +88,7 @@ class CompressParams {
     this.crf,
     this.width,
     this.height,
+    this.sampleDurationMs,
   });
 
   @override
@@ -95,7 +97,8 @@ class CompressParams {
       preset.hashCode ^
       crf.hashCode ^
       width.hashCode ^
-      height.hashCode;
+      height.hashCode ^
+      sampleDurationMs.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -106,7 +109,8 @@ class CompressParams {
           preset == other.preset &&
           crf == other.crf &&
           width == other.width &&
-          height == other.height;
+          height == other.height &&
+          sampleDurationMs == other.sampleDurationMs;
 }
 
 class CompressionEstimate {

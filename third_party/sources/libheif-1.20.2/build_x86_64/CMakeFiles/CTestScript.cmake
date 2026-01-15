@@ -2,11 +2,11 @@
 # If you choose not to use CMake, this file may be hand configured, by
 # filling in the required variables.
 
-cmake_minimum_required(VERSION 4.2.0)
+cmake_minimum_required(VERSION 4.1.1)
 
 # CTest Start Step
-set(CTEST_SOURCE_DIRECTORY "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2")
-set(CTEST_BINARY_DIRECTORY "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64")
+set(CTEST_SOURCE_DIRECTORY "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2")
+set(CTEST_BINARY_DIRECTORY "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64")
 
 # CTest Update Step
 set(CTEST_UPDATE_COMMAND "")
@@ -61,7 +61,7 @@ set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "")
 set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE "")
 
 # CTest Submit Step
-set(CTEST_SITE "MacBookPro")
+set(CTEST_SITE "AEB-M5G12HQX")
 set(CTEST_BUILD_NAME "Darwin-c++")
 set(CTEST_SUBMIT_URL "http://")
 set(CTEST_SUBMIT_INACTIVITY_TIMEOUT "")

@@ -1,8 +1,8 @@
-# Install script for directory: /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2
+# Install script for directory: /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/Users/km/Projects/media-rs/third_party/libheif_build_macos_x86_64")
+  set(CMAKE_INSTALL_PREFIX "/Users/mkus7697/Projects/KATIM/media-rs/third_party/libheif_build_macos_x86_64")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,38 +38,38 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/libheif.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/libheif.pc")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/heifio/cmake_install.cmake")
+  include("/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/heifio/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/tests/cmake_install.cmake")
+  include("/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/tests/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/libheif/cmake_install.cmake")
+  include("/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/libheif/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/gdk-pixbuf/cmake_install.cmake")
+  include("/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/gdk-pixbuf/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/gnome/cmake_install.cmake")
+  include("/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/gnome/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/install_local_manifest.txt"
+  file(WRITE "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -85,6 +85,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

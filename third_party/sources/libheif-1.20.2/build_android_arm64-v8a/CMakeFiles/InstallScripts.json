@@ -1,0 +1,13 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_android_arm64-v8a/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_android_arm64-v8a/heifio/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_android_arm64-v8a/tests/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_android_arm64-v8a/libheif/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_android_arm64-v8a/libheif/plugins/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_android_arm64-v8a/gdk-pixbuf/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_android_arm64-v8a/gnome/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -16,9 +16,7 @@ class FilePickerWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ElevatedButton.icon(
-          onPressed: viewModel.isInfoLoading || viewModel.isCompressing
-              ? null
-              : viewModel.pickFile,
+          onPressed: viewModel.isInfoLoading || viewModel.isCompressing ? null : viewModel.pickFile,
           icon: const Icon(Icons.video_library),
           label: const Text('Pick Video File'),
         ),
@@ -26,10 +24,7 @@ class FilePickerWidget extends StatelessWidget {
         if (viewModel.isInfoLoading)
           const Center(child: CircularProgressIndicator())
         else if (viewModel.selectedPath != null) ...[
-          Text(
-            'Selected: ${viewModel.selectedPath}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text('Selected: ${viewModel.selectedPath}', style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           TextButton.icon(
             onPressed: () => showInExplorer(viewModel.selectedPath!),
@@ -62,12 +57,8 @@ class VideoMetadataWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Original Duration: ${videoInfo!.durationMs} ms'),
-            Text(
-              'Original Resolution: ${videoInfo!.width}x${videoInfo!.height}',
-            ),
-            Text(
-              'Original Size: $sizeStringBytes / $sizeStringKB / $sizeStringMB',
-            ),
+            Text('Original Resolution: ${videoInfo!.width}x${videoInfo!.height}'),
+            Text('Original Size: $sizeStringBytes / $sizeStringKB / $sizeStringMB'),
           ],
         ),
       ),
@@ -91,17 +82,12 @@ class CompressionWidget extends StatelessWidget {
         if (viewModel.videoInfo!.suggestions.isNotEmpty) ...[
           DropdownButtonFormField<ResolutionPreset?>(
             initialValue: viewModel.selectedPreset,
-            decoration: const InputDecoration(
-              labelText: "Quality Preset",
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: "Quality Preset", border: OutlineInputBorder()),
             items: [
               ...viewModel.videoInfo!.suggestions.map((preset) {
                 return DropdownMenuItem(
                   value: preset,
-                  child: Text(
-                    "${preset.name} (${preset.width}x${preset.height})",
-                  ),
+                  child: Text("${preset.name} (${preset.width}x${preset.height})"),
                 );
               }),
               const DropdownMenuItem(value: null, child: Text("Custom")),
@@ -138,40 +124,23 @@ class CompressionWidget extends StatelessWidget {
         const SizedBox(height: 20),
 
         const Divider(),
-        const Text(
-          "Compression Controls",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        if (viewModel.targetBitrateKbps != null)
-          Text("Target: ${viewModel.targetBitrateKbps} kbps"),
+        const Text("Compression Controls", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        if (viewModel.targetBitrateKbps != null) Text("Target: ${viewModel.targetBitrateKbps} kbps"),
         const SizedBox(height: 10),
 
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ElevatedButton(
-              onPressed:
-                  viewModel.isEstimationLoading || viewModel.isCompressing
-                  ? null
-                  : viewModel.runEstimation,
+              onPressed: viewModel.isEstimationLoading || viewModel.isCompressing ? null : viewModel.runEstimation,
               child: viewModel.isEstimationLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Text("Estimate Size"),
             ),
             ElevatedButton(
-              onPressed: viewModel.isCompressing
-                  ? null
-                  : viewModel.runCompression,
+              onPressed: viewModel.isCompressing ? null : viewModel.runCompression,
               child: viewModel.isCompressing
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Text("Compress Video"),
             ),
           ],
@@ -186,8 +155,7 @@ class CompressionWidget extends StatelessWidget {
               final String estimateSizeStringKB = '${size.kb} KB';
               final String estimateSizeStringMB = '${size.mb} MB';
 
-              final String estimateDurationString =
-                  '${viewModel.estimate!.estimatedDurationMs} ms';
+              final String estimateDurationString = '${viewModel.estimate!.estimatedDurationMs} ms';
               final String estimateDurationStringSec =
                   '${viewModel.estimate!.estimatedDurationMs / BigInt.from(1000)} sec';
 
@@ -201,9 +169,7 @@ class CompressionWidget extends StatelessWidget {
                       Text(
                         "Estimated New Size: $estimateSizeStringBytes / $estimateSizeStringKB / $estimateSizeStringMB",
                       ),
-                      Text(
-                        "Estimated Duration: $estimateDurationString / $estimateDurationStringSec",
-                      ),
+                      Text("Estimated Duration: $estimateDurationString / $estimateDurationStringSec"),
                     ],
                   ),
                 ),
@@ -221,10 +187,8 @@ class CompressionWidget extends StatelessWidget {
               final String compressedSizeStringKB = '${size.kb} KB';
               final String compressedSizeStringMB = '${size.mb} MB';
 
-              final String compressedDurationString =
-                  '${viewModel.compressedDuration!} ms';
-              final String compressedDurationStringSec =
-                  '${viewModel.compressedDuration! / BigInt.from(1000)} sec';
+              final String compressedDurationString = '${viewModel.compressedDuration!} ms';
+              final String compressedDurationStringSec = '${viewModel.compressedDuration! / BigInt.from(1000)} sec';
 
               return Card(
                 color: Colors.green.shade50,
@@ -238,10 +202,7 @@ class CompressionWidget extends StatelessWidget {
                           Expanded(
                             child: Text(
                               viewModel.compressionResult!,
-                              style: const TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                             ),
                           ),
                           TextButton.icon(
@@ -261,9 +222,7 @@ class CompressionWidget extends StatelessWidget {
                         "Compressed Size: $compressedSizeStringBytes / $compressedSizeStringKB / $compressedSizeStringMB",
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        "Compressed Duration: $compressedDurationString / $compressedDurationStringSec",
-                      ),
+                      Text("Compressed Duration: $compressedDurationString / $compressedDurationStringSec"),
                     ],
                   ),
                 ),
@@ -289,34 +248,23 @@ class TimelineWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Divider(),
-        const Text(
-          "Timeline Generation",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+        const Text("Timeline Generation", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
               child: TextField(
                 controller: viewModel.numThumbnailsController,
-                decoration: const InputDecoration(
-                  labelText: "Number of Thumbnails",
-                ),
+                decoration: const InputDecoration(labelText: "Number of Thumbnails"),
                 keyboardType: TextInputType.number,
                 enabled: !viewModel.generatingTimeline,
               ),
             ),
             const SizedBox(width: 10),
             ElevatedButton(
-              onPressed: viewModel.generatingTimeline
-                  ? null
-                  : viewModel.runTimelineGeneration,
+              onPressed: viewModel.generatingTimeline ? null : viewModel.runTimelineGeneration,
               child: viewModel.generatingTimeline
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Text("Generate Timeline"),
             ),
           ],
@@ -337,20 +285,13 @@ class TimelineWidget extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: GestureDetector(
                         onTap: () => showInExplorer(path), // Tap to open
-                        onSecondaryTap: () =>
-                            showInExplorer(path), // Right click
+                        onSecondaryTap: () => showInExplorer(path), // Right click
                         onLongPress: () => showInExplorer(path), // Long press
                         child: Column(
                           children: [
                             Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                              ),
-                              child: Image.file(
-                                File(path),
-                                height: 100,
-                                fit: BoxFit.contain,
-                              ),
+                              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+                              child: Image.file(File(path), height: 100, fit: BoxFit.contain),
                             ),
                           ],
                         ),
@@ -412,11 +353,7 @@ class ThumbnailSeekerWidget extends StatelessWidget {
             decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
             child: InkWell(
               onTap: () => showInExplorer(viewModel.thumbnailPath!),
-              child: Image.file(
-                File(viewModel.thumbnailPath!),
-                height: 200,
-                fit: BoxFit.contain,
-              ),
+              child: Image.file(File(viewModel.thumbnailPath!), height: 200, fit: BoxFit.contain),
             ),
           ),
           const SizedBox(height: 8),

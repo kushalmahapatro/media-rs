@@ -85,7 +85,8 @@ pub struct CompressParams {
     pub preset: Option<String>,   // e.g. "veryfast"
     pub crf: Option<u8>,          // quality, 0-51, lower is better
     pub width: Option<u32>,       // if None, use original width
-    pub height: Option<u32>,      // if None, use original height
+    pub height: Option<u32>,
+    pub sample_duration_ms: Option<u64>, // if None, use original height
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -129,8 +130,9 @@ pub async fn generate_video_thumbnail(
 
     match result {
         Ok((thumbnail, _, _)) => {
-            std::fs::write(&output_path, thumbnail)
-                .with_context(|| format!("Failed to write thumbnail to: {}", output_path.display()))?;
+            std::fs::write(&output_path, thumbnail).with_context(|| {
+                format!("Failed to write thumbnail to: {}", output_path.display())
+            })?;
             Ok(output_path_str)
         }
         Err((e, w, h)) => {

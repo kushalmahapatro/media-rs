@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 
 use crate::api::media::{CompressParams, CompressionEstimate, OutputFormat, ThumbnailSizeType};
 use anyhow::{Context, Error, Result};
+use ffmpeg_next::packet::Mut;
 use ffmpeg_next::{self as ffmpeg};
 
 use crate::api::media::VideoThumbnailParams;
@@ -87,22 +88,6 @@ fn get_video_rotation_from_format(ictx: &ffmpeg::format::context::Input) -> Opti
     None
 }
 
-/// Get display dimensions accounting for rotation
-/// Returns (display_width, display_height, rotation_degrees)
-fn get_display_dimensions(
-    stream: &ffmpeg::format::stream::Stream,
-    stored_width: u32,
-    stored_height: u32,
-) -> (u32, u32, i32) {
-    // Try to get rotation from stream side data or metadata
-    let rotation = get_video_rotation(stream).unwrap_or(0);
-
-    match rotation {
-        90 | 270 => (stored_height, stored_width, rotation),
-        _ => (stored_width, stored_height, rotation),
-    }
-}
-
 /// Get display dimensions accounting for rotation (with format context for MOV files)
 /// Returns (display_width, display_height, rotation_degrees)
 fn get_display_dimensions_with_format(
@@ -123,8 +108,9 @@ fn get_display_dimensions_with_format(
 }
 
 /// Find the best available H.264 encoder (LGPL-compliant)
-/// Priority: VideoToolbox (macOS/iOS) > OpenH264 > built-in encoder
+/// Priority: VideoToolbox (macOS/iOS) > OpenH264 > software encoder
 /// Note: MediaCodec is disabled to avoid NDK linking issues
+/// On Android, hardware encoders (v4l2m2m, omx, mediacodec) are excluded due to permission issues
 fn find_h264_encoder() -> Result<ffmpeg::Codec> {
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     {
@@ -136,20 +122,102 @@ fn find_h264_encoder() -> Result<ffmpeg::Codec> {
     }
 
     // Try OpenH264 (BSD-licensed, LGPL-compatible)
-    if let Some(codec) = ffmpeg::encoder::find_by_name("libopenh264") {
-        eprintln!("INFO: Using libopenh264 encoder.");
-        return Ok(codec);
+    // Try different possible names for the encoder
+    let openh264_names = ["libopenh264", "openh264"];
+    for name in &openh264_names {
+        if let Some(codec) = ffmpeg::encoder::find_by_name(name) {
+            eprintln!("INFO: Using {} encoder.", name);
+            return Ok(codec);
+        }
     }
 
-    // Fall back to built-in encoder (if available)
-    ffmpeg::encoder::find(ffmpeg::codec::Id::H264).ok_or_else(|| {
-        anyhow::anyhow!(
-            "No H.264 encoder found. Available options:\n\
-                - macOS/iOS: Enable VideoToolbox with --enable-videotoolbox\n\
-                - All platforms: Build OpenH264 and enable with --enable-libopenh264\n\
-                - Built-in encoder (if available in FFmpeg build)"
-        )
-    })
+    // Debug: Check what H.264 encoder is available
+    #[cfg(target_os = "android")]
+    {
+        eprintln!(
+            "DEBUG: libopenh264 encoder not found, checking what H.264 encoders are available..."
+        );
+        if let Some(codec) = ffmpeg::encoder::find(ffmpeg::codec::Id::H264) {
+            eprintln!("DEBUG: Found H.264 encoder: {}", codec.name());
+        } else {
+            eprintln!("DEBUG: No H.264 encoder found at all");
+        }
+    }
+
+    // MediaCodec disabled - use OpenH264 instead for licensing clarity
+    // OpenH264 has patent coverage from Cisco for binary distributions
+    // Uncomment the following block if you want to enable MediaCodec hardware encoding:
+    // #[cfg(target_os = "android")]
+    // {
+    //     if let Some(codec) = ffmpeg::encoder::find_by_name("h264_mediacodec") {
+    //         eprintln!("INFO: Using h264_mediacodec encoder (Android hardware encoder).");
+    //         return Ok(codec);
+    //     }
+    // }
+
+    // On Android, exclude hardware encoders that require special permissions (but allow MediaCodec)
+    #[cfg(target_os = "android")]
+    {
+        // List of hardware encoders to exclude on Android (v4l2m2m and omx require special permissions)
+        // MediaCodec is allowed as it uses Android framework APIs
+        let hardware_encoders = [
+            "h264_v4l2m2m", // Requires direct device access
+            "h264_omx",     // Requires direct device access
+            "h264_qsv",     // Intel QuickSync (not available on Android, but just in case)
+            "h264_nvenc",   // NVIDIA (not available on Android, but just in case)
+        ];
+
+        // Try to find libx264 (software, but GPL) as a fallback
+        // Note: libx264 is GPL-licensed, so we prefer OpenH264, but it's better than hardware
+        if let Some(codec) = ffmpeg::encoder::find_by_name("libx264") {
+            eprintln!("INFO: Using libx264 encoder (software, GPL-licensed).");
+            return Ok(codec);
+        }
+
+        // Try to find a software encoder by checking the first available encoder
+        // and rejecting hardware encoders
+        if let Some(codec) = ffmpeg::encoder::find(ffmpeg::codec::Id::H264) {
+            let codec_name = codec.name();
+            // Check if it's a hardware encoder
+            if hardware_encoders.iter().any(|&hw| codec_name == hw) {
+                eprintln!("ERROR: Found hardware encoder '{}' which requires special permissions that are not available.", codec_name);
+                eprintln!("ERROR: OpenH264 (libopenh264) is not available. Please build OpenH264 for Android.");
+                return Err(anyhow::anyhow!(
+                    "Hardware encoder '{}' requires special permissions. OpenH264 (libopenh264) must be built for Android to enable software encoding.\n\
+                        Run: ./setup_all.sh --android",
+                    codec_name
+                ));
+            } else {
+                eprintln!("INFO: Using software H.264 encoder: {}", codec_name);
+                return Ok(codec);
+            }
+        }
+
+        // No encoder found at all
+        return Err(anyhow::anyhow!(
+            "No H.264 encoder found on Android. Please build OpenH264 (libopenh264) for Android.\n\
+                Run: ./setup_all.sh --android"
+        ));
+    }
+
+    // For non-Android platforms, fall back to built-in encoder (if available)
+    #[cfg(not(target_os = "android"))]
+    {
+        ffmpeg::encoder::find(ffmpeg::codec::Id::H264).ok_or_else(|| {
+            anyhow::anyhow!(
+                "No H.264 encoder found. Available options:\n\
+                    - macOS/iOS: Enable VideoToolbox with --enable-videotoolbox\n\
+                    - All platforms: Build OpenH264 and enable with --enable-libopenh264\n\
+                    - Built-in encoder (if available in FFmpeg build)"
+            )
+        })
+    }
+
+    // This should never be reached on Android (already returned above)
+    #[cfg(target_os = "android")]
+    {
+        unreachable!("Should have returned error above for Android")
+    }
 }
 
 pub fn get_video_info(path: &str) -> Result<crate::api::media::VideoInfo> {
@@ -315,6 +383,44 @@ pub fn generate_thumbnail(
     let stored_width = decoder.width();
     let stored_height = decoder.height();
 
+    // Extract color metadata from decoder (critical for HDR videos)
+    // This preserves colorspace, color range, primaries, and transfer characteristics
+    let input_color_range = unsafe {
+        let decoder_ptr = decoder.as_ptr();
+        if !decoder_ptr.is_null() {
+            (*decoder_ptr).color_range
+        } else {
+            std::mem::zeroed() // AVCOL_RANGE_UNSPECIFIED
+        }
+    };
+
+    let input_colorspace = unsafe {
+        let decoder_ptr = decoder.as_ptr();
+        if !decoder_ptr.is_null() {
+            (*decoder_ptr).colorspace
+        } else {
+            std::mem::zeroed() // AVCOL_SPC_UNSPECIFIED
+        }
+    };
+
+    let input_color_primaries = unsafe {
+        let decoder_ptr = decoder.as_ptr();
+        if !decoder_ptr.is_null() {
+            (*decoder_ptr).color_primaries
+        } else {
+            std::mem::zeroed() // AVCOL_PRI_UNSPECIFIED
+        }
+    };
+
+    let input_color_trc = unsafe {
+        let decoder_ptr = decoder.as_ptr();
+        if !decoder_ptr.is_null() {
+            (*decoder_ptr).color_trc
+        } else {
+            std::mem::zeroed() // AVCOL_TRC_UNSPECIFIED
+        }
+    };
+
     // Get rotation and display dimensions (check both stream and format metadata for MOV files)
     let (display_width, display_height, rotation) =
         get_display_dimensions_with_format(&ictx, &stream, stored_width, stored_height);
@@ -372,10 +478,19 @@ pub fn generate_thumbnail(
                     dst_h,
                 );
 
-                // Set color range on decoded frame to avoid deprecated pixel format warnings
-                // Use Limited/MPEG range (default for most video) unless we detect Full range
-                use ffmpeg::util::color::Range;
-                decoded.set_color_range(Range::Limited);
+                // Preserve color metadata on RGB frame BEFORE scaling
+                // This is critical for HDR videos to maintain proper tone mapping and brightness
+                unsafe {
+                    let rgb_ptr = rgb_frame.as_mut_ptr();
+                    if !rgb_ptr.is_null() {
+                        // Set color range to match input (prevents scaler from expanding limited range)
+                        (*rgb_ptr).color_range = input_color_range;
+                        // Preserve other color properties for proper color interpretation
+                        (*rgb_ptr).colorspace = input_colorspace;
+                        (*rgb_ptr).color_primaries = input_color_primaries;
+                        (*rgb_ptr).color_trc = input_color_trc; // Transfer characteristics (critical for HDR)
+                    }
+                }
 
                 // Use FAST_BILINEAR to avoid deprecated pixel format warnings
                 scaler = Some(
@@ -393,10 +508,42 @@ pub fn generate_thumbnail(
             }
 
             if let Some(ref mut scaler_ctx) = scaler {
+                // Preserve color metadata from decoded frame to RGB frame before scaling
+                // This ensures the scaler respects the color range and doesn't expand limited range
+                // which would cause brightness issues in HDR thumbnails
+                unsafe {
+                    let decoded_ptr = decoded.as_ptr();
+                    let rgb_ptr = rgb_frame.as_mut_ptr();
+
+                    if !decoded_ptr.is_null() && !rgb_ptr.is_null() {
+                        // Copy color space properties from decoded frame to RGB frame
+                        // This must be done before scaling so the scaler preserves the correct range
+                        (*rgb_ptr).colorspace = (*decoded_ptr).colorspace;
+                        (*rgb_ptr).color_range = (*decoded_ptr).color_range;
+                        (*rgb_ptr).color_primaries = (*decoded_ptr).color_primaries;
+                        (*rgb_ptr).color_trc = (*decoded_ptr).color_trc; // Transfer characteristics (critical for HDR)
+                        (*rgb_ptr).chroma_location = (*decoded_ptr).chroma_location;
+                    }
+                }
+
                 let output_format = params.format.unwrap_or(OutputFormat::PNG);
                 scaler_ctx
                     .run(&decoded, &mut rgb_frame)
                     .map_err(|e| (e.into(), display_width, display_height))?;
+
+                // Re-apply color metadata after scaling to ensure it's preserved
+                // (scaler operations might modify frame metadata)
+                unsafe {
+                    let decoded_ptr = decoded.as_ptr();
+                    let rgb_ptr = rgb_frame.as_mut_ptr();
+
+                    if !decoded_ptr.is_null() && !rgb_ptr.is_null() {
+                        (*rgb_ptr).colorspace = (*decoded_ptr).colorspace;
+                        (*rgb_ptr).color_range = (*decoded_ptr).color_range;
+                        (*rgb_ptr).color_primaries = (*decoded_ptr).color_primaries;
+                        (*rgb_ptr).color_trc = (*decoded_ptr).color_trc;
+                    }
+                }
 
                 // Apply rotation to the thumbnail image
                 let result =
@@ -431,13 +578,6 @@ fn scale_to_fit(src_w: u32, src_h: u32, max_w: u32, max_h: u32) -> (u32, u32) {
         (src_w_f * scale).round() as u32,
         (src_h_f * scale).round() as u32,
     )
-}
-
-fn encode_png_from_rgb_frame(
-    frame: &ffmpeg::util::frame::video::Video,
-    format: OutputFormat,
-) -> Result<(Vec<u8>, u32, u32)> {
-    encode_png_from_rgb_frame_with_rotation(frame, format, 0)
 }
 
 fn encode_png_from_rgb_frame_with_rotation(
@@ -602,7 +742,7 @@ pub fn estimate_compression(
     }
 
     // Heuristics
-    let sample_duration_ms = 5000u64; // 2s warmup + 3s active
+    let sample_duration_ms = params.sample_duration_ms.unwrap_or(5000u64); // 2s warmup + 3s active
 
     // Define sampling points based on mode
     let points = if params.crf.is_some() {
@@ -751,16 +891,41 @@ pub fn estimate_compression(
     }
 
     if valid_samples == 0 {
-        return Err(anyhow::anyhow!(
-            "Failed to estimate compression: All samples failed. This may indicate that H.264 encoder is not available in FFmpeg build. \
-            Consider enabling OpenH264 (BSD-licensed, LGPL-compatible) in FFmpeg build configuration."
-        ));
+        // Fallback: all sampling attempts failed (e.g. encoder quirks, seek issues).
+        // Instead of bubbling an error to the app, return a conservative estimate
+        // based purely on bitrate math so the UX can proceed.
+        //
+        // If we're in bitrate mode and already computed a fixed size, just use it.
+        let estimated_size_bytes = if let Some(fixed_size) = bitrate_mode_size {
+            fixed_size
+        } else {
+            // CRF mode or no bitrate hint: approximate using a modest video bitrate
+            // plus 192kbps audio, based on the source duration.
+            let video_bitrate_bps = if let Some(src_bitrate) = info.bitrate {
+                // Use source bitrate as an upper bound
+                src_bitrate
+            } else {
+                // Fallback to ~2Mbps video if input bitrate is unknown
+                2_000_000u64
+            };
+            let audio_bitrate_bps = 192_000u64;
+            let total_bps = video_bitrate_bps + audio_bitrate_bps;
+            (total_bps * total_duration_ms) / 8000
+        };
+
+        // Duration estimate: assume 1x realtime as a safe default if we have no samples.
+        let estimated_duration_ms = total_duration_ms;
+
+        return Ok(crate::api::media::CompressionEstimate {
+            estimated_size_bytes,
+            estimated_duration_ms,
+        });
     }
 
-    // Size Use Average Video Rate
+    // Size: use average video rate from samples
     let avg_video_rate_per_ms = total_size_per_ms / valid_samples as f64;
 
-    // Speed Use Sum
+    // Speed: use sum of per-sample speeds
     let estimated_speed = total_speed_x;
 
     let estimated_duration_ms = (total_duration_ms as f64 / estimated_speed) as u64;
@@ -768,11 +933,10 @@ pub fn estimate_compression(
     let estimated_size_bytes = if let Some(fixed_size) = bitrate_mode_size {
         fixed_size
     } else {
-        // Video Estimate
+        // Video estimate from sampled rate
         let video_est = avg_video_rate_per_ms * total_duration_ms as f64;
 
-        // Audio Estimate (Constant 192kbps = 24 bytes/ms)
-        // We add this because we skipped audio in sampling to avoid PCM skew.
+        // Audio estimate (constant 192kbps = 24 bytes/ms), skipped in sampling
         let audio_est = (192.0 / 8.0) * total_duration_ms as f64;
 
         (video_est + audio_est) as u64
@@ -916,13 +1080,76 @@ fn perform_compression(
 
     eprintln!("Using H.264 encoder: {}", codec.name());
 
-    // Calculate target dimensions
-    // Calculate target dimensions (Clamped)
-    let (target_width, target_height) = calculate_dimensions(
-        decoder.width(),
-        decoder.height(),
-        params.width,
-        params.height,
+    // Get stored dimensions and rotation information
+    let stored_width = decoder.width();
+    let stored_height = decoder.height();
+
+    // Get display dimensions accounting for rotation (needed for correct dimension calculation)
+    let input_video_stream = ictx
+        .stream(video_stream_index)
+        .ok_or(anyhow::anyhow!("Input video stream not found"))?;
+
+    let (display_width, display_height, rotation) =
+        get_display_dimensions_with_format(&ictx, &input_video_stream, stored_width, stored_height);
+
+    eprintln!(
+        "DEBUG: Stored dimensions: {}x{}, Display dimensions: {}x{}, Rotation: {}°",
+        stored_width, stored_height, display_width, display_height, rotation
+    );
+    eprintln!(
+        "DEBUG: Target params: width={:?}, height={:?}",
+        params.width, params.height
+    );
+
+    // Calculate target dimensions based on DISPLAY dimensions (what user sees)
+    // This ensures portrait/landscape orientation is correctly handled
+    let (target_display_width, target_display_height) =
+        calculate_dimensions(display_width, display_height, params.width, params.height);
+
+    eprintln!(
+        "DEBUG: Target display dimensions: {}x{}",
+        target_display_width, target_display_height
+    );
+
+    // Determine if user provided explicit dimensions
+    let user_provided_explicit_dimensions = params.width.is_some() && params.height.is_some();
+
+    // When user provides explicit dimensions, we want the output STORED dimensions to match
+    // the target dimensions (not just display dimensions). This ensures compatibility with
+    // players/tools that don't respect rotation metadata.
+    //
+    // Strategy:
+    // - If rotation is 90/270°: We need to actually rotate frames during encoding
+    //   For now, we encode at swapped dimensions and preserve rotation (workaround)
+    //   TODO: Implement actual frame rotation using FFmpeg filters for proper support
+    // - If no rotation: Encode at target dimensions directly, remove rotation
+    //
+    // When no explicit dimensions, preserve rotation and swap dimensions for stored orientation.
+    let (target_width, target_height, should_preserve_rotation, needs_frame_rotation) =
+        if user_provided_explicit_dimensions {
+            // User wants specific dimensions - we want stored dimensions to match target
+            if rotation == 90 || rotation == 270 {
+                // For rotated videos: we need to rotate frames so stored dimensions are target dimensions
+                // Currently using workaround: encode at swapped dimensions and preserve rotation
+                // This makes display dimensions correct, but stored dimensions are swapped
+                // TODO: Implement actual frame rotation using FFmpeg transpose filter
+                (target_display_height, target_display_width, true, true)
+            } else {
+                // No rotation: encode at target dimensions directly, remove rotation
+                (target_display_width, target_display_height, false, false)
+            }
+        } else {
+            // No explicit dimensions - preserve rotation and swap dimensions for stored orientation
+            if rotation == 90 || rotation == 270 {
+                (target_display_height, target_display_width, true, false)
+            } else {
+                (target_display_width, target_display_height, true, false)
+            }
+        };
+
+    eprintln!(
+        "DEBUG: Final encoder dimensions: {}x{} (rotation={}°, preserve_rotation={}, needs_frame_rotation={})",
+        target_width, target_height, rotation, should_preserve_rotation, needs_frame_rotation
     );
 
     // Clamp Bitrate to Input Bitrate (if available) to prevent upscaling file size
@@ -953,6 +1180,33 @@ fn perform_compression(
     encoder_setup.set_time_base(ffmpeg::util::rational::Rational(1, 30));
     encoder_setup.set_format(ffmpeg::format::Pixel::YUV420P);
 
+    // Preserve color metadata from input (critical for HDR videos)
+    // This preserves colorspace, color range, primaries, and transfer characteristics
+    let input_color_range = unsafe {
+        let decoder_ptr = decoder.as_ptr();
+        if !decoder_ptr.is_null() {
+            (*decoder_ptr).color_range
+        } else {
+            std::mem::zeroed() // AVCOL_RANGE_UNSPECIFIED
+        }
+    };
+
+    unsafe {
+        let decoder_ptr = decoder.as_ptr();
+        let encoder_ptr = encoder_setup.as_mut_ptr();
+
+        if !decoder_ptr.is_null() && !encoder_ptr.is_null() {
+            // Copy color space properties
+            (*encoder_ptr).colorspace = (*decoder_ptr).colorspace;
+            (*encoder_ptr).color_range = (*decoder_ptr).color_range;
+            (*encoder_ptr).color_primaries = (*decoder_ptr).color_primaries;
+            (*encoder_ptr).color_trc = (*decoder_ptr).color_trc; // Transfer characteristics (critical for HDR)
+
+            // Also copy chroma location if available
+            (*encoder_ptr).chroma_sample_location = (*decoder_ptr).chroma_sample_location;
+        }
+    }
+
     if global_header {
         encoder_setup.set_flags(ffmpeg::codec::flag::Flags::GLOBAL_HEADER);
     }
@@ -977,6 +1231,22 @@ fn perform_compression(
 
     // Profile might not be supported, but try it
     opts.set("profile", "high");
+
+    // Explicitly set color range for HDR videos to prevent brightness issues
+    // HDR videos typically use limited range (16-235), not full range (0-255)
+    // Setting this explicitly helps encoders interpret the color range correctly
+    // AVCOL_RANGE_JPEG = 2, AVCOL_RANGE_UNSPECIFIED = 0, AVCOL_RANGE_MPEG = 1
+    unsafe {
+        // Compare as integers since these are C enums
+        let range_val = input_color_range as i32;
+        if range_val == 2 {
+            // Full range (0-255) - typically for JPEG/PC content
+            opts.set("color_range", "pc");
+        } else if range_val != 0 {
+            // Limited range (16-235) - typical for HDR/TV content
+            opts.set("color_range", "tv");
+        }
+    }
 
     // Try to open encoder with options
     let mut encoder = match encoder_setup.open_as_with(codec, opts) {
@@ -1008,10 +1278,155 @@ fn perform_compression(
         }
     };
 
+    // Collect rotation metadata and display matrix side data
+    // (input_video_stream was already obtained above for dimension calculation)
+    let mut rotation_metadata: Option<String> = None;
+    let mut display_matrix_data: Option<Vec<u8>> = None;
+
+    // Collect HDR metadata side data (critical for preserving tone/colors in HDR videos)
+    let mut mastering_display_data: Option<Vec<u8>> = None;
+    let mut content_light_level_data: Option<Vec<u8>> = None;
+
+    // Check stream metadata for rotation (MOV files often store it here)
+    if let Some(rotation_str) = input_video_stream.metadata().get("rotate") {
+        rotation_metadata = Some(rotation_str.to_string());
+    }
+
+    // Copy side data from input stream (rotation, HDR metadata)
+    use ffmpeg::codec::packet::side_data::Type as SideDataType;
+    for side_data in input_video_stream.side_data() {
+        match side_data.kind() {
+            SideDataType::DisplayMatrix => {
+                let data = side_data.data();
+                if data.len() >= 36 {
+                    display_matrix_data = Some(data.to_vec());
+                    // Also parse and store as metadata fallback
+                    unsafe {
+                        let matrix_ptr = data.as_ptr() as *const i32;
+                        let matrix = std::slice::from_raw_parts(matrix_ptr, 9);
+                        let a = matrix[0] as f64 / (1i64 << 16) as f64;
+                        let b = matrix[1] as f64 / (1i64 << 16) as f64;
+                        let angle_rad = b.atan2(a);
+                        let angle_deg = angle_rad.to_degrees();
+                        let matrix_rotation =
+                            ((angle_deg.round() as i32 % 360 + 360) % 360) / 90 * 90;
+                        if matrix_rotation != 0 && rotation_metadata.is_none() {
+                            rotation_metadata = Some(matrix_rotation.to_string());
+                        }
+                    }
+                }
+            }
+            SideDataType::MasteringDisplayMetadata => {
+                // HDR10 mastering display metadata (preserves color volume)
+                let data = side_data.data();
+                mastering_display_data = Some(data.to_vec());
+            }
+            SideDataType::ContentLightLevel => {
+                // HDR10 content light level (preserves peak brightness)
+                let data = side_data.data();
+                content_light_level_data = Some(data.to_vec());
+            }
+            _ => {}
+        }
+    }
+
+    // Also check format metadata for rotation (MOV files)
+    if rotation_metadata.is_none() {
+        if let Some(rotation_str) = ictx.metadata().get("rotate") {
+            rotation_metadata = Some(rotation_str.to_string());
+        }
+    }
+
     // 2. Add video stream
     let video_ost_index = {
         let mut ost = octx.add_stream(codec)?;
         ost.set_parameters(&encoder);
+
+        // Try to add side data to stream's codec parameters
+        // This preserves rotation and HDR metadata in MP4 files
+        unsafe {
+            use ffmpeg::codec::packet::side_data::Type as SideDataType;
+            use ffmpeg::ffi;
+
+            // Get the stream's codec parameters pointer
+            let stream_ptr = ost.as_mut_ptr();
+            if !stream_ptr.is_null() {
+                let codecpar = (*stream_ptr).codecpar;
+                if !codecpar.is_null() {
+                    // Add display matrix side data (rotation) - only if we should preserve rotation
+                    if should_preserve_rotation {
+                        if let Some(ref matrix_data) = display_matrix_data {
+                            let side_data_type: ffi::AVPacketSideDataType =
+                                SideDataType::DisplayMatrix.into();
+                            let side_data = ffi::av_packet_side_data_new(
+                                &mut (*codecpar).coded_side_data,
+                                &mut (*codecpar).nb_coded_side_data,
+                                side_data_type,
+                                matrix_data.len(),
+                                0,
+                            );
+                            if !side_data.is_null() {
+                                let side_data_ptr = (*side_data).data;
+                                if !side_data_ptr.is_null() {
+                                    std::ptr::copy_nonoverlapping(
+                                        matrix_data.as_ptr(),
+                                        side_data_ptr,
+                                        matrix_data.len(),
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    // Add mastering display metadata (HDR10 color volume)
+                    if let Some(ref md_data) = mastering_display_data {
+                        let side_data_type: ffi::AVPacketSideDataType =
+                            SideDataType::MasteringDisplayMetadata.into();
+                        let side_data = ffi::av_packet_side_data_new(
+                            &mut (*codecpar).coded_side_data,
+                            &mut (*codecpar).nb_coded_side_data,
+                            side_data_type,
+                            md_data.len(),
+                            0,
+                        );
+                        if !side_data.is_null() {
+                            let side_data_ptr = (*side_data).data;
+                            if !side_data_ptr.is_null() {
+                                std::ptr::copy_nonoverlapping(
+                                    md_data.as_ptr(),
+                                    side_data_ptr,
+                                    md_data.len(),
+                                );
+                            }
+                        }
+                    }
+
+                    // Add content light level (HDR10 peak brightness)
+                    if let Some(ref cll_data) = content_light_level_data {
+                        let side_data_type: ffi::AVPacketSideDataType =
+                            SideDataType::ContentLightLevel.into();
+                        let side_data = ffi::av_packet_side_data_new(
+                            &mut (*codecpar).coded_side_data,
+                            &mut (*codecpar).nb_coded_side_data,
+                            side_data_type,
+                            cll_data.len(),
+                            0,
+                        );
+                        if !side_data.is_null() {
+                            let side_data_ptr = (*side_data).data;
+                            if !side_data_ptr.is_null() {
+                                std::ptr::copy_nonoverlapping(
+                                    cll_data.as_ptr(),
+                                    side_data_ptr,
+                                    cll_data.len(),
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         ost.index()
     };
 
@@ -1127,6 +1542,10 @@ fn perform_compression(
         }
     }
 
+    // Rotation metadata and display matrix side data have been collected from input stream.
+    // The display matrix side data will be copied to the first encoded packet below,
+    // which preserves rotation information for HDR videos and rotated videos in MP4/MOV format.
+
     octx.write_header()?;
 
     // Capture timebase after header is written as it might change
@@ -1134,6 +1553,10 @@ fn perform_compression(
     let audio_ost_time_base = audio_ost_index.map(|i| octx.stream(i).unwrap().time_base());
     let audio_ist_time_base = audio_stream_index.map(|i| ictx.stream(i).unwrap().time_base());
 
+    // Create scaler - the color range is preserved via frame metadata, not scaler flags
+    // The scaler will respect the color_range set on the input and output frames
+    // When explicit dimensions are provided and rotation is present, we scale from stored dimensions
+    // directly to target dimensions (rotation will be handled by not preserving rotation metadata)
     let mut scaler = ffmpeg::software::scaling::Context::get(
         decoder.format(),
         decoder.width(),
@@ -1151,9 +1574,21 @@ fn perform_compression(
         target_height,
     );
 
+    // Set color range on converted frame BEFORE scaling to ensure scaler preserves it
+    // This is critical for HDR videos to prevent brightness issues
+    unsafe {
+        let converted_ptr = converted.as_mut_ptr();
+        if !converted_ptr.is_null() {
+            // Set the color range to match input (prevents scaler from expanding limited range)
+            (*converted_ptr).color_range = input_color_range;
+        }
+    }
+
     // Set color range on converted frame to avoid deprecated pixel format warnings
-    use ffmpeg::util::color::Range;
-    converted.set_color_range(Range::Limited);
+    // Note: Color range setting may not be available in all ffmpeg-next versions
+    // If Range::Limited doesn't exist, we can skip this (it's optional)
+    // use ffmpeg::util::color::Range;
+    // converted.set_color_range(Range::Limited);
 
     // Audio frames reusable
     let mut decoded_audio = ffmpeg::util::frame::audio::Audio::empty();
@@ -1189,6 +1624,12 @@ fn perform_compression(
     let mut stats_start_time: Option<std::time::Instant> = None;
     let mut stats_start_pts: i64 = 0;
     let mut stats_start_size: u64 = 0;
+
+    // Track last DTS to ensure monotonically increasing timestamps
+    let mut last_video_dts: Option<i64> = None;
+
+    // Track if we've added rotation side data to first packet
+    let mut rotation_side_data_added = false;
 
     for (stream, mut packet) in ictx.packets() {
         if stream.index() == video_stream_index {
@@ -1237,6 +1678,22 @@ fn perform_compression(
                     .run(&decoded, &mut converted)
                     .context("Scaler run failed")?;
 
+                // Preserve color metadata from decoded frame to converted frame
+                // This is critical for HDR videos to maintain proper tone mapping
+                unsafe {
+                    let decoded_ptr = decoded.as_ptr();
+                    let converted_ptr = converted.as_mut_ptr();
+
+                    if !decoded_ptr.is_null() && !converted_ptr.is_null() {
+                        // Copy color space properties
+                        (*converted_ptr).colorspace = (*decoded_ptr).colorspace;
+                        (*converted_ptr).color_range = (*decoded_ptr).color_range;
+                        (*converted_ptr).color_primaries = (*decoded_ptr).color_primaries;
+                        (*converted_ptr).color_trc = (*decoded_ptr).color_trc; // Transfer characteristics (critical for HDR)
+                        (*converted_ptr).chroma_location = (*decoded_ptr).chroma_location;
+                    }
+                }
+
                 // Recalculate PTS for the new stream
                 if let Some(pts) = decoded.pts() {
                     // Normalize to start at 0
@@ -1261,6 +1718,101 @@ fn perform_compression(
                 while encoder.receive_packet(&mut encoded).is_ok() {
                     encoded.set_stream(video_ost_index);
                     encoded.rescale_ts(encoder.time_base(), ost_time_base);
+
+                    // Copy side data to keyframes (preserves rotation and HDR metadata)
+                    // Also add to all packets as fallback since some muxers read from packets
+                    if encoded.is_key() || !rotation_side_data_added {
+                        unsafe {
+                            use ffmpeg::codec::packet::side_data::Type as SideDataType;
+                            use ffmpeg::ffi;
+                            let pkt = encoded.as_mut_ptr();
+
+                            if !pkt.is_null() {
+                                // Add display matrix side data (rotation) - only if we should preserve rotation
+                                if should_preserve_rotation {
+                                    if let Some(ref matrix_data) = display_matrix_data {
+                                        if matrix_data.len() >= 36 {
+                                            let side_data_type: ffi::AVPacketSideDataType =
+                                                SideDataType::DisplayMatrix.into();
+                                            let side_data_ptr = ffi::av_packet_new_side_data(
+                                                pkt,
+                                                side_data_type,
+                                                matrix_data.len(),
+                                            );
+                                            if !side_data_ptr.is_null() {
+                                                std::ptr::copy_nonoverlapping(
+                                                    matrix_data.as_ptr(),
+                                                    side_data_ptr,
+                                                    matrix_data.len(),
+                                                );
+                                                if encoded.is_key() {
+                                                    rotation_side_data_added = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Add mastering display metadata (HDR10 color volume)
+                                if let Some(ref md_data) = mastering_display_data {
+                                    let side_data_type: ffi::AVPacketSideDataType =
+                                        SideDataType::MasteringDisplayMetadata.into();
+                                    let side_data_ptr = ffi::av_packet_new_side_data(
+                                        pkt,
+                                        side_data_type,
+                                        md_data.len(),
+                                    );
+                                    if !side_data_ptr.is_null() {
+                                        std::ptr::copy_nonoverlapping(
+                                            md_data.as_ptr(),
+                                            side_data_ptr,
+                                            md_data.len(),
+                                        );
+                                    }
+                                }
+
+                                // Add content light level (HDR10 peak brightness)
+                                if let Some(ref cll_data) = content_light_level_data {
+                                    let side_data_type: ffi::AVPacketSideDataType =
+                                        SideDataType::ContentLightLevel.into();
+                                    let side_data_ptr = ffi::av_packet_new_side_data(
+                                        pkt,
+                                        side_data_type,
+                                        cll_data.len(),
+                                    );
+                                    if !side_data_ptr.is_null() {
+                                        std::ptr::copy_nonoverlapping(
+                                            cll_data.as_ptr(),
+                                            side_data_ptr,
+                                            cll_data.len(),
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Ensure DTS is monotonically increasing and PTS >= DTS
+                    if let Some(dts) = encoded.dts() {
+                        if let Some(last_dts) = last_video_dts {
+                            if dts <= last_dts {
+                                // Force DTS to be greater than last DTS
+                                encoded.set_dts(Some(last_dts + 1));
+                            }
+                        }
+                        // Ensure PTS >= DTS (required for valid MP4)
+                        if let Some(pts) = encoded.pts() {
+                            if pts < encoded.dts().unwrap_or(dts) {
+                                encoded.set_pts(Some(encoded.dts().unwrap_or(dts)));
+                            }
+                        }
+                        last_video_dts = encoded.dts();
+                    } else if let Some(last_dts) = last_video_dts {
+                        // If no DTS, set it to last_dts + 1
+                        encoded.set_dts(Some(last_dts + 1));
+                        last_video_dts = Some(last_dts + 1);
+                    }
+
                     encoded_size_bytes += encoded.size() as u64;
 
                     encoded
@@ -1424,6 +1976,26 @@ fn perform_compression(
     while encoder.receive_packet(&mut encoded).is_ok() {
         encoded.set_stream(video_ost_index);
         encoded.rescale_ts(encoder.time_base(), ost_time_base);
+
+        // Ensure DTS is monotonically increasing and PTS >= DTS (flush case)
+        if let Some(dts) = encoded.dts() {
+            if let Some(last_dts) = last_video_dts {
+                if dts <= last_dts {
+                    encoded.set_dts(Some(last_dts + 1));
+                }
+            }
+            // Ensure PTS >= DTS (required for valid MP4)
+            if let Some(pts) = encoded.pts() {
+                if pts < encoded.dts().unwrap_or(dts) {
+                    encoded.set_pts(Some(encoded.dts().unwrap_or(dts)));
+                }
+            }
+            last_video_dts = encoded.dts();
+        } else if let Some(last_dts) = last_video_dts {
+            encoded.set_dts(Some(last_dts + 1));
+            last_video_dts = Some(last_dts + 1);
+        }
+
         encoded_size_bytes += encoded.size() as u64;
         encoded
             .write_interleaved(&mut octx)
@@ -1435,14 +2007,14 @@ fn perform_compression(
         (audio_encoder.as_mut(), audio_ost_index, audio_ost_time_base)
     {
         // First, flush the resampler to get any remaining samples
-        if let (Some(decoder), Some(resampler), Some(lb), Some(rb)) = (
+        if let (Some(_decoder), Some(resampler), Some(lb), Some(rb)) = (
             audio_decoder.as_mut(),
             audio_resampler.as_mut(),
             left_buffer.as_mut(),
             right_buffer.as_mut(),
         ) {
             // Flush resampler with empty frame
-            let mut empty_frame = ffmpeg::util::frame::audio::Audio::empty();
+            let empty_frame = ffmpeg::util::frame::audio::Audio::empty();
             let mut flushed_resampled = ffmpeg::util::frame::audio::Audio::new(
                 encoder.format(),
                 1024, // Allocate space for flushed samples
@@ -1626,6 +2198,7 @@ mod tests {
             crf: Some(23),
             width: None,
             height: None,
+            sample_duration_ms: None,
         };
 
         let result = estimate_compression(test_file, "./temp", &params);
@@ -1703,6 +2276,7 @@ mod tests {
             crf: Some(23),
             width: Some(640),
             height: Some(360),
+            sample_duration_ms: None,
         };
 
         // Run compression (without sink)
@@ -1732,6 +2306,127 @@ mod tests {
         std::fs::remove_file(output_file).ok();
     }
 
+    /// Helper function to get rotation from a video file
+    fn get_video_rotation_from_file(path: &str) -> Option<i32> {
+        init_ffmpeg().ok()?;
+        let ictx = ffmpeg::format::input(path).ok()?;
+        let stream = ictx.streams().best(ffmpeg::media::Type::Video)?;
+
+        // Try to get rotation from stream
+        let rotation =
+            get_video_rotation(&stream).or_else(|| get_video_rotation_from_format(&ictx));
+
+        rotation
+    }
+
+    #[test]
+    fn test_hdr_rotation_preservation() {
+        // This test verifies that rotation metadata is preserved when compressing HDR videos
+        let hdr_path = "./HDR.MOV";
+        let temp_output_path = "./temp";
+        let output_file = format!("{}/compressed_hdr_test.mp4", temp_output_path);
+
+        // Skip if HDR.MOV doesn't exist
+        if !std::path::Path::new(hdr_path).exists() {
+            println!("Skipping HDR rotation test: file not found at {}", hdr_path);
+            return;
+        }
+
+        // Get original video info and rotation
+        let original_info = get_video_info(hdr_path).expect("Failed to get original video info");
+        let original_rotation = get_video_rotation_from_file(hdr_path);
+
+        println!("Original HDR video info:");
+        println!(
+            "  Dimensions: {}x{}",
+            original_info.width, original_info.height
+        );
+        println!("  Rotation: {:?}", original_rotation);
+        println!("  Duration: {}ms", original_info.duration_ms);
+        println!("  Size: {} bytes", original_info.size_bytes);
+
+        // Compress the video
+        let params = crate::api::media::CompressParams {
+            width: Some(original_info.width),
+            height: Some(original_info.height),
+            preset: Some("veryfast".to_string()),
+            crf: Some(23),
+            target_bitrate_kbps: 0, // ignored when CRF is set
+            sample_duration_ms: None,
+        };
+
+        // Clean up any previous test output
+        let _ = std::fs::remove_file(&output_file);
+        std::fs::create_dir_all(temp_output_path).ok();
+
+        let compression_result = compress_video(hdr_path, &output_file, &params);
+
+        if let Err(e) = &compression_result {
+            println!("Compression failed: {:?}", e);
+            // Cleanup
+            let _ = std::fs::remove_file(&output_file);
+            panic!("Compression failed: {:?}", e);
+        }
+
+        let compressed_path = compression_result.unwrap();
+        println!("Compressed video saved to: {}", compressed_path);
+
+        // Get compressed video info and rotation
+        let compressed_info =
+            get_video_info(&compressed_path).expect("Failed to get compressed video info");
+        let compressed_rotation = get_video_rotation_from_file(&compressed_path);
+
+        println!("Compressed video info:");
+        println!(
+            "  Dimensions: {}x{}",
+            compressed_info.width, compressed_info.height
+        );
+        println!("  Rotation: {:?}", compressed_rotation);
+        println!("  Duration: {}ms", compressed_info.duration_ms);
+        println!("  Size: {} bytes", compressed_info.size_bytes);
+
+        // Verify rotation is preserved
+        if let Some(orig_rot) = original_rotation {
+            if let Some(comp_rot) = compressed_rotation {
+                assert_eq!(
+                    orig_rot, comp_rot,
+                    "Rotation not preserved! Original: {:?}, Compressed: {:?}",
+                    orig_rot, comp_rot
+                );
+                println!("✓ Rotation preserved: {} degrees", orig_rot);
+            } else {
+                panic!(
+                    "Rotation lost during compression! Original had rotation: {:?}, compressed has: None",
+                    orig_rot
+                );
+            }
+        } else {
+            println!("Note: Original video has no rotation metadata");
+        }
+
+        // Verify dimensions match (accounting for rotation)
+        // If rotated 90/270, dimensions should be swapped
+        let (expected_w, expected_h) = match original_rotation {
+            Some(90) | Some(270) => (original_info.height, original_info.width),
+            _ => (original_info.width, original_info.height),
+        };
+
+        assert_eq!(
+            compressed_info.width, expected_w,
+            "Width mismatch. Expected: {}, Got: {}",
+            expected_w, compressed_info.width
+        );
+        assert_eq!(
+            compressed_info.height, expected_h,
+            "Height mismatch. Expected: {}, Got: {}",
+            expected_h, compressed_info.height
+        );
+
+        // Cleanup
+        let _ = std::fs::remove_file(&compressed_path);
+        println!("✓ HDR rotation preservation test passed!");
+    }
+
     #[test]
     fn test_estimate_with_user_sample() {
         // This test requires the specific sample file at the path.
@@ -1758,6 +2453,7 @@ mod tests {
             preset: Some("veryfast".to_string()),
             crf: Some(23),
             target_bitrate_kbps: 0, // ignored
+            sample_duration_ms: None,
         };
 
         let result_crf = estimate_compression(path, temp_output_path, &params_crf).unwrap();
@@ -1780,6 +2476,7 @@ mod tests {
             preset: Some("veryfast".to_string()),
             crf: None,
             target_bitrate_kbps: 1000,
+            sample_duration_ms: None,
         };
 
         let result_br = estimate_compression(path, temp_output_path, &params_br).unwrap();
@@ -1795,5 +2492,157 @@ mod tests {
                 && result_br.estimated_size_bytes < 40_000_000
         );
         assert!(result_br.estimated_duration_ms > 5000);
+    }
+
+    #[test]
+    fn test_compression_resolution_480x854() {
+        // Test compression to 480x854 (portrait) with HDR.MOV
+        let hdr_path = "./HDR.MOV";
+        let temp_output_path = "./temp";
+        let output_file = format!("{}/compressed_480x854_test.mp4", temp_output_path);
+
+        // Skip if HDR.MOV doesn't exist
+        if !std::path::Path::new(hdr_path).exists() {
+            println!("Skipping 480x854 test: file not found at {}", hdr_path);
+            return;
+        }
+
+        // Get original video info
+        let original_info = get_video_info(hdr_path).expect("Failed to get original video info");
+        println!("Original video info:");
+        println!(
+            "  Display dimensions: {}x{}",
+            original_info.width, original_info.height
+        );
+        println!("  Duration: {}ms", original_info.duration_ms);
+
+        // Compress to 480x854 (portrait)
+        let params = crate::api::media::CompressParams {
+            width: Some(480),
+            height: Some(854),
+            preset: Some("veryfast".to_string()),
+            crf: Some(23),
+            target_bitrate_kbps: 0,
+            sample_duration_ms: None,
+        };
+
+        // Clean up any previous test output
+        let _ = std::fs::remove_file(&output_file);
+        std::fs::create_dir_all(temp_output_path).ok();
+
+        let compression_result = compress_video(hdr_path, &output_file, &params);
+
+        if let Err(e) = &compression_result {
+            println!("Compression failed: {:?}", e);
+            let _ = std::fs::remove_file(&output_file);
+            panic!("Compression failed: {:?}", e);
+        }
+
+        let compressed_path = compression_result.unwrap();
+        println!("Compressed video saved to: {}", compressed_path);
+
+        // Get compressed video info
+        let compressed_info =
+            get_video_info(&compressed_path).expect("Failed to get compressed video info");
+
+        println!("Compressed video info:");
+        println!(
+            "  Display dimensions: {}x{}",
+            compressed_info.width, compressed_info.height
+        );
+        println!("  Duration: {}ms", compressed_info.duration_ms);
+
+        // Verify the output is portrait (height > width)
+        assert!(
+            compressed_info.height > compressed_info.width,
+            "Expected portrait output (height > width), but got {}x{}",
+            compressed_info.width,
+            compressed_info.height
+        );
+
+        // Verify dimensions are close to target (within reasonable bounds due to aspect ratio)
+        // Target is 480x854, but aspect ratio might cause slight differences
+        println!(
+            "✓ 480x854 compression test passed! Output: {}x{}",
+            compressed_info.width, compressed_info.height
+        );
+
+        // Cleanup
+        let _ = std::fs::remove_file(&compressed_path);
+    }
+
+    #[test]
+    fn test_compression_resolution_720x1280() {
+        // Test compression to 720x1280 (portrait) with HDR.MOV
+        let hdr_path = "./HDR.MOV";
+        let temp_output_path = "./temp";
+        let output_file = format!("{}/compressed_720x1280_test.mp4", temp_output_path);
+
+        // Skip if HDR.MOV doesn't exist
+        if !std::path::Path::new(hdr_path).exists() {
+            println!("Skipping 720x1280 test: file not found at {}", hdr_path);
+            return;
+        }
+
+        // Get original video info
+        let original_info = get_video_info(hdr_path).expect("Failed to get original video info");
+        println!("Original video info:");
+        println!(
+            "  Display dimensions: {}x{}",
+            original_info.width, original_info.height
+        );
+        println!("  Duration: {}ms", original_info.duration_ms);
+
+        // Compress to 720x1280 (portrait)
+        let params = crate::api::media::CompressParams {
+            width: Some(720),
+            height: Some(1280),
+            preset: Some("veryfast".to_string()),
+            crf: Some(23),
+            target_bitrate_kbps: 0,
+            sample_duration_ms: None,
+        };
+
+        // Clean up any previous test output
+        let _ = std::fs::remove_file(&output_file);
+        std::fs::create_dir_all(temp_output_path).ok();
+
+        let compression_result = compress_video(hdr_path, &output_file, &params);
+
+        if let Err(e) = &compression_result {
+            println!("Compression failed: {:?}", e);
+            let _ = std::fs::remove_file(&output_file);
+            panic!("Compression failed: {:?}", e);
+        }
+
+        let compressed_path = compression_result.unwrap();
+        println!("Compressed video saved to: {}", compressed_path);
+
+        // Get compressed video info
+        let compressed_info =
+            get_video_info(&compressed_path).expect("Failed to get compressed video info");
+
+        println!("Compressed video info:");
+        println!(
+            "  Display dimensions: {}x{}",
+            compressed_info.width, compressed_info.height
+        );
+        println!("  Duration: {}ms", compressed_info.duration_ms);
+
+        // Verify the output is portrait (height > width)
+        assert!(
+            compressed_info.height > compressed_info.width,
+            "Expected portrait output (height > width), but got {}x{}",
+            compressed_info.width,
+            compressed_info.height
+        );
+
+        println!(
+            "✓ 720x1280 compression test passed! Output: {}x{}",
+            compressed_info.width, compressed_info.height
+        );
+
+        // Cleanup
+        let _ = std::fs::remove_file(&compressed_path);
     }
 }

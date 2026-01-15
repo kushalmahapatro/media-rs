@@ -530,6 +530,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     wireObj.crf = cst_encode_opt_box_autoadd_u_8(apiObj.crf);
     wireObj.width = cst_encode_opt_box_autoadd_u_32(apiObj.width);
     wireObj.height = cst_encode_opt_box_autoadd_u_32(apiObj.height);
+    wireObj.sample_duration_ms = cst_encode_opt_box_autoadd_u_64(
+      apiObj.sampleDurationMs,
+    );
   }
 
   @protected
@@ -1321,6 +1324,8 @@ final class wire_cst_compress_params extends ffi.Struct {
   external ffi.Pointer<ffi.Uint32> width;
 
   external ffi.Pointer<ffi.Uint32> height;
+
+  external ffi.Pointer<ffi.Uint64> sample_duration_ms;
 }
 
 final class wire_cst_record_u_32_u_32 extends ffi.Struct {

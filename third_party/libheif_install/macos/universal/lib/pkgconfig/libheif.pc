@@ -1,4 +1,4 @@
-prefix=/Users/km/Projects/media-rs/third_party/libheif_install/macos/universal
+prefix=/Users/mkus7697/Projects/KATIM/media-rs/third_party/libheif_install/macos/universal
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

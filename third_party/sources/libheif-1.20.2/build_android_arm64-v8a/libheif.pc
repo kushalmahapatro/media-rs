@@ -1,0 +1,15 @@
+prefix=/Users/mkus7697/Projects/KATIM/media-rs/third_party/libheif_build_android_arm64-v8a
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libheif
+Description: HEIF image codec.
+URL: https://github.com/strukturag/libheif
+Version: 1.20.2
+Requires:
+Requires.private: libde265
+Libs: -L${libdir} -lheif
+Libs.private: -lc++
+Cflags: -I${includedir}
+Cflags.private: -DLIBHEIF_STATIC_BUILD

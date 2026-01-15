@@ -7,6 +7,8 @@ fn main() {
     }
     std::fs::write("/tmp/media_rs_cargo_env.txt", dump).unwrap();
 
+    let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
+
     // Link libheif statically if built from source
     // Note: When LIBHEIF_DIR is set, we're using our pre-built libheif
     // libheif-sys will use pkg-config to find it, but we still need to ensure
@@ -19,12 +21,21 @@ fn main() {
         // Link libheif and libde265 as static libraries
         println!("cargo:rustc-link-lib=static=heif");
         println!("cargo:rustc-link-lib=static=de265"); // libheif depends on libde265
-                                                       // libheif is a C++ library, so we need to link the C++ standard library
-        println!("cargo:rustc-link-lib=c++");
+
+        // libheif is a C++ library, so we need to link the C++ standard library
+        // For Android, we'll link c++_shared in the Android-specific block below
+        // For other platforms, link c++ here
+        if target_os != "android" {
+            println!("cargo:rustc-link-lib=c++");
+        }
         println!("cargo:include={}", include_dir);
     }
-
-    let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
+    // Link OpenH264 statically when provided (used by FFmpeg's libopenh264 wrapper)
+    if let Ok(openh264_dir) = std::env::var("OPENH264_DIR") {
+        let lib_dir = format!("{}/lib", openh264_dir);
+        println!("cargo:rustc-link-search=native={}", lib_dir);
+        println!("cargo:rustc-link-lib=static=openh264");
+    }
     if target_os == "macos" {
         println!("cargo:rustc-link-lib=framework=VideoToolbox");
         println!("cargo:rustc-link-lib=framework=CoreVideo");
@@ -46,8 +57,21 @@ fn main() {
         println!("cargo:rustc-link-lib=z");
         // Android also needs log for logging
         println!("cargo:rustc-link-lib=log");
-        // Note: MediaCodec has been disabled in FFmpeg build to avoid NDK linking issues
-        // H.264 encoding will use OpenH264 or built-in encoder instead
+        // MediaCodec disabled - using OpenH264 instead for licensing clarity
+        // H.264 encoding priority: OpenH264 (software, has patent coverage) > built-in encoder
+
+        // If libheif is being used, we need to link c++_shared (not static c++)
+        // libheif is built with c++_shared, so we need to match that
+        if std::env::var("LIBHEIF_DIR").is_ok() {
+            // Link c++_shared for Android when using libheif
+            // This requires the shared library to be bundled with the APK
+            println!("cargo:rustc-link-lib=c++_shared");
+        }
+        // OpenH264 is a C++ library on Android; link the C++ runtime when it's enabled.
+        // This also matches FFmpeg's configure/link expectations when building with libopenh264.
+        if std::env::var("OPENH264_DIR").is_ok() {
+            println!("cargo:rustc-link-lib=c++_shared");
+        }
     } else if target_os == "ios" {
         // Set minimum deployment target to iOS 16.0 for __isPlatformVersionAtLeast support
         // This intrinsic is required by FFmpeg's VideoToolbox code

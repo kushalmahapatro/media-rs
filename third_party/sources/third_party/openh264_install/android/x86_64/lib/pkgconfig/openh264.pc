@@ -1,4 +1,4 @@
-prefix=/Users/km/Projects/media-rs/third_party/sources/third_party/openh264_install/android/x86_64
+prefix=/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/third_party/openh264_install/android/x86_64
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

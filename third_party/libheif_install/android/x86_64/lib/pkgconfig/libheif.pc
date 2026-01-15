@@ -1,4 +1,4 @@
-prefix=/Users/km/Projects/media-rs/third_party/libheif_install/android/x86_64
+prefix=/Users/mkus7697/Projects/KATIM/media-rs/third_party/libheif_install/android/x86_64
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

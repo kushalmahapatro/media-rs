@@ -1,5 +1,5 @@
 libheif/CMakeFiles/heif.dir/color-conversion/rgb2yuv.cc.o: \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/color-conversion/rgb2yuv.cc \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/color-conversion/rgb2yuv.cc \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstring \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__config \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__config_site \
@@ -17,7 +17,7 @@ libheif/CMakeFiles/heif.dir/color-conversion/rgb2yuv.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_symbol_aliasing.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_posix_availability.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/ptrcheck.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/ptrcheck.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/machine/_types.h \
@@ -137,7 +137,7 @@ libheif/CMakeFiles/heif.dir/color-conversion/rgb2yuv.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_trivially_copyable.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdint \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/stdint.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdint.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_uint8_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_uint16_t.h \
@@ -176,16 +176,16 @@ libheif/CMakeFiles/heif.dir/color-conversion/rgb2yuv.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__new/allocate.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__cstddef/max_align_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/stddef.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stddef.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_header_macro.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_ptrdiff_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_size_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_wchar_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_nullptr_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_max_align_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_header_macro.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_ptrdiff_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_size_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_wchar_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_nullptr_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_max_align_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__new/align_val_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__new/global_new_delete.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__new/exceptions.h \
@@ -449,7 +449,7 @@ libheif/CMakeFiles/heif.dir/color-conversion/rgb2yuv.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__chrono/duration.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ratio \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/climits \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/limits.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/machine/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/i386/limits.h \
@@ -531,13 +531,13 @@ libheif/CMakeFiles/heif.dir/color-conversion/rgb2yuv.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/wchar.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/wchar.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_wchar.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_header_macro.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_list.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_arg.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___va_copy.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_copy.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_header_macro.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_list.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_arg.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___va_copy.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_copy.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdio.h \
@@ -878,13 +878,13 @@ libheif/CMakeFiles/heif.dir/color-conversion/rgb2yuv.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_fsfilcnt_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_nl_item.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdarg \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/color-conversion/rgb2yuv.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/color-conversion/colorconversion.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/pixelimage.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/error.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/color-conversion/rgb2yuv.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/color-conversion/colorconversion.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/pixelimage.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/error.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cinttypes \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/inttypes.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/inttypes.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_inttypes.h \
@@ -973,32 +973,32 @@ libheif/CMakeFiles/heif.dir/color-conversion/rgb2yuv.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/print \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_library.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/libheif/heif_version.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_error.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_image.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_color.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_brands.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_metadata.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_aux_images.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_entity_groups.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_security.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_encoding.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_context.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_decoding.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_image_handle.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_tiling.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/nclx.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/box.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/common_utils.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_experimental.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_properties.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_tai_timestamps.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/logging.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/bitstream.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_library.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_x86_64/libheif/heif_version.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_error.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_image.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_color.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_brands.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_metadata.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_aux_images.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_entity_groups.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_security.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_encoding.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_context.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_decoding.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_image_handle.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_tiling.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/nclx.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/box.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/common_utils.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_experimental.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_properties.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_tai_timestamps.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/logging.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/bitstream.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/security_limits.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/security_limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/map \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__tree \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/set

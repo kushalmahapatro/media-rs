@@ -1,7 +1,7 @@
 libheif/CMakeFiles/heif.dir/api/libheif/heif_aux_images.cc.o: \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_aux_images.cc \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_aux_images.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_library.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_aux_images.cc \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_aux_images.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_library.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/stddef.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__config \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__config_site \
@@ -10,18 +10,18 @@ libheif/CMakeFiles/heif.dir/api/libheif/heif_aux_images.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__configuration/platform.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__configuration/availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__configuration/language.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stddef.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_header_macro.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_ptrdiff_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_size_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_wchar_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_nullptr_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_max_align_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_header_macro.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_ptrdiff_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_size_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_wchar_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_nullptr_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_max_align_t.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/stdint.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdint.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_int8_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_int16_t.h \
@@ -35,7 +35,7 @@ libheif/CMakeFiles/heif.dir/api/libheif/heif_aux_images.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_symbol_aliasing.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_posix_availability.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/ptrcheck.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/ptrcheck.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/machine/_types.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/_types.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h \
@@ -43,16 +43,16 @@ libheif/CMakeFiles/heif.dir/api/libheif/heif_aux_images.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_uintptr_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_intmax_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_uintmax_t.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64/libheif/heif_version.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_error.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_image.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api_structs.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/pixelimage.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/error.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_arm64/libheif/heif_version.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_error.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_image.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api_structs.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/pixelimage.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/error.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cinttypes \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdint \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/inttypes.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/inttypes.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_bounds.h \
@@ -294,13 +294,13 @@ libheif/CMakeFiles/heif.dir/api/libheif/heif_aux_images.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int16_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int32_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int64_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_header_macro.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_list.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_arg.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___va_copy.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_copy.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_header_macro.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_list.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_arg.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___va_copy.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_copy.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_stdio.h \
@@ -452,7 +452,7 @@ libheif/CMakeFiles/heif.dir/api/libheif/heif_aux_images.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__bit_reference \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/unary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/climits \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/limits.h \
+  /Applications/Xcode_new.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/machine/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/arm/limits.h \
@@ -974,37 +974,37 @@ libheif/CMakeFiles/heif.dir/api/libheif/heif_aux_images.cc.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/print \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_color.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_brands.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_metadata.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_entity_groups.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_security.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_encoding.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_context.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_decoding.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_image_handle.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_tiling.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_color.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_brands.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_metadata.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_entity_groups.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_security.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_encoding.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_context.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_decoding.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_image_handle.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_tiling.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cassert \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_static_assert.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/nclx.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/box.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/common_utils.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_experimental.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_properties.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_tai_timestamps.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/logging.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/bitstream.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/nclx.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/box.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/common_utils.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_experimental.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_properties.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_tai_timestamps.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/logging.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/bitstream.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/security_limits.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/security_limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/map \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__tree \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/set \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/context.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_plugin.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/region.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_regions.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/image-items/image_item.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/codecs/encoder.h \
-  /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/libheif/sequences/seq_boxes.h
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/context.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_plugin.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/region.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/api/libheif/heif_regions.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/image-items/image_item.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/codecs/encoder.h \
+  /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/libheif/sequences/seq_boxes.h

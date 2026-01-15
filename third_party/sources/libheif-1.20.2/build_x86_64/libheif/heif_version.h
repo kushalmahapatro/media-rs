@@ -33,6 +33,6 @@
 /* Version string */
 #define LIBHEIF_VERSION "1.20.2"
 
-#define LIBHEIF_PLUGIN_DIRECTORY "/Users/km/Projects/media-rs/third_party/libheif_build_macos_x86_64/lib/libheif"
+#define LIBHEIF_PLUGIN_DIRECTORY "/Users/mkus7697/Projects/KATIM/media-rs/third_party/libheif_build_macos_x86_64/lib/libheif"
 
 #endif  // LIBHEIF_HEIF_VERSION_H

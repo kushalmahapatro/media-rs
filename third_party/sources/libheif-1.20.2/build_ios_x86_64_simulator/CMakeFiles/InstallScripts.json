@@ -1,0 +1,13 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_ios_x86_64_simulator/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_ios_x86_64_simulator/heifio/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_ios_x86_64_simulator/tests/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_ios_x86_64_simulator/libheif/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_ios_x86_64_simulator/libheif/plugins/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_ios_x86_64_simulator/gdk-pixbuf/cmake_install.cmake",
+		"/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_ios_x86_64_simulator/gnome/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

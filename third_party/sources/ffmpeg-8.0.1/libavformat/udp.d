@@ -12,4 +12,4 @@ libavformat/udp.o: libavformat/udp.c libavformat/avformat.h \
   libavutil/fifo.h libavutil/intreadwrite.h libavutil/bswap.h \
   libavutil/x86/bswap.h libavutil/x86/intreadwrite.h libavutil/opt.h \
   libavutil/time.h libavformat/network.h libavformat/os_support.h \
-  libavformat/url.h libavformat/ip.h
+  libavformat/url.h libavformat/ip.h libavutil/thread.h

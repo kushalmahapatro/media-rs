@@ -7,7 +7,7 @@ if(CMAKE_VERSION VERSION_LESS "2.8.12")
    message(FATAL_ERROR "CMake >= 2.8.12 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 2.8.12...4.0)
+cmake_policy(VERSION 2.8.12...3.31)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -61,7 +61,7 @@ add_library(heif STATIC IMPORTED)
 set_target_properties(heif PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "LIBHEIF_EXPORTS;HAVE_VISIBILITY"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "/Users/km/Projects/media-rs/third_party/libheif_build_macos_x86_64/libde265_install/lib/libde265.a"
+  INTERFACE_LINK_LIBRARIES "/Users/mkus7697/Projects/KATIM/media-rs/third_party/libheif_build_macos_x86_64/libde265_install/lib/libde265.a"
 )
 
 # Load information for each installed configuration.

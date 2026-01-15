@@ -25,6 +25,7 @@ typedef struct wire_cst_compress_params {
   uint8_t *crf;
   uint32_t *width;
   uint32_t *height;
+  uint64_t *sample_duration_ms;
 } wire_cst_compress_params;
 
 typedef struct wire_cst_record_u_32_u_32 {

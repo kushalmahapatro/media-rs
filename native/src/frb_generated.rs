@@ -371,12 +371,14 @@ impl SseDecode for crate::api::media::CompressParams {
         let mut var_crf = <Option<u8>>::sse_decode(deserializer);
         let mut var_width = <Option<u32>>::sse_decode(deserializer);
         let mut var_height = <Option<u32>>::sse_decode(deserializer);
+        let mut var_sampleDurationMs = <Option<u64>>::sse_decode(deserializer);
         return crate::api::media::CompressParams {
             target_bitrate_kbps: var_targetBitrateKbps,
             preset: var_preset,
             crf: var_crf,
             width: var_width,
             height: var_height,
+            sample_duration_ms: var_sampleDurationMs,
         };
     }
 }
@@ -704,6 +706,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::media::CompressParams {
             self.crf.into_into_dart().into_dart(),
             self.width.into_into_dart().into_dart(),
             self.height.into_into_dart().into_dart(),
+            self.sample_duration_ms.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -919,6 +922,7 @@ impl SseEncode for crate::api::media::CompressParams {
         <Option<u8>>::sse_encode(self.crf, serializer);
         <Option<u32>>::sse_encode(self.width, serializer);
         <Option<u32>>::sse_encode(self.height, serializer);
+        <Option<u64>>::sse_encode(self.sample_duration_ms, serializer);
     }
 }
 
@@ -1279,6 +1283,7 @@ mod io {
                 crf: self.crf.cst_decode(),
                 width: self.width.cst_decode(),
                 height: self.height.cst_decode(),
+                sample_duration_ms: self.sample_duration_ms.cst_decode(),
             }
         }
     }
@@ -1387,6 +1392,7 @@ mod io {
                 crf: core::ptr::null_mut(),
                 width: core::ptr::null_mut(),
                 height: core::ptr::null_mut(),
+                sample_duration_ms: core::ptr::null_mut(),
             }
         }
     }
@@ -1694,6 +1700,7 @@ mod io {
         crf: *mut u8,
         width: *mut u32,
         height: *mut u32,
+        sample_duration_ms: *mut u64,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -1825,8 +1832,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                5,
-                "Expected 5 elements, got {}",
+                6,
+                "Expected 6 elements, got {}",
                 self_.length()
             );
             crate::api::media::CompressParams {
@@ -1835,6 +1842,7 @@ mod web {
                 crf: self_.get(2).cst_decode(),
                 width: self_.get(3).cst_decode(),
                 height: self_.get(4).cst_decode(),
+                sample_duration_ms: self_.get(5).cst_decode(),
             }
         }
     }

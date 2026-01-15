@@ -1,13 +1,10 @@
-prefix=/Users/km/Projects/media-rs/third_party/libheif_build_ios_arm64_simulator/libde265_install
+prefix=/Users/mkus7697/Projects/KATIM/media-rs/third_party/libheif_build_ios_arm64_simulator/libde265_install
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: libde265
-Description: H.265/HEVC video decoder.
-URL: https://github.com/strukturag/libde265
+Description: H.265/HEVC decoder library
 Version: 1.0.15
-Requires:
-Libs: -lde265 -L${libdir}
-Libs.private: -lc++
+Libs: -L${libdir} -lde265
 Cflags: -I${includedir}

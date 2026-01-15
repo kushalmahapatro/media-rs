@@ -4,14 +4,14 @@
 
 
 # Configuration directories and files
-SourceDirectory: /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2
-BuildDirectory: /Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2/build_arm64
+SourceDirectory: /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2
+BuildDirectory: /Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2/build_arm64
 
 # Where to place the cost data store
 CostDataFile: 
 
 # Site is something like machine.domain, i.e. pragmatic.crd
-Site: MacBookPro
+Site: AEB-M5G12HQX
 
 # Build name is osname-revision-compiler, i.e. Linux-2.4.2-2smp-c++
 BuildName: Darwin-c++
@@ -27,8 +27,8 @@ SubmitInactivityTimeout:
 NightlyStartTime: 00:00:00 EDT
 
 # Commands for the build/test/submit cycle
-ConfigureCommand: "/opt/homebrew/bin/cmake" "/Users/km/Projects/media-rs/third_party/sources/libheif-1.20.2"
-MakeCommand: /opt/homebrew/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
+ConfigureCommand: "/Applications/CMake.app/Contents/bin/cmake" "/Users/mkus7697/Projects/KATIM/media-rs/third_party/sources/libheif-1.20.2"
+MakeCommand: /Applications/CMake.app/Contents/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
 DefaultCTestConfigurationType: Release
 
 # version control
@@ -64,7 +64,7 @@ UpdateType:
 
 # Compiler info
 Compiler: /usr/bin/c++
-CompilerVersion: 17.0.0.17000319
+CompilerVersion: 17.0.0.17000013
 
 # Dynamic analysis (MemCheck)
 PurifyCommand: 

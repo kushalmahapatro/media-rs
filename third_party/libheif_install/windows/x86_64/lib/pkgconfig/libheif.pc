@@ -1,0 +1,11 @@
+prefix=d:/media-rs/media-rs/scripts/support/../../third_party/libheif_install/windows/x86_64
+exec_prefix=%{prefix}
+libdir=%{exec_prefix}/lib
+includedir=%{prefix}/include
+
+Name: libheif
+Description: HEIF image codec library
+Version: 1.20.2
+Libs: -L%{libdir} -lheif -lde265
+Cflags: -I%{includedir}
+Requires:

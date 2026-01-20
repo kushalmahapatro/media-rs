@@ -27,7 +27,7 @@ open -a /Applications/Xcode_new.app
 If Xcode was downloaded/unzipped manually and macOS blocks it, you may need to remove quarantine:
 
 ```bash
-sudo xattr -dr com.apple.quarantine /Applications/Xcode_new.app
+sudo xattr -dr com.apple.quarantine /Applications/Xcode.app
 ```
 
 ### Linux host (builds Linux + Android)
@@ -58,18 +58,39 @@ export ANDROID_NDK_HOME="/path/to/android/ndk"
   - libheif: `third_party/libheif_install/linux/{x86_64,arm64}`
 
 - **Windows**
-  - Vendored builds are not fully implemented yet.
-  - Recommended workaround: install deps externally and set env overrides below.
+  - OpenH264: `third_party/openh264_install/windows/x86_64`
+  - FFmpeg: `third_party/ffmpeg_install/windows/x86_64`
+  - libheif: `third_party/libheif_install/windows/x86_64`
 
 ### Windows entrypoint
 
-Use `setup_all.bat` (requires MSYS2). Example:
+Use `setup_all.bat` (requires MSYS2 with MinGW-w64). Example:
+
+```bat
+set MSYS2_ROOT=C:\msys64
+setup_all.bat --windows
+```
+
+Or to build both Windows and Android:
 
 ```bat
 set MSYS2_ROOT=C:\msys64
 set ANDROID_NDK_HOME=C:\Android\ndk\27.3.13750724
-setup_all.bat --android
+setup_all.bat --all
 ```
+
+**Prerequisites for Windows builds:**
+- MSYS2 installed (default: `C:\msys64`, or set `MSYS2_ROOT`)
+  - Download from: https://www.msys2.org/
+  - After installation, open **"MinGW-w64 Win64 Shell"** from Start Menu
+  - Install required packages:
+    ```bash
+    pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-nasm mingw-w64-x86_64-pkg-config mingw-w64-x86_64-cmake make
+    ```
+- Git (for cloning OpenH264 and libde265) - usually included in MSYS2
+- curl (usually included in MSYS2)
+
+**Note:** You must use MSYS2's shell (not Git Bash or other MinGW environments) to access `pacman`. The `setup_all.bat` script will automatically use MSYS2's bash to run the build scripts.
 
 ## Env var overrides (useful for Windows / custom installs)
 

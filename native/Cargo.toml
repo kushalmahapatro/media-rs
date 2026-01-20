@@ -22,9 +22,18 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 image = { version = "0.25" }
 libheif-rs = { version = "2.5", features = ["image"] }
-# Use pkg-config to find our pre-built libheif (remove embedded-libheif feature)
-libheif-sys = { version = "5.0" }
+# libheif-sys is patched via [patch.crates-io] to support LIBHEIF_DIR on Windows
+tracing = { git = "https://github.com/tokio-rs/tracing.git", rev = "20f5b3d8ba057ca9c4ae00ad30dda3dce8a71c05" }
+tracing-core = { git = "https://github.com/tokio-rs/tracing.git", rev = "20f5b3d8ba057ca9c4ae00ad30dda3dce8a71c05" }
+tracing-subscriber = { git = "https://github.com/tokio-rs/tracing.git", rev = "20f5b3d8ba057ca9c4ae00ad30dda3dce8a71c05", features = ["env-filter", "fmt", "ansi"] }
+tracing-appender = { git = "https://github.com/tokio-rs/tracing.git", rev = "20f5b3d8ba057ca9c4ae00ad30dda3dce8a71c05" }
+ctor = "0.2"
+
+[build-dependencies]
+cc = "1.0"
 
 [patch.crates-io]
 ffmpeg-sys-next = { path = "../third_party/rust-ffmpeg-sys" }
 ffmpeg-next = { path = "../third_party/rust-ffmpeg" }
+# Patch libheif-sys to use our version that supports LIBHEIF_DIR on Windows
+libheif-sys = { path = "../third_party/rust-libheif-sys" }

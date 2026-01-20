@@ -1,5 +1,6 @@
 libavcodec/x86/huffyuvdsp_init.o: libavcodec/x86/huffyuvdsp_init.c \
-  config.h libavutil/attributes.h libavutil/cpu.h libavutil/version.h \
-  libavutil/macros.h libavutil/avconfig.h libavutil/pixdesc.h \
-  libavutil/pixfmt.h libavutil/x86/asm.h libavutil/x86/cpu.h \
-  libavutil/cpu_internal.h libavcodec/huffyuvdsp.h
+ config.h libavutil/attributes.h libavutil/cpu.h libavutil/version.h \
+ libavutil/macros.h libavutil/avconfig.h libavutil/pixdesc.h \
+ libavutil/attributes.h libavutil/pixfmt.h libavutil/x86/asm.h \
+ libavutil/x86/cpu.h libavutil/cpu_internal.h libavutil/cpu.h \
+ libavcodec/huffyuvdsp.h libavutil/pixfmt.h

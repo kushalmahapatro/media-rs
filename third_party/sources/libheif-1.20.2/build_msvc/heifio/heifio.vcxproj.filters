@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\decoder_y4m.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\encoder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\encoder_y4m.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\exif.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\stubs.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\decoder_y4m.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\encoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\encoder_y4m.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\exif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\heifio\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{E33E0E59-DBA8-3FD5-B7AB-487FF7605115}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{FC2B2D73-DE39-36DD-AD6B-DAF85DC1AA61}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

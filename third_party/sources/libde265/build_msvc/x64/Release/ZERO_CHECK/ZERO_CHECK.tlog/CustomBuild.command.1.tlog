@@ -1,0 +1,10 @@
+^D:\MEDIA-RS\MEDIA-RS\THIRD_PARTY\SOURCES\LIBDE265\BUILD_MSVC\CMAKEFILES\98A9C4573CAF8134BFB6344ABAA0461E\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/media-rs/media-rs/third_party/sources/libde265 -BD:/media-rs/media-rs/third_party/sources/libde265/build_msvc --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/media-rs/media-rs/third_party/sources/libde265/build_msvc/libde265.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\build_msvc\CMakeFiles\24103a21c22c49c3e869d1611a26937b\RUN_TESTS_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{71F42A74-308B-334B-A72B-B082B9F0762B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

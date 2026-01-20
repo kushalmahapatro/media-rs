@@ -1,0 +1,12 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/media-rs/media-rs/third_party/sources/libde265/build_windows/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libde265/build_windows/libde265/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libde265/build_windows/libde265/encoder/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libde265/build_windows/libde265/encoder/algo/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libde265/build_windows/libde265/x86/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libde265/build_windows/dec265/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -1,0 +1,13 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/media-rs/media-rs/third_party/sources/libheif-1.20.2/build_windows/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libheif-1.20.2/build_windows/heifio/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libheif-1.20.2/build_windows/tests/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libheif-1.20.2/build_windows/libheif/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libheif-1.20.2/build_windows/libheif/plugins/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libheif-1.20.2/build_windows/gdk-pixbuf/cmake_install.cmake",
+		"D:/media-rs/media-rs/third_party/sources/libheif-1.20.2/build_windows/gnome/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

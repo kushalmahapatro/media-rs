@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\CMakeFiles\2c246aa5732c0bc17e37a84d7578f906\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{480664A3-47A2-3F9D-8F0F-5779BB2AD4C3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

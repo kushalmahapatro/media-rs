@@ -1,0 +1,543 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\bitstream.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\box.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\error.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\context.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\file.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\file_layout.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\pixelimage.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\plugin_registry.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\nclx.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\security_limits.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\init.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\logging.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\compression_brotli.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\compression_zlib.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\common_utils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\region.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\brands.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_library.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_image.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_color.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_regions.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_plugin.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_properties.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_items.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_sequences.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_tai_timestamps.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_brands.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_metadata.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_aux_images.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_entity_groups.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_security.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_encoding.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_decoding.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_image_handle.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_context.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_tiling.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_uncompressed.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\decoder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\encoder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\hevc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\hevc_boxes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\hevc_dec.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\hevc_enc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\avif.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avif_enc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avif_dec.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avif_boxes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\jpeg.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg_boxes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg_dec.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg_enc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\jpeg2000.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg2000_dec.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg2000_enc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg2000_boxes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\vvc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\vvc_dec.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\vvc_enc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\vvc_boxes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\avc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avc_boxes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avc_dec.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\mask_image.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\image_item.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\grid.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\overlay.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\iden.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\tiled.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\colorconversion.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\rgb2yuv.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\rgb2yuv_sharp.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\yuv2rgb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\rgb2rgb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\monochrome.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\hdr_sdr.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\alpha.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\chroma_sampling.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\seq_boxes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\chunk.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\track.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\track_visual.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\track_metadata.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\plugins\decoder_libde265.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\plugins\encoder_mask.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\plugins\nalu_utils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\bitstream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\box.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\file_layout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\pixelimage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\nclx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\plugin_registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\security_limits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\logging.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\compression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\common_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\region.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\brands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api_structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\encoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\hevc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\hevc_boxes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\hevc_dec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\hevc_enc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\avif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avif_enc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avif_dec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avif_boxes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\jpeg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg_boxes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg_dec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg_enc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\jpeg2000.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg2000_dec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg2000_enc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\jpeg2000_boxes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\vvc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\vvc_dec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\vvc_enc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\vvc_boxes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\avc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avc_boxes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\codecs\avc_dec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\mask_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\image_item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\overlay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\iden.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\image-items\tiled.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\colorconversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\rgb2yuv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\rgb2yuv_sharp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\yuv2rgb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\rgb2rgb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\monochrome.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\hdr_sdr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\alpha.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\color-conversion\chroma_sampling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\seq_boxes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\chunk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\track.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\track_visual.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\sequences\track_metadata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_properties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_regions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_items.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_sequences.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_tai_timestamps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_brands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_metadata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_aux_images.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_entity_groups.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_security.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_encoding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_decoding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_image_handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_tiling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_uncompressed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\api\libheif\heif_cxx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\build_msvc\libheif\heif_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\plugins\decoder_libde265.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\plugins\encoder_mask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\plugins\nalu_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\media-rs\media-rs\third_party\sources\libheif-1.20.2\libheif\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{E33E0E59-DBA8-3FD5-B7AB-487FF7605115}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{FC2B2D73-DE39-36DD-AD6B-DAF85DC1AA61}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

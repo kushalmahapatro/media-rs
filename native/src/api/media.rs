@@ -3,6 +3,7 @@ use crate::frb_generated::StreamSink;
 use anyhow::{Context, Error};
 use image::{DynamicImage, ImageBuffer, Rgb};
 use serde::{Deserialize, Serialize};
+use tracing::{debug, error, info, warn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResolutionPreset {
@@ -104,6 +105,8 @@ pub struct CompressionEstimate {
 
 /// Exposed via FRB
 pub fn get_video_info(path: String) -> anyhow::Result<VideoInfo> {
+    // Ensure logging is initialized (in case ctor didn't run)
+    crate::init_logging_manual();
     video::get_video_info(&path)
 }
 
@@ -172,10 +175,15 @@ pub fn generate_video_timeline_thumbnails(
         None => (OutputFormat::PNG, ThumbnailSizeType::Medium),
     };
 
-    let video_info = video::get_video_info(&path).unwrap();
+    // Get video info (this acquires and releases the mutex)
+    let video_info = video::get_video_info(&path)
+        .map_err(|e| anyhow::anyhow!("Failed to get video info for timeline generation: {}", e))?;
     let duration_ms = video_info.duration_ms;
     let time_ms = duration_ms / num_thumbnails as u64;
 
+    // Generate thumbnails sequentially
+    // Each generate_thumbnail call will acquire and release the mutex individually
+    // This prevents conflicts with other FFmpeg operations
     for i in 0..num_thumbnails {
         let mut time = time_ms * i as u64;
         if time > duration_ms {
@@ -186,6 +194,7 @@ pub fn generate_video_timeline_thumbnails(
             size_type: Some(size),
             format: Some(output_format),
         };
+        // generate_thumbnail will acquire the mutex internally
         let thumbnail = video::generate_thumbnail(&path, &params);
         let output_path = base_output_dir.join(format!(
             "thumbnail_{}_{}.{}",
@@ -391,7 +400,14 @@ fn decode_image_with_ffmpeg_impl(path: &str) -> Result<DynamicImage, Error> {
 
     ffmpeg::init().context("Failed to initialize ffmpeg")?;
 
-    let mut ictx = ffmpeg::format::input(path)
+    // Normalize Windows path
+    #[cfg(target_os = "windows")]
+    let normalized_path = path.replace('\\', "/");
+    #[cfg(not(target_os = "windows"))]
+    let normalized_path = path.to_string();
+    
+    let mut ictx = ffmpeg::format::input(&normalized_path)
+        .or_else(|_| ffmpeg::format::input(path)) // Fallback to original
         .with_context(|| format!("Failed to open image file with FFmpeg: {}", path))?;
 
     // Find the best video stream (images are treated as single-frame videos in FFmpeg)
@@ -463,7 +479,15 @@ fn decode_image_with_ffmpeg_impl(path: &str) -> Result<DynamicImage, Error> {
     // Now decode with the correct dimensions to get the full image
     // Reinitialize decoder to decode from the beginning
     drop(ictx); // Drop the old input context
-    let mut ictx = ffmpeg::format::input(path)
+    
+    // Normalize Windows path
+    #[cfg(target_os = "windows")]
+    let normalized_path = path.replace('\\', "/");
+    #[cfg(not(target_os = "windows"))]
+    let normalized_path = path.to_string();
+    
+    let mut ictx = ffmpeg::format::input(&normalized_path)
+        .or_else(|_| ffmpeg::format::input(path)) // Fallback to original
         .with_context(|| format!("Failed to reopen image file with FFmpeg: {}", path))?;
 
     let stream = ictx
@@ -650,10 +674,89 @@ pub fn estimate_compression(
     temp_output_path: String,
     params: CompressParams,
 ) -> Result<CompressionEstimate, Error> {
-    let result = video::estimate_compression(&path, &temp_output_path, &params);
-    match result {
-        Ok(stats) => Ok(stats),
-        Err(e) => Err(e.into()),
+    // Ensure logging is initialized (in case ctor didn't run)
+    crate::init_logging_manual();
+    tracing::debug!("estimate_compression called with path: {}, temp_output: {}", path, temp_output_path);
+    
+    // Validate input file exists
+    if !std::path::Path::new(&path).exists() {
+        let err = anyhow::anyhow!("Input file does not exist: {}", path);
+        error!("{}", err);
+        return Err(err);
+    }
+    
+    // On Windows, we MUST have VideoInfo to avoid FFmpeg crash
+    // Get it first if not provided
+    #[cfg(target_os = "windows")]
+    {
+        debug!("Windows: Getting video info first to avoid FFmpeg crash on second context");
+        let video_info = match video::get_video_info(&path) {
+            Ok(info) => info,
+            Err(e) => {
+                error!("Failed to get video info: {}", e);
+                return Err(e.into());
+            }
+        };
+        
+        // Use the version that accepts VideoInfo
+        debug!("About to call video::estimate_compression_with_info");
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            video::estimate_compression_with_info(&path, &temp_output_path, &params, Some(&video_info))
+        }));
+        
+        match result {
+            Ok(Ok(stats)) => {
+                info!("estimate_compression succeeded");
+                return Ok(stats);
+            },
+            Ok(Err(e)) => {
+                error!("estimate_compression returned error: {}", e);
+                return Err(e.into());
+            },
+            Err(panic) => {
+                let panic_msg = if let Some(s) = panic.downcast_ref::<&str>() {
+                    format!("Panic in estimate_compression: {}", s)
+                } else if let Some(s) = panic.downcast_ref::<String>() {
+                    format!("Panic in estimate_compression: {}", s)
+                } else {
+                    "Panic in estimate_compression: unknown error".to_string()
+                };
+                error!("FATAL: {}", panic_msg);
+                return Err(anyhow::anyhow!(panic_msg));
+            }
+        }
+    }
+    
+    // On other platforms, use the normal path
+    #[cfg(not(target_os = "windows"))]
+    {
+        // Catch panics to prevent app crashes
+        debug!("About to call video::estimate_compression");
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            video::estimate_compression(&path, &temp_output_path, &params)
+        }));
+        
+        match result {
+            Ok(Ok(stats)) => {
+                info!("estimate_compression succeeded");
+                return Ok(stats);
+            },
+            Ok(Err(e)) => {
+                error!("estimate_compression returned error: {}", e);
+                return Err(e.into());
+            },
+            Err(panic) => {
+                let panic_msg = if let Some(s) = panic.downcast_ref::<&str>() {
+                    format!("Panic in estimate_compression: {}", s)
+                } else if let Some(s) = panic.downcast_ref::<String>() {
+                    format!("Panic in estimate_compression: {}", s)
+                } else {
+                    "Panic in estimate_compression: unknown error".to_string()
+                };
+                error!("FATAL: {}", panic_msg);
+                return Err(anyhow::anyhow!(panic_msg));
+            }
+        }
     }
 }
 
@@ -662,9 +765,42 @@ pub fn compress_video(
     output_path: String,
     params: CompressParams,
 ) -> Result<String, Error> {
-    let result = video::compress_video(&path, &output_path, &params);
+    // Ensure logging is initialized (in case ctor didn't run)
+    crate::init_logging_manual();
+    tracing::debug!("compress_video called with path: {}, output: {}", path, output_path);
+    
+    // Validate input file exists
+    if !std::path::Path::new(&path).exists() {
+        let err = anyhow::anyhow!("Input file does not exist: {}", path);
+        error!("{}", err);
+        return Err(err);
+    }
+    
+    // Catch panics to prevent app crashes on Windows
+    debug!("About to call video::compress_video");
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        video::compress_video(&path, &output_path, &params)
+    }));
+
     match result {
-        Ok(stats) => Ok(stats),
-        Err(e) => Err(e.into()),
+        Ok(Ok(stats)) => {
+            info!("compress_video succeeded");
+            Ok(stats)
+        },
+        Ok(Err(e)) => {
+            error!("compress_video returned error: {}", e);
+            Err(e.into())
+        },
+        Err(panic) => {
+            let panic_msg = if let Some(s) = panic.downcast_ref::<&str>() {
+                format!("Panic in compress_video: {}", s)
+            } else if let Some(s) = panic.downcast_ref::<String>() {
+                format!("Panic in compress_video: {}", s)
+            } else {
+                "Panic in compress_video: unknown error".to_string()
+            };
+            error!("FATAL: {}", panic_msg);
+            Err(anyhow::anyhow!(panic_msg))
+        }
     }
 }

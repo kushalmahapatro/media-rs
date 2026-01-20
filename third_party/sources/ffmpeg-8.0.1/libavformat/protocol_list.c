@@ -31,9 +31,9 @@ static const URLProtocol * const url_protocols[] = {
     &ff_tee_protocol,
     &ff_tcp_protocol,
     &ff_tls_protocol,
+    &ff_dtls_protocol,
     &ff_udp_protocol,
     &ff_udplite_protocol,
-    &ff_unix_protocol,
     &ff_ipfs_gateway_protocol,
     &ff_ipns_gateway_protocol,
     NULL };

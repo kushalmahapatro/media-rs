@@ -9,8 +9,7 @@ libavcodec/vp9mvs.o: libavcodec/vp9mvs.c libavcodec/progressframe.h \
  libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
  libavcodec/x86/vpx_arith.h libavutil/x86/asm.h libavcodec/vp9data.h \
  libavcodec/vp9dec.h libavutil/mem_internal.h libavutil/pixfmt.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/internal.h \
- libavutil/mem.h libavutil/time.h libavcodec/get_bits.h libavcodec/defs.h \
+ libavutil/thread.h libavcodec/get_bits.h libavcodec/defs.h \
  libavcodec/mathops.h libavutil/attributes_internal.h \
  libavcodec/x86/mathops.h libavcodec/vlc.h libavutil/macros.h \
  libavcodec/videodsp.h libavcodec/vp9.h libavcodec/vp9dsp.h \

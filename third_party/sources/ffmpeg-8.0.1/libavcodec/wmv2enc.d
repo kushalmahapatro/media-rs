@@ -17,15 +17,14 @@ libavcodec/wmv2enc.o: libavcodec/wmv2enc.c libavutil/mem.h \
  libavcodec/blockdsp.h libavcodec/error_resilience.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/internal.h libavutil/time.h \
- libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/mpegvideoenc.h \
- libavutil/avassert.h libavutil/mem_internal.h libavutil/opt.h \
- libavcodec/fdctdsp.h libavutil/attributes_internal.h \
- libavcodec/motion_est.h libavcodec/me_cmp.h libavcodec/mpegvideoencdsp.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h libavcodec/mpegvideoenc.h libavutil/avassert.h \
+ libavutil/mem_internal.h libavutil/opt.h libavcodec/fdctdsp.h \
+ libavutil/attributes_internal.h libavcodec/motion_est.h \
+ libavcodec/me_cmp.h libavcodec/mpegvideoencdsp.h \
  libavcodec/pixblockdsp.h libavcodec/put_bits.h libavutil/intreadwrite.h \
  libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
- libavcodec/ratecontrol.h libavcodec/msmpeg4.h libavcodec/msmpeg4enc.h \
- libavcodec/rl.h libavcodec/vlc.h libavutil/macros.h \
- libavcodec/msmpeg4data.h libavcodec/msmpeg4_vc1_data.h libavcodec/wmv2.h \
- libavcodec/wmv2dsp.h
+ libavutil/common.h libavcodec/ratecontrol.h libavcodec/msmpeg4.h \
+ libavcodec/msmpeg4enc.h libavcodec/rl.h libavcodec/vlc.h \
+ libavutil/macros.h libavcodec/msmpeg4data.h \
+ libavcodec/msmpeg4_vc1_data.h libavcodec/wmv2.h libavcodec/wmv2dsp.h

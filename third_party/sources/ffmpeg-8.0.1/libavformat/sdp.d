@@ -24,5 +24,4 @@ libavformat/sdp.o: libavformat/sdp.c config_components.h \
  libavformat/hevc.h libavformat/nal.h libavformat/rtp.h \
  libavcodec/codec_id.h libavformat/avformat.h libavformat/version.h \
  libavformat/version_major.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/url.h
+ libavformat/os_support.h libavformat/url.h

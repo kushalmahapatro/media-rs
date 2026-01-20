@@ -7,6 +7,5 @@ libavformat/async.o: libavformat/async.c libavutil/avassert.h config.h \
  libavutil/internal.h libavutil/libm.h libavutil/mathematics.h \
  libavutil/intfloat.h libavutil/pixfmt.h libavutil/channel_layout.h \
  libavutil/dict.h libavutil/samplefmt.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/attributes.h libavutil/common.h \
- libavutil/internal.h libavutil/mem.h libavutil/time.h libavformat/url.h \
- libavformat/avio.h libavutil/dict.h libavformat/version_major.h
+ libavformat/url.h libavformat/avio.h libavutil/attributes.h \
+ libavutil/dict.h libavformat/version_major.h

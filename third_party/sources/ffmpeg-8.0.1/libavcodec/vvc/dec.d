@@ -19,8 +19,7 @@ libavcodec/vvc/dec.o: libavcodec/vvc/dec.c libavcodec/bytestream.h \
  libavutil/refstruct.h libavcodec/hwconfig.h libavcodec/hwaccels.h \
  libavcodec/profiles.h libavutil/opt.h libavcodec/aom_film_grain.h \
  libavutil/film_grain_params.h libavcodec/thread.h libavutil/cpu.h \
- libavutil/mem.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h libavcodec/vvc/dec.h \
+ libavutil/mem.h libavutil/thread.h libavcodec/vvc/dec.h \
  libavcodec/videodsp.h libavcodec/vvc.h libavcodec/h274.h \
  libavcodec/vvc/ps.h libavcodec/cbs_h266.h libavcodec/cbs_h2645.h \
  libavcodec/h2645_parse.h libavutil/error.h libavcodec/get_bits.h \

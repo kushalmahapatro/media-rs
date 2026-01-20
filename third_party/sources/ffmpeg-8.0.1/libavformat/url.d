@@ -3,5 +3,5 @@ libavformat/url.o: libavformat/url.c config.h libavformat/avio.h \
  libavutil/attributes.h libavutil/version.h libavutil/macros.h \
  libavutil/avconfig.h libavformat/version_major.h libavformat/url.h \
  libavformat/network.h libavutil/error.h libavformat/os_support.h \
- libavutil/mem.h libavutil/wchar_filename.h libavutil/mem.h \
- libavutil/avassert.h libavutil/log.h libavutil/avstring.h
+ libavutil/avassert.h libavutil/log.h libavutil/avstring.h \
+ libavutil/mem.h

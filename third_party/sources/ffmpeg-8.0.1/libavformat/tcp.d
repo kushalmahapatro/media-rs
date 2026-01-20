@@ -14,5 +14,4 @@ libavformat/tcp.o: libavformat/tcp.c libavformat/avformat.h \
  libavutil/parseutils.h libavutil/opt.h libavutil/avutil.h \
  libavutil/channel_layout.h libavutil/dict.h libavutil/samplefmt.h \
  libavutil/time.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/url.h
+ libavformat/os_support.h libavformat/url.h

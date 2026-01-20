@@ -15,5 +15,4 @@ libavformat/sapenc.o: libavformat/sapenc.c libavformat/avformat.h \
  libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
  libavutil/time.h libavformat/internal.h libavcodec/packet_internal.h \
  libavformat/mux.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/url.h libavformat/rtpenc_chain.h
+ libavformat/os_support.h libavformat/url.h libavformat/rtpenc_chain.h

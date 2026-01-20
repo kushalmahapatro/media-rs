@@ -20,4 +20,4 @@ libavcodec/pthread_frame.o: libavcodec/pthread_frame.c \
  libavcodec/packet_internal.h libavcodec/pthread_internal.h \
  libavcodec/thread.h libavcodec/threadframe.h libavutil/avassert.h \
  libavutil/common.h libavutil/cpu.h libavutil/internal.h libavutil/mem.h \
- libavutil/opt.h libavutil/thread.h compat/w32pthreads.h libavutil/time.h
+ libavutil/opt.h libavutil/thread.h

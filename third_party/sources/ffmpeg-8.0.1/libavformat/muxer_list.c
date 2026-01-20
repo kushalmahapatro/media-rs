@@ -177,7 +177,6 @@ static const FFOutputFormat * const muxer_list[] = {
     &ff_webm_chunk_muxer,
     &ff_webp_muxer,
     &ff_webvtt_muxer,
-    &ff_whip_muxer,
     &ff_wsaud_muxer,
     &ff_wtv_muxer,
     &ff_wv_muxer,

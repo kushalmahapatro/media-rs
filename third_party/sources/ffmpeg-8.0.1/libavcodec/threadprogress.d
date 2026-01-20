@@ -14,5 +14,4 @@ libavcodec/threadprogress.o: libavcodec/threadprogress.c \
  libavcodec/version_major.h libavcodec/version_major.h \
  libavcodec/codec_id.h libavcodec/defs.h libavcodec/packet.h \
  libavutil/version.h libavcodec/version_major.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/internal.h libavutil/mem.h libavutil/time.h
+ libavcodec/threadprogress.h libavutil/thread.h

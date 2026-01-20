@@ -12,9 +12,8 @@ libavformat/hdsenc.o: libavformat/hdsenc.c config.h \
  libavcodec/version_major.h libavcodec/defs.h libavcodec/packet.h \
  libavutil/log.h libavformat/avio.h libavformat/version_major.h \
  libavformat/internal.h libavcodec/packet_internal.h libavformat/mux.h \
- libavformat/os_support.h libavutil/mem.h libavutil/wchar_filename.h \
- libavutil/mem.h libavutil/avstring.h libavutil/base64.h \
+ libavformat/os_support.h libavutil/avstring.h libavutil/base64.h \
  libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
- libavutil/x86/intreadwrite.h libavutil/mathematics.h libavutil/opt.h \
- libavutil/avutil.h libavutil/channel_layout.h libavutil/dict.h \
- libavutil/samplefmt.h
+ libavutil/x86/intreadwrite.h libavutil/mathematics.h libavutil/mem.h \
+ libavutil/opt.h libavutil/avutil.h libavutil/channel_layout.h \
+ libavutil/dict.h libavutil/samplefmt.h

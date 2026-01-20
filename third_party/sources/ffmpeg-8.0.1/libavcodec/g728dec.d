@@ -21,5 +21,4 @@ libavcodec/g728dec.o: libavcodec/g728dec.c libavcodec/avcodec.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
  libavcodec/g728data.h libavcodec/lpc_functions.h libavcodec/ra288.h \
  libavutil/mem_internal.h libavutil/float_dsp.h libavutil/mem.h \
- libavutil/opt.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h libavcodec/g728_template.c
+ libavutil/opt.h libavutil/thread.h libavcodec/g728_template.c

@@ -25,7 +25,6 @@ libavcodec/vp9.o: libavcodec/vp9.c config_components.h \
  libavcodec/vp89_rac.h libavcodec/vpx_rac.h libavcodec/bytestream.h \
  libavcodec/x86/vpx_arith.h libavcodec/vp9.h libavcodec/vp9data.h \
  libavcodec/vp9dec.h libavutil/mem_internal.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/mem.h \
- libavutil/time.h libavcodec/vp9dsp.h libavcodec/vp9.h \
- libavcodec/vp9shared.h libavcodec/cbs_vp9.h libavcodec/cbs.h \
- libavcodec/codec_par.h libavutil/pixdesc.h libavutil/video_enc_params.h
+ libavcodec/vp9dsp.h libavcodec/vp9.h libavcodec/vp9shared.h \
+ libavcodec/cbs_vp9.h libavcodec/cbs.h libavcodec/codec_par.h \
+ libavutil/mem.h libavutil/pixdesc.h libavutil/video_enc_params.h

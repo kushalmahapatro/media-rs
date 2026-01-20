@@ -91,7 +91,23 @@ cmake --install . --component libheif 2>/dev/null || true
 
 # Install layout + pkg-config for consumers
 mkdir -p "$INSTALL_DIR/lib" "$INSTALL_DIR/include" "$INSTALL_DIR/lib/pkgconfig"
-cp -f "$BUILD_DIR/lib/libheif.a" "$INSTALL_DIR/lib/" 2>/dev/null || true
+
+# Find and copy libheif.a (cmake build creates it in libheif/ subdirectory)
+LIBHEIF_SOURCE=""
+if [ -f "libheif/libheif.a" ]; then
+  LIBHEIF_SOURCE="libheif/libheif.a"
+elif [ -f "$BUILD_DIR/lib/libheif.a" ]; then
+  LIBHEIF_SOURCE="$BUILD_DIR/lib/libheif.a"
+else
+  # Search for it
+  LIBHEIF_SOURCE=$(find . -name "libheif.a" -type f 2>/dev/null | head -1)
+  if [ -z "$LIBHEIF_SOURCE" ]; then
+    echo "ERROR: libheif.a not found after build"
+    exit 2
+  fi
+fi
+cp -f "$LIBHEIF_SOURCE" "$INSTALL_DIR/lib/libheif.a"
+
 cp -f "$DE265_INSTALL/lib/libde265.a" "$INSTALL_DIR/lib/" 2>/dev/null || true
 cp -r "$BUILD_DIR/include/"* "$INSTALL_DIR/include/" 2>/dev/null || true
 

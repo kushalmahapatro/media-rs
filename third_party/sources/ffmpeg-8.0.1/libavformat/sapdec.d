@@ -13,8 +13,7 @@ libavformat/sapdec.o: libavformat/sapdec.c libavformat/avformat.h \
  libavformat/version_major.h libavformat/demux.h libavutil/avstring.h \
  libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
  libavutil/x86/intreadwrite.h libavutil/mem.h libavformat/network.h \
- libavutil/error.h libavformat/os_support.h libavutil/wchar_filename.h \
- libavutil/mem.h libavformat/url.h libavformat/internal.h \
- libavcodec/packet_internal.h libavformat/avio_internal.h \
- libavformat/rtpdec.h libavcodec/codec_id.h libavformat/rtp.h \
- libavformat/avformat.h libavformat/srtp.h
+ libavutil/error.h libavformat/os_support.h libavformat/url.h \
+ libavformat/internal.h libavcodec/packet_internal.h \
+ libavformat/avio_internal.h libavformat/rtpdec.h libavcodec/codec_id.h \
+ libavformat/rtp.h libavformat/avformat.h libavformat/srtp.h

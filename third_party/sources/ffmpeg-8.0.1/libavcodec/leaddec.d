@@ -21,5 +21,4 @@ libavcodec/leaddec.o: libavcodec/leaddec.c libavcodec/avcodec.h \
  libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/vlc.h \
  libavutil/macros.h libavcodec/idctdsp.h libavcodec/jpegquanttables.h \
  libavcodec/jpegtables.h libavcodec/leaddata.h libavutil/mem.h \
- libavutil/mem_internal.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h
+ libavutil/mem_internal.h libavutil/thread.h

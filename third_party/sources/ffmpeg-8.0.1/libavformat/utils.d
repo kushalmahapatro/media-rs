@@ -20,4 +20,4 @@ libavformat/utils.o: libavformat/utils.c config.h libavutil/avstring.h \
  libavformat/version_major.h libavformat/avio_internal.h \
  libavformat/internal.h libavcodec/packet_internal.h \
  libavformat/network.h libavutil/error.h libavformat/os_support.h \
- libavutil/wchar_filename.h libavutil/mem.h libavformat/url.h
+ libavformat/url.h

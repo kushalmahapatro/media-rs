@@ -22,7 +22,6 @@ libavcodec/flvdec.o: libavcodec/flvdec.c libavutil/imgutils.h \
  libavcodec/codec_id.h libavcodec/packet.h libavutil/version.h \
  libavcodec/version_major.h libavcodec/h264chroma.h libavcodec/h263dsp.h \
  libavcodec/hpeldsp.h libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/mem.h libavutil/time.h \
- libavcodec/qpeldsp.h libavcodec/videodsp.h libavutil/mem_internal.h \
- libavcodec/mpegvideodec.h libavcodec/mpegvideodata.h
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h libavutil/mem_internal.h libavcodec/mpegvideodec.h \
+ libavcodec/mpegvideodata.h

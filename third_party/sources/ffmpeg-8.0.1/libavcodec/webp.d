@@ -22,6 +22,5 @@ libavcodec/webp.o: libavcodec/webp.c libavutil/imgutils.h \
  libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/vlc.h \
  libavutil/macros.h libavcodec/thread.h libavcodec/tiff_common.h \
  libavcodec/vp8.h libavutil/mem_internal.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/time.h \
  libavcodec/h264pred.h libavcodec/progressframe.h libavcodec/videodsp.h \
  libavcodec/vp8dsp.h libavcodec/vpx_rac.h libavcodec/x86/vpx_arith.h

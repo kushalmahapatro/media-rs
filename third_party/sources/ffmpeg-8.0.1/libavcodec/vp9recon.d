@@ -8,10 +8,9 @@ libavcodec/vp9recon.o: libavcodec/vp9recon.c libavutil/avassert.h \
  libavutil/channel_layout.h libavutil/dict.h libavutil/samplefmt.h \
  libavutil/mem_internal.h libavcodec/progressframe.h \
  libavcodec/videodsp.h libavcodec/vp9data.h libavcodec/vp9dec.h \
- libavutil/pixfmt.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/attributes.h libavutil/common.h libavutil/internal.h \
- libavutil/mem.h libavutil/time.h libavcodec/get_bits.h \
- libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
+ libavutil/pixfmt.h libavutil/thread.h libavcodec/get_bits.h \
+ libavutil/common.h libavutil/intreadwrite.h libavutil/bswap.h \
+ libavutil/x86/bswap.h libavutil/attributes.h \
  libavutil/x86/intreadwrite.h libavcodec/defs.h libavcodec/mathops.h \
  libavutil/attributes_internal.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h libavcodec/vp9.h \

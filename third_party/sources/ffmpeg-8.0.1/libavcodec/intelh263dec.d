@@ -17,10 +17,9 @@ libavcodec/intelh263dec.o: libavcodec/intelh263dec.c \
  libavcodec/packet.h libavutil/version.h libavcodec/version_major.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/internal.h libavutil/mem.h libavutil/time.h \
- libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/mpegvideodec.h \
- libavcodec/get_bits.h libavutil/intreadwrite.h libavutil/bswap.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h libavcodec/mpegvideodec.h libavcodec/get_bits.h \
+ libavutil/common.h libavutil/intreadwrite.h libavutil/bswap.h \
  libavutil/x86/bswap.h libavutil/x86/intreadwrite.h libavutil/avassert.h \
  libavcodec/mathops.h libavutil/attributes_internal.h \
  libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/vlc.h \

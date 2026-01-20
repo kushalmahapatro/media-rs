@@ -16,5 +16,4 @@ libavcodec/mpegpicture.o: libavcodec/mpegpicture.c libavutil/avassert.h \
  libavcodec/version_major.h libavcodec/codec_id.h libavcodec/defs.h \
  libavcodec/packet.h libavutil/version.h libavcodec/version_major.h \
  libavcodec/mpegpicture.h libavcodec/threadprogress.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/time.h \
  libavutil/refstruct.h

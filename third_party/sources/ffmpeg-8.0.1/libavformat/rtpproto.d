@@ -16,4 +16,4 @@ libavformat/rtpproto.o: libavformat/rtpproto.c libavutil/mem.h \
  libavformat/version_major.h libavformat/rtp.h libavcodec/codec_id.h \
  libavformat/avformat.h libavformat/rtpproto.h libavformat/url.h \
  libavformat/ip.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h
+ libavformat/os_support.h

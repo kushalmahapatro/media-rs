@@ -15,10 +15,9 @@ libavcodec/mlpdec.o: libavcodec/mlpdec.c config_components.h \
  libavcodec/packet.h libavutil/version.h libavcodec/version_major.h \
  libavutil/internal.h libavutil/intreadwrite.h libavutil/bswap.h \
  libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
- libavutil/mem_internal.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/mem.h libavutil/time.h libavutil/opt.h \
+ libavutil/mem_internal.h libavutil/thread.h libavutil/opt.h \
  libavcodec/codec_internal.h libavcodec/decode.h libavcodec/get_bits.h \
- libavutil/avassert.h libavcodec/mathops.h \
+ libavutil/common.h libavutil/avassert.h libavcodec/mathops.h \
  libavutil/attributes_internal.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
  libavcodec/mlp_parse.h libavcodec/mlpdsp.h libavcodec/mlp.h \

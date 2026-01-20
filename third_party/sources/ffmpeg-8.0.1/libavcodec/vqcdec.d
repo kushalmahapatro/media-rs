@@ -19,5 +19,4 @@ libavcodec/vqcdec.o: libavcodec/vqcdec.c libavcodec/avcodec.h \
  libavutil/attributes_internal.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
  libavcodec/codec_internal.h libavcodec/decode.h libavutil/mem.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/internal.h \
- libavutil/time.h
+ libavutil/thread.h

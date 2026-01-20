@@ -18,16 +18,15 @@ libavcodec/svq1enc.o: libavcodec/svq1enc.c libavutil/emms.h config.h \
  libavcodec/me_cmp.h libavcodec/mpegvideo.h libavcodec/blockdsp.h \
  libavcodec/error_resilience.h libavcodec/h264chroma.h \
  libavcodec/h263dsp.h libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/internal.h libavutil/time.h \
- libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/h263.h \
- libavcodec/h263enc.h libavcodec/h263data.h libavcodec/rl.h \
- libavcodec/vlc.h libavutil/macros.h libavcodec/mpegvideoenc.h \
- libavutil/avassert.h libavutil/mem_internal.h libavutil/opt.h \
- libavcodec/fdctdsp.h libavutil/attributes_internal.h \
- libavcodec/motion_est.h libavcodec/mpegvideoencdsp.h \
- libavcodec/pixblockdsp.h libavcodec/put_bits.h libavutil/intreadwrite.h \
- libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h libavcodec/h263.h libavcodec/h263enc.h \
+ libavcodec/h263data.h libavcodec/rl.h libavcodec/vlc.h \
+ libavutil/macros.h libavcodec/mpegvideoenc.h libavutil/avassert.h \
+ libavutil/mem_internal.h libavutil/opt.h libavcodec/fdctdsp.h \
+ libavutil/attributes_internal.h libavcodec/motion_est.h \
+ libavcodec/mpegvideoencdsp.h libavcodec/pixblockdsp.h \
+ libavcodec/put_bits.h libavutil/intreadwrite.h libavutil/bswap.h \
+ libavutil/x86/bswap.h libavutil/x86/intreadwrite.h libavutil/common.h \
  libavcodec/ratecontrol.h libavcodec/internal.h libavcodec/mpegutils.h \
  libavcodec/packet_internal.h libavcodec/svq1.h libavcodec/svq1encdsp.h \
  libavcodec/svq1enc_cb.h libavcodec/version.h

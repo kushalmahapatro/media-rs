@@ -14,5 +14,4 @@ libavformat/icecast.o: libavformat/icecast.c libavutil/bprint.h \
  libavutil/version.h libavcodec/version_major.h libavcodec/defs.h \
  libavcodec/packet.h libavutil/log.h libavformat/avio.h \
  libavformat/version_major.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/url.h
+ libavformat/os_support.h libavformat/url.h

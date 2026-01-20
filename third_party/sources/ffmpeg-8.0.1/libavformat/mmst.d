@@ -14,5 +14,4 @@ libavformat/mmst.o: libavformat/mmst.c libavformat/avformat.h \
  libavformat/avio_internal.h libavutil/intreadwrite.h libavutil/bswap.h \
  libavutil/x86/bswap.h libavutil/x86/intreadwrite.h libavutil/mem.h \
  libavcodec/bytestream.h libavutil/avassert.h libavutil/common.h \
- libavformat/network.h libavutil/error.h libavformat/os_support.h \
- libavutil/wchar_filename.h libavutil/mem.h
+ libavformat/network.h libavutil/error.h libavformat/os_support.h

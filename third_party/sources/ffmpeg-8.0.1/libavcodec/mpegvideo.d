@@ -22,6 +22,6 @@ libavcodec/mpegvideo.o: libavcodec/mpegvideo.c libavutil/attributes.h \
  libavcodec/mpegvideo.h libavcodec/error_resilience.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/mpegpicture.h libavcodec/threadprogress.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/time.h libavcodec/qpeldsp.h \
- libavcodec/videodsp.h libavcodec/mpegutils.h libavcodec/mpegvideodata.h \
- libavcodec/mpegvideo_unquantize.h libavutil/refstruct.h
+ libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/mpegutils.h \
+ libavcodec/mpegvideodata.h libavcodec/mpegvideo_unquantize.h \
+ libavutil/refstruct.h

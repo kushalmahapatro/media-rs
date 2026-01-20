@@ -20,6 +20,5 @@ libavcodec/wavpack.o: libavcodec/wavpack.c libavutil/channel_layout.h \
  libavutil/attributes_internal.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
  libavutil/refstruct.h libavcodec/thread.h libavcodec/threadprogress.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/internal.h \
- libavutil/time.h libavcodec/unary.h libavcodec/wavpack.h \
+ libavutil/thread.h libavcodec/unary.h libavcodec/wavpack.h \
  libavutil/intmath.h libavcodec/dsd.h

@@ -1,8 +1,8 @@
 libavcodec/libopenh264enc.o: libavcodec/libopenh264enc.c \
- D:/media-rs/media-rs/third_party/openh264_install/windows/x86_64/include/wels/codec_api.h \
- D:/media-rs/media-rs/third_party/openh264_install/windows/x86_64/include/wels/codec_app_def.h \
- D:/media-rs/media-rs/third_party/openh264_install/windows/x86_64/include/wels/codec_def.h \
- D:/media-rs/media-rs/third_party/openh264_install/windows/x86_64/include/wels/codec_ver.h \
+ /home/kushal/project/media-rs/third_party/openh264_install/linux/x86_64/include/wels/codec_api.h \
+ /home/kushal/project/media-rs/third_party/openh264_install/linux/x86_64/include/wels/codec_app_def.h \
+ /home/kushal/project/media-rs/third_party/openh264_install/linux/x86_64/include/wels/codec_def.h \
+ /home/kushal/project/media-rs/third_party/openh264_install/linux/x86_64/include/wels/codec_ver.h \
  libavutil/attributes.h libavutil/common.h libavutil/attributes.h \
  libavutil/error.h libavutil/macros.h libavutil/avconfig.h \
  libavutil/version.h config.h libavutil/intmath.h libavutil/x86/intmath.h \

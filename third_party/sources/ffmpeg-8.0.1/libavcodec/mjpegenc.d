@@ -22,8 +22,7 @@ libavcodec/mjpegenc.o: libavcodec/mjpegenc.c config_components.h \
  libavcodec/blockdsp.h libavcodec/error_resilience.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h libavcodec/qpeldsp.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
  libavcodec/videodsp.h libavcodec/mjpeg.h libavcodec/mjpegenc.h \
  libavcodec/mpegvideoenc.h libavutil/mem_internal.h libavutil/opt.h \
  libavcodec/fdctdsp.h libavcodec/motion_est.h libavcodec/me_cmp.h \

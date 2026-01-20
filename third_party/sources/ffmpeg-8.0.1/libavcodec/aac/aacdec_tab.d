@@ -12,5 +12,4 @@ libavcodec/aac/aacdec_tab.o: libavcodec/aac/aacdec_tab.c \
  libavutil/x86/intreadwrite.h libavutil/avassert.h libavutil/log.h \
  libavcodec/defs.h libavcodec/mathops.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavcodec/aactab.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/internal.h \
- libavutil/mem.h libavutil/time.h
+ libavutil/thread.h

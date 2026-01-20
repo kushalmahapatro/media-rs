@@ -17,7 +17,6 @@ libavformat/img2dec.o: libavformat/img2dec.c config_components.h \
  libavcodec/defs.h libavcodec/packet.h libavformat/avio.h \
  libavformat/version_major.h libavformat/avio_internal.h \
  libavformat/demux.h libavformat/internal.h libavcodec/packet_internal.h \
- libavformat/img2.h libavformat/os_support.h libavutil/wchar_filename.h \
- libavutil/mem.h libavcodec/jpegxl_parse.h libavcodec/jpegxl.h \
- libavcodec/mjpeg.h libavcodec/vbn.h libavcodec/xwd.h \
+ libavformat/img2.h libavformat/os_support.h libavcodec/jpegxl_parse.h \
+ libavcodec/jpegxl.h libavcodec/mjpeg.h libavcodec/vbn.h libavcodec/xwd.h \
  libavformat/subtitles.h libavutil/bprint.h libavutil/avstring.h

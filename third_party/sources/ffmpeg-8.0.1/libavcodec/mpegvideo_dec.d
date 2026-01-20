@@ -20,13 +20,13 @@ libavcodec/mpegvideo_dec.o: libavcodec/mpegvideo_dec.c \
  libavcodec/blockdsp.h libavcodec/error_resilience.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/mem.h libavutil/time.h libavcodec/qpeldsp.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
  libavcodec/videodsp.h libavcodec/internal.h libavcodec/mpegutils.h \
- libavcodec/mpegvideodec.h libavcodec/get_bits.h libavutil/intreadwrite.h \
- libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
- libavcodec/mathops.h libavutil/attributes_internal.h \
- libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/vlc.h \
- libavutil/macros.h libavcodec/mpegvideodata.h libavcodec/mpeg4videodec.h \
+ libavcodec/mpegvideodec.h libavcodec/get_bits.h libavutil/common.h \
+ libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
+ libavutil/x86/intreadwrite.h libavcodec/mathops.h \
+ libavutil/attributes_internal.h libavcodec/x86/mathops.h \
+ libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
+ libavcodec/mpegvideodata.h libavcodec/mpeg4videodec.h \
  libavcodec/h263dec.h libavutil/mem_internal.h libavcodec/mpeg4videodsp.h \
  libavutil/refstruct.h libavcodec/thread.h libavcodec/wmv2dec.h

@@ -8,5 +8,5 @@ Description: FFmpeg utility library
 Version: 60.8.100
 Requires: 
 Conflicts:
-Libs: -L${libdir} -Wl,-rpath,${libdir} -lavutil -lm -luser32 -lbcrypt -latomic
+Libs: -L${libdir} -Wl,-rpath,${libdir} -lavutil -lm -latomic -pthread -lX11 -lpthread -lxcb -lXau -lXdmcp
 Cflags: -I${includedir}

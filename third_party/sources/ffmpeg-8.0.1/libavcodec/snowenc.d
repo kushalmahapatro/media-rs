@@ -23,8 +23,7 @@ libavcodec/snowenc.o: libavcodec/snowenc.c libavutil/emms.h config.h \
  libavcodec/videodsp.h libavcodec/mpegvideo.h libavcodec/blockdsp.h \
  libavcodec/error_resilience.h libavcodec/h264chroma.h \
  libavcodec/h263dsp.h libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h libavcodec/h263enc.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/h263enc.h \
  libavcodec/h263data.h libavcodec/rl.h libavcodec/vlc.h \
  libavutil/macros.h libavcodec/mpegvideoenc.h libavutil/mem_internal.h \
  libavcodec/fdctdsp.h libavcodec/motion_est.h \

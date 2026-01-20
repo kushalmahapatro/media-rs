@@ -15,8 +15,7 @@ libavformat/rtpdec.o: libavformat/rtpdec.c libavutil/mathematics.h \
  libavutil/version.h libavcodec/version_major.h libavcodec/defs.h \
  libavcodec/packet.h libavutil/log.h libavformat/avio.h \
  libavformat/version_major.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/url.h libavformat/srtp.h libavformat/rtpdec.h \
- libavcodec/codec_id.h libavformat/rtp.h libavformat/avformat.h \
- libavformat/rtpdec_formats.h libavformat/internal.h \
- libavcodec/packet_internal.h
+ libavformat/os_support.h libavformat/url.h libavformat/srtp.h \
+ libavformat/rtpdec.h libavcodec/codec_id.h libavformat/rtp.h \
+ libavformat/avformat.h libavformat/rtpdec_formats.h \
+ libavformat/internal.h libavcodec/packet_internal.h

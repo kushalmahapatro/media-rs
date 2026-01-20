@@ -37,11 +37,23 @@ if [ ! -d "ffmpeg-8.0.1" ]; then
 fi
 
 cd "$SOURCE_DIR/ffmpeg-8.0.1"
+# Clean build artifacts but preserve source files
 make distclean 2>/dev/null || true
+# Remove only generated files, not source files like ffbuild/library.mak
+rm -f config.* *.pc 2>/dev/null || true
+find . -name "*.d" -type f -delete 2>/dev/null || true
+# Clean ffbuild but preserve source .mak files
+if [ -d "ffbuild" ]; then
+  find ffbuild -name "*.o" -delete 2>/dev/null || true
+  find ffbuild -name "*.d" -delete 2>/dev/null || true
+  rm -f ffbuild/config.* 2>/dev/null || true
+fi
+
+# Ensure configure script is executable
+chmod +x configure
 
 export PKG_CONFIG_ALLOW_CROSS=1
-export PKG_CONFIG_PATH="$OPENH264_DIR/lib/pkgconfig"
-export PKG_CONFIG_LIBDIR="$OPENH264_DIR/lib/pkgconfig"
+export PKG_CONFIG_PATH="$OPENH264_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
 mkdir -p "$BUILD_DIR"
 

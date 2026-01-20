@@ -22,11 +22,9 @@ libavcodec/wmv2dec.o: libavcodec/wmv2dec.c libavutil/mem_internal.h \
  libavcodec/error_resilience.h libavcodec/h264chroma.h \
  libavcodec/h263dsp.h libavcodec/hpeldsp.h libavcodec/idctdsp.h \
  libavcodec/mpegpicture.h libavcodec/threadprogress.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/mem.h \
- libavutil/time.h libavcodec/qpeldsp.h libavcodec/videodsp.h \
- libavcodec/intrax8.h libavcodec/intrax8dsp.h libavcodec/wmv2dsp.h \
- libavcodec/mpegutils.h libavcodec/mpegvideodec.h \
- libavcodec/mpegvideodata.h libavcodec/msmpeg4.h \
- libavcodec/msmpeg4_vc1_data.h libavcodec/msmpeg4dec.h \
- libavcodec/simple_idct.h libavcodec/wmv2.h libavcodec/wmv2data.h \
- libavcodec/wmv2dec.h
+ libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/intrax8.h \
+ libavcodec/intrax8dsp.h libavcodec/wmv2dsp.h libavcodec/mpegutils.h \
+ libavcodec/mpegvideodec.h libavcodec/mpegvideodata.h \
+ libavcodec/msmpeg4.h libavcodec/msmpeg4_vc1_data.h \
+ libavcodec/msmpeg4dec.h libavcodec/simple_idct.h libavcodec/wmv2.h \
+ libavcodec/wmv2data.h libavcodec/wmv2dec.h

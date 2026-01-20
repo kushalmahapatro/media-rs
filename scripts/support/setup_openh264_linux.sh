@@ -40,9 +40,9 @@ mkdir -p "$BUILD_DIR" "$INSTALL_DIR"
 # Build static only
 make -j"$CORES" OS=linux ARCH="$OPENH264_ARCH" libopenh264.a
 
-mkdir -p "$INSTALL_DIR/lib" "$INSTALL_DIR/include" "$INSTALL_DIR/lib/pkgconfig"
+mkdir -p "$INSTALL_DIR/lib" "$INSTALL_DIR/include/wels" "$INSTALL_DIR/lib/pkgconfig"
 cp -f libopenh264.a "$INSTALL_DIR/lib/"
-cp -f codec/api/wels/*.h "$INSTALL_DIR/include/" 2>/dev/null || true
+cp -f codec/api/wels/*.h "$INSTALL_DIR/include/wels/" 2>/dev/null || true
 
 cat > "$INSTALL_DIR/lib/pkgconfig/openh264.pc" <<EOF
 prefix=$INSTALL_DIR
@@ -53,7 +53,7 @@ includedir=\${prefix}/include
 Name: openh264
 Description: OpenH264 is a codec library which supports H.264 encoding and decoding
 Version: 2.6.0
-Libs: -L\${libdir} -lopenh264
+Libs: -L\${libdir} -lopenh264 -lstdc++
 Cflags: -I\${includedir}
 EOF
 

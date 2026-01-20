@@ -20,4 +20,4 @@ libavformat/hlsenc.o: libavformat/hlsenc.c config.h config_components.h \
  libavformat/avio_internal.h libavformat/avc.h libavformat/http.h \
  libavformat/url.h libavformat/hlsplaylist.h libavformat/internal.h \
  libavcodec/packet_internal.h libavformat/nal.h libavformat/mux.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h
+ libavformat/os_support.h

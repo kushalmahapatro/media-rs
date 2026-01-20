@@ -52,7 +52,7 @@ includedir=\${prefix}/include
 Name: openh264
 Description: OpenH264 is a codec library which supports H.264 encoding and decoding
 Version: 2.6.0
-Libs: -L\${libdir} -lopenh264
+Libs: -L\${libdir} -lopenh264 -lstdc++
 Cflags: -I\${includedir}
 EOF
 

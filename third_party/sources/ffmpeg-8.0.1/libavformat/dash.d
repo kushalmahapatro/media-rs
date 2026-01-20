@@ -21,5 +21,4 @@ libavformat/dash.o: libavformat/dash.c config.h libavutil/avstring.h \
  libavutil/frame.h libavutil/buffer.h \
  libavutil/ambient_viewing_environment.h libavutil/spherical.h \
  libavutil/stereo3d.h libavformat/dv.h libavformat/os_support.h \
- libavutil/mem.h libavutil/wchar_filename.h libavutil/mem.h \
  libavformat/url.h libavformat/dash.h

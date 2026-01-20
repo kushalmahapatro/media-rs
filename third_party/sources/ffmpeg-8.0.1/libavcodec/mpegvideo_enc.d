@@ -8,8 +8,7 @@ libavcodec/mpegvideo_enc.o: libavcodec/mpegvideo_enc.c \
  libavutil/common.h libavutil/error.h libavutil/version.h \
  libavutil/intmath.h libavutil/internal.h libavutil/log.h \
  libavutil/pixfmt.h libavutil/channel_layout.h libavutil/dict.h \
- libavutil/samplefmt.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/time.h libavcodec/avcodec.h \
+ libavutil/samplefmt.h libavutil/thread.h libavcodec/avcodec.h \
  libavutil/samplefmt.h libavutil/avutil.h libavutil/buffer.h \
  libavutil/channel_layout.h libavutil/dict.h libavutil/frame.h \
  libavutil/buffer.h libavutil/log.h libavutil/pixfmt.h \
@@ -28,14 +27,14 @@ libavcodec/mpegvideo_enc.o: libavcodec/mpegvideo_enc.c \
  libavcodec/me_cmp.h libavcodec/mpegvideoencdsp.h \
  libavcodec/pixblockdsp.h libavcodec/put_bits.h libavutil/intreadwrite.h \
  libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
- libavcodec/ratecontrol.h libavcodec/mpegvideodata.h libavcodec/h261enc.h \
- libavcodec/h263.h libavcodec/h263data.h libavcodec/rl.h libavcodec/vlc.h \
- libavutil/macros.h libavcodec/h263enc.h libavcodec/mjpegenc_common.h \
- libavcodec/mathops.h libavcodec/x86/mathops.h libavutil/x86/asm.h \
- libavcodec/mpegutils.h libavcodec/mpegvideo_unquantize.h \
- libavcodec/mjpegenc.h libavcodec/mjpeg.h libavcodec/speedhqenc.h \
- libavcodec/msmpeg4enc.h libavcodec/faandct.h libavcodec/aandcttab.h \
- libavcodec/mpeg4video.h libavcodec/mpeg4videodata.h \
- libavcodec/mpeg4videoenc.h libavcodec/internal.h libavcodec/bytestream.h \
- libavcodec/rv10enc.h libavcodec/packet_internal.h libavutil/refstruct.h \
- libavcodec/sp5x.h
+ libavutil/common.h libavcodec/ratecontrol.h libavcodec/mpegvideodata.h \
+ libavcodec/h261enc.h libavcodec/h263.h libavcodec/h263data.h \
+ libavcodec/rl.h libavcodec/vlc.h libavutil/macros.h libavcodec/h263enc.h \
+ libavcodec/mjpegenc_common.h libavcodec/mathops.h \
+ libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/mpegutils.h \
+ libavcodec/mpegvideo_unquantize.h libavcodec/mjpegenc.h \
+ libavcodec/mjpeg.h libavcodec/speedhqenc.h libavcodec/msmpeg4enc.h \
+ libavcodec/faandct.h libavcodec/aandcttab.h libavcodec/mpeg4video.h \
+ libavcodec/mpeg4videodata.h libavcodec/mpeg4videoenc.h \
+ libavcodec/internal.h libavcodec/bytestream.h libavcodec/rv10enc.h \
+ libavcodec/packet_internal.h libavutil/refstruct.h libavcodec/sp5x.h

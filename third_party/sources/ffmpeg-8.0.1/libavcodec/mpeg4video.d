@@ -17,8 +17,6 @@ libavcodec/mpeg4video.o: libavcodec/mpeg4video.c libavcodec/mpegutils.h \
  libavcodec/error_resilience.h libavcodec/h264chroma.h \
  libavcodec/h263dsp.h libavcodec/hpeldsp.h libavcodec/idctdsp.h \
  libavcodec/mpegpicture.h libavcodec/threadprogress.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/common.h libavutil/internal.h \
- libavutil/mem.h libavutil/time.h libavcodec/qpeldsp.h \
- libavcodec/videodsp.h libavcodec/mpeg4video.h libavcodec/mpeg4data.h \
- libavcodec/mpeg4videodata.h libavcodec/rl.h libavcodec/vlc.h \
- libavutil/macros.h
+ libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/mpeg4video.h \
+ libavcodec/mpeg4data.h libavcodec/mpeg4videodata.h libavcodec/rl.h \
+ libavcodec/vlc.h libavutil/macros.h

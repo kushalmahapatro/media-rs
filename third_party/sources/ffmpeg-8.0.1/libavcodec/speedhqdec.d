@@ -20,6 +20,5 @@ libavcodec/speedhqdec.o: libavcodec/speedhqdec.c libavutil/attributes.h \
  libavcodec/mathops.h libavutil/attributes_internal.h \
  libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/vlc.h \
  libavutil/macros.h libavcodec/idctdsp.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/mem.h \
- libavutil/time.h libavcodec/mpeg12data.h libavcodec/mpeg12vlc.h \
- libavcodec/speedhq.h libavcodec/thread.h
+ libavcodec/mpeg12data.h libavcodec/mpeg12vlc.h libavcodec/speedhq.h \
+ libavcodec/thread.h

@@ -18,9 +18,7 @@ libavcodec/mlpenc.o: libavcodec/mlpenc.c config_components.h \
  libavutil/x86/intreadwrite.h libavutil/avassert.h libavutil/common.h \
  libavcodec/audio_frame_queue.h libavutil/crc.h libavutil/avstring.h \
  libavutil/intmath.h libavutil/opt.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/mem.h \
- libavutil/time.h libavcodec/mlp_parse.h libavcodec/get_bits.h \
- libavcodec/mathops.h libavutil/attributes_internal.h \
- libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/vlc.h \
- libavutil/macros.h libavcodec/mlp.h libavcodec/lpc.h libavutil/lls.h \
- libavutil/mem_internal.h
+ libavcodec/mlp_parse.h libavcodec/get_bits.h libavcodec/mathops.h \
+ libavutil/attributes_internal.h libavcodec/x86/mathops.h \
+ libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h libavcodec/mlp.h \
+ libavcodec/lpc.h libavutil/lls.h libavutil/mem_internal.h

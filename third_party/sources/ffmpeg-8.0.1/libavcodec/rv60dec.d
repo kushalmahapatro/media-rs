@@ -20,6 +20,5 @@ libavcodec/rv60dec.o: libavcodec/rv60dec.c libavcodec/avcodec.h \
  libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/vlc.h \
  libavutil/macros.h libavcodec/golomb.h libavutil/mem.h \
  libavcodec/rv60data.h libavcodec/rv60dsp.h libavcodec/rv60vlcs.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h libavcodec/unary.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/unary.h \
  libavcodec/videodsp.h

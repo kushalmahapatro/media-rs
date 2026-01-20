@@ -13,7 +13,7 @@ libavformat/smoothstreamingenc.o: libavformat/smoothstreamingenc.c \
  libavcodec/packet.h libavutil/log.h libavformat/avio.h \
  libavformat/version_major.h libavformat/internal.h \
  libavcodec/packet_internal.h libavformat/mux.h libavformat/os_support.h \
- libavutil/mem.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/avc.h libavformat/url.h libavutil/opt.h libavutil/avutil.h \
- libavutil/channel_layout.h libavutil/dict.h libavutil/samplefmt.h \
- libavutil/avstring.h libavutil/mathematics.h libavutil/uuid.h
+ libavformat/avc.h libavformat/url.h libavutil/mem.h libavutil/opt.h \
+ libavutil/avutil.h libavutil/channel_layout.h libavutil/dict.h \
+ libavutil/samplefmt.h libavutil/avstring.h libavutil/mathematics.h \
+ libavutil/uuid.h

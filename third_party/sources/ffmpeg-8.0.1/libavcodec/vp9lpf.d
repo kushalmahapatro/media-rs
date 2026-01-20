@@ -14,10 +14,9 @@ libavcodec/vp9lpf.o: libavcodec/vp9lpf.c libavcodec/avcodec.h \
  libavcodec/version_major.h libavcodec/codec_id.h libavcodec/defs.h \
  libavcodec/packet.h libavutil/version.h libavcodec/version_major.h \
  libavcodec/vp9dec.h libavutil/mem_internal.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/common.h libavutil/internal.h \
- libavutil/mem.h libavutil/time.h libavcodec/get_bits.h \
- libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
- libavutil/x86/intreadwrite.h libavutil/avassert.h libavcodec/mathops.h \
+ libavcodec/get_bits.h libavutil/common.h libavutil/intreadwrite.h \
+ libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
+ libavutil/avassert.h libavcodec/mathops.h \
  libavutil/attributes_internal.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
  libavcodec/videodsp.h libavcodec/vp9.h libavcodec/vp9dsp.h \

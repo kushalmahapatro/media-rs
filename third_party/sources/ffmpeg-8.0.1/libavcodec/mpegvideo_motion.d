@@ -20,11 +20,10 @@ libavcodec/mpegvideo_motion.o: libavcodec/mpegvideo_motion.c \
  libavcodec/blockdsp.h libavcodec/error_resilience.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/mem.h libavutil/time.h libavcodec/qpeldsp.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
  libavcodec/videodsp.h libavcodec/mpeg4videodec.h libavcodec/get_bits.h \
- libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
- libavutil/x86/intreadwrite.h libavcodec/mathops.h \
+ libavutil/common.h libavutil/intreadwrite.h libavutil/bswap.h \
+ libavutil/x86/bswap.h libavutil/x86/intreadwrite.h libavcodec/mathops.h \
  libavutil/attributes_internal.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/h263dec.h libavcodec/mpeg4videodsp.h \
  libavcodec/wmv2.h libavcodec/wmv2dsp.h

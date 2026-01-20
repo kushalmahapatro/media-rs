@@ -15,7 +15,5 @@ libavcodec/frame_thread_encoder.o: libavcodec/frame_thread_encoder.c \
  libavcodec/version_major.h libavcodec/codec_id.h libavcodec/defs.h \
  libavcodec/packet.h libavutil/version.h libavcodec/version_major.h \
  libavutil/avassert.h libavutil/cpu.h libavutil/mem.h libavutil/opt.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/common.h \
- libavutil/internal.h libavutil/time.h libavcodec/avcodec_internal.h \
- libavcodec/codec_par.h libavcodec/encode.h libavcodec/internal.h \
- libavcodec/pthread_internal.h
+ libavutil/thread.h libavcodec/avcodec_internal.h libavcodec/codec_par.h \
+ libavcodec/encode.h libavcodec/internal.h libavcodec/pthread_internal.h

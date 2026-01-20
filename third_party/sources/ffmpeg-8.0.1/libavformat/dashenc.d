@@ -26,5 +26,4 @@ libavformat/dashenc.o: libavformat/dashenc.c config.h config_components.h \
  libavutil/mastering_display_metadata.h \
  libavutil/ambient_viewing_environment.h libavutil/spherical.h \
  libavutil/stereo3d.h libavformat/dv.h libavformat/mux.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/vpcc.h libavformat/dash.h
+ libavformat/os_support.h libavformat/vpcc.h libavformat/dash.h

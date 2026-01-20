@@ -77,9 +77,12 @@ fn main() {
         // libheif is a C++ library, so we need to link the C++ standard library
         // For Android, we'll link c++_shared in the Android-specific block below
         // For Windows with MinGW, we use stdc++ (handled in Windows block)
-        // For other platforms (macOS, Linux), link c++ here
-        if target_os != "android" && target_os != "windows" {
+        // For macOS, use c++ (libc++)
+        // For Linux, use stdc++ (libstdc++)
+        if target_os == "macos" {
             println!("cargo:rustc-link-lib=c++");
+        } else if target_os == "linux" {
+            println!("cargo:rustc-link-lib=stdc++");
         }
         println!("cargo:include={}", include_dir);
     }

@@ -6,11 +6,10 @@ libavcodec/wmaprodec.o: libavcodec/wmaprodec.c libavutil/audio_fifo.h \
  libavutil/avconfig.h libavutil/bswap.h libavutil/x86/bswap.h \
  libavutil/attributes.h libavutil/x86/intreadwrite.h \
  libavutil/mem_internal.h libavutil/macros.h libavutil/thread.h \
- libavutil/error.h compat/w32pthreads.h libavutil/common.h \
- libavutil/version.h libavutil/intmath.h libavutil/x86/intmath.h \
- libavutil/internal.h libavutil/internal.h libavutil/time.h \
- libavcodec/avcodec.h libavutil/samplefmt.h libavutil/avutil.h \
- libavutil/common.h libavutil/log.h libavutil/pixfmt.h libavutil/buffer.h \
+ libavutil/error.h libavcodec/avcodec.h libavutil/samplefmt.h \
+ libavutil/avutil.h libavutil/common.h libavutil/version.h \
+ libavutil/intmath.h libavutil/x86/intmath.h libavutil/internal.h \
+ libavutil/log.h libavutil/pixfmt.h libavutil/buffer.h \
  libavutil/channel_layout.h libavutil/dict.h libavutil/frame.h \
  libavutil/avutil.h libavutil/buffer.h libavutil/channel_layout.h \
  libavutil/dict.h libavutil/log.h libavutil/pixfmt.h libavutil/rational.h \
@@ -19,7 +18,7 @@ libavcodec/wmaprodec.o: libavcodec/wmaprodec.c libavutil/audio_fifo.h \
  libavcodec/version_major.h libavcodec/codec_id.h libavcodec/defs.h \
  libavcodec/packet.h libavutil/version.h libavcodec/version_major.h \
  libavcodec/codec_internal.h libavcodec/decode.h libavcodec/get_bits.h \
- libavutil/avassert.h libavcodec/mathops.h \
+ libavutil/common.h libavutil/avassert.h libavcodec/mathops.h \
  libavutil/attributes_internal.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
  libavcodec/internal.h libavcodec/put_bits.h libavcodec/wmaprodata.h \

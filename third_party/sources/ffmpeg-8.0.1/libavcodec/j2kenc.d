@@ -18,5 +18,4 @@ libavcodec/j2kenc.o: libavcodec/j2kenc.c libavcodec/avcodec.h \
  libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
  libavcodec/jpeg2000.h libavcodec/mqc.h libavcodec/jpeg2000dwt.h \
  libavcodec/version.h libavutil/mem.h libavutil/pixdesc.h libavutil/opt.h \
- libavutil/avstring.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h
+ libavutil/avstring.h libavutil/thread.h

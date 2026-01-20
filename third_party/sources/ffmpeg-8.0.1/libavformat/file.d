@@ -8,5 +8,4 @@ libavformat/file.o: libavformat/file.c config_components.h \
  libavutil/log.h libavutil/pixfmt.h libavutil/channel_layout.h \
  libavutil/dict.h libavutil/samplefmt.h libavformat/avio.h \
  libavutil/attributes.h libavutil/dict.h libavutil/log.h \
- libavformat/version_major.h libavformat/os_support.h \
- libavutil/wchar_filename.h libavutil/mem.h libavformat/url.h
+ libavformat/version_major.h libavformat/os_support.h libavformat/url.h

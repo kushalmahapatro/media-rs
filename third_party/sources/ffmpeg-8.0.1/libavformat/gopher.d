@@ -13,5 +13,4 @@ libavformat/gopher.o: libavformat/gopher.c config.h config_components.h \
  libavcodec/packet.h libavutil/log.h libavformat/avio.h \
  libavformat/version_major.h libavformat/internal.h \
  libavcodec/packet_internal.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/mem.h libavutil/wchar_filename.h \
- libavutil/mem.h libavformat/url.h
+ libavformat/os_support.h libavformat/url.h

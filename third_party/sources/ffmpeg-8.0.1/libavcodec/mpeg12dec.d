@@ -27,7 +27,6 @@ libavcodec/mpeg12dec.o: libavcodec/mpeg12dec.c config_components.h \
  libavcodec/mpeg_er.h libavcodec/mpegvideo.h libavcodec/blockdsp.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/mpegpicture.h libavcodec/threadprogress.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/mem.h libavutil/time.h \
  libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/mpeg12.h \
  libavcodec/mpeg12codecs.h libavcodec/mpeg12data.h libavcodec/mpeg12dec.h \
  libavcodec/mpeg12vlc.h libavcodec/mpegutils.h libavcodec/mpegvideodata.h \

@@ -20,5 +20,4 @@ libavcodec/dvbsubdec.o: libavcodec/dvbsubdec.c libavcodec/avcodec.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
  libavcodec/bytestream.h libavcodec/codec_internal.h libavcodec/decode.h \
  libavutil/colorspace.h libavutil/imgutils.h libavutil/pixdesc.h \
- libavutil/mem.h libavutil/opt.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h
+ libavutil/mem.h libavutil/opt.h libavutil/thread.h

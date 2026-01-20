@@ -9,11 +9,10 @@ libavformat/avio.o: libavformat/avio.c libavutil/avstring.h \
  libavutil/time.h libavutil/avassert.h libavformat/avio_internal.h \
  libavformat/avio.h libavutil/attributes.h libavutil/log.h \
  libavformat/version_major.h libavformat/os_support.h \
- libavutil/wchar_filename.h libavutil/mem.h libavformat/internal.h \
- libavcodec/packet_internal.h libavcodec/packet.h libavutil/buffer.h \
- libavutil/rational.h libavutil/version.h libavcodec/version_major.h \
- libavformat/avformat.h libavcodec/codec_par.h libavutil/avutil.h \
- libavutil/channel_layout.h libavutil/pixfmt.h libavcodec/codec_id.h \
- libavutil/samplefmt.h libavcodec/version_major.h libavcodec/defs.h \
- libavcodec/defs.h libavcodec/packet.h libavformat/network.h \
- libavutil/error.h libavformat/url.h
+ libavformat/internal.h libavcodec/packet_internal.h libavcodec/packet.h \
+ libavutil/buffer.h libavutil/rational.h libavutil/version.h \
+ libavcodec/version_major.h libavformat/avformat.h libavcodec/codec_par.h \
+ libavutil/avutil.h libavutil/channel_layout.h libavutil/pixfmt.h \
+ libavcodec/codec_id.h libavutil/samplefmt.h libavcodec/version_major.h \
+ libavcodec/defs.h libavcodec/defs.h libavcodec/packet.h \
+ libavformat/network.h libavutil/error.h libavformat/url.h

@@ -24,5 +24,4 @@ libavcodec/decode.o: libavcodec/decode.c config.h libavutil/avassert.h \
  libavcodec/hwconfig.h libavcodec/hwaccels.h libavcodec/internal.h \
  libavcodec/lcevcdec.h libavcodec/packet_internal.h \
  libavcodec/progressframe.h libavcodec/thread.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/time.h
+ libavcodec/threadprogress.h libavutil/thread.h

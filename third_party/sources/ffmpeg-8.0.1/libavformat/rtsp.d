@@ -20,11 +20,11 @@ libavformat/rtsp.o: libavformat/rtsp.c config_components.h \
  libavutil/log.h libavformat/avio.h libavformat/version_major.h \
  libavformat/avio_internal.h libavformat/demux.h libavformat/internal.h \
  libavcodec/packet_internal.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/url.h libavformat/http.h libavformat/rtsp.h \
- libavformat/rtspcodes.h libavutil/common.h libavformat/http.h \
- libavformat/rtpdec.h libavcodec/codec_id.h libavformat/rtp.h \
- libavformat/avformat.h libavformat/srtp.h libavformat/httpauth.h \
- libavformat/rtpproto.h libavformat/rdt.h libavformat/rtpdec_formats.h \
- libavformat/rtpenc_chain.h libavformat/tls.h libavformat/version.h \
- libavformat/version_major.h libavformat/rtpenc.h libavformat/mpegts.h
+ libavformat/os_support.h libavformat/url.h libavformat/http.h \
+ libavformat/rtsp.h libavformat/rtspcodes.h libavutil/common.h \
+ libavformat/http.h libavformat/rtpdec.h libavcodec/codec_id.h \
+ libavformat/rtp.h libavformat/avformat.h libavformat/srtp.h \
+ libavformat/httpauth.h libavformat/rtpproto.h libavformat/rdt.h \
+ libavformat/rtpdec_formats.h libavformat/rtpenc_chain.h \
+ libavformat/tls.h libavformat/version.h libavformat/version_major.h \
+ libavformat/rtpenc.h libavformat/mpegts.h

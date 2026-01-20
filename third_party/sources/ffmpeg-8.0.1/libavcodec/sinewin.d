@@ -4,6 +4,4 @@ libavcodec/sinewin.o: libavcodec/sinewin.c libavcodec/sinewin.h config.h \
  libavutil/attributes.h libavutil/common.h libavutil/error.h \
  libavutil/version.h libavutil/intmath.h libavutil/x86/intmath.h \
  libavutil/internal.h libavutil/libm.h libavutil/mathematics.h \
- libavutil/rational.h libavutil/intfloat.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/mem.h \
- libavutil/time.h
+ libavutil/rational.h libavutil/intfloat.h libavutil/thread.h

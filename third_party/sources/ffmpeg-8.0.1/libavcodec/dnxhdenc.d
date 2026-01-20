@@ -20,10 +20,9 @@ libavcodec/dnxhdenc.o: libavcodec/dnxhdenc.c libavutil/attributes.h \
  libavutil/x86/asm.h libavcodec/mpegvideo.h libavcodec/error_resilience.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/time.h libavcodec/qpeldsp.h libavcodec/videodsp.h \
- libavcodec/mpegvideoenc.h libavutil/avassert.h libavcodec/motion_est.h \
- libavcodec/me_cmp.h libavcodec/mpegvideoencdsp.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h libavcodec/mpegvideoenc.h libavutil/avassert.h \
+ libavcodec/motion_est.h libavcodec/me_cmp.h libavcodec/mpegvideoencdsp.h \
  libavcodec/pixblockdsp.h libavcodec/put_bits.h libavutil/intreadwrite.h \
  libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
  libavcodec/ratecontrol.h libavcodec/packet_internal.h \

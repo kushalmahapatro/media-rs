@@ -9,8 +9,7 @@ libavcodec/avcodec.o: libavcodec/avcodec.c config.h libavutil/avassert.h \
  libavutil/imgutils.h libavutil/pixdesc.h libavutil/pixfmt.h \
  libavutil/mem.h libavutil/opt.h libavutil/avutil.h libavutil/common.h \
  libavutil/channel_layout.h libavutil/dict.h libavutil/samplefmt.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/internal.h \
- libavutil/time.h libavcodec/avcodec.h libavutil/samplefmt.h \
+ libavutil/thread.h libavcodec/avcodec.h libavutil/samplefmt.h \
  libavutil/avutil.h libavutil/buffer.h libavutil/dict.h libavutil/frame.h \
  libavutil/buffer.h libavutil/log.h libavutil/pixfmt.h \
  libavutil/rational.h libavcodec/codec.h libavutil/hwcontext.h \

@@ -27,5 +27,4 @@ libavcodec/ac3dec_float.o: libavcodec/ac3dec_float.c config_components.h \
  libavcodec/ac3_parser_internal.h libavcodec/ac3dec_data.h \
  libavcodec/eac3_data.h libavcodec/ac3dec.c libavutil/crc.h \
  libavutil/downmix_info.h libavutil/intmath.h libavutil/mem.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/internal.h \
- libavutil/time.h libavcodec/decode.h libavcodec/kbdwin.h
+ libavutil/thread.h libavcodec/decode.h libavcodec/kbdwin.h

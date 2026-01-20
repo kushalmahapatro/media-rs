@@ -16,12 +16,12 @@ libavformat/rtspdec.o: libavformat/rtspdec.c config_components.h \
  libavcodec/packet.h libavutil/log.h libavformat/avio.h \
  libavformat/version_major.h libavformat/demux.h libavformat/internal.h \
  libavcodec/packet_internal.h libavformat/network.h libavutil/error.h \
- libavformat/os_support.h libavutil/wchar_filename.h libavutil/mem.h \
- libavformat/url.h libavformat/rtpproto.h libavformat/rtsp.h \
- libavformat/rtspcodes.h libavutil/common.h libavformat/http.h \
- libavformat/url.h libavformat/rtpdec.h libavcodec/codec_id.h \
- libavformat/rtp.h libavformat/avformat.h libavformat/srtp.h \
- libavformat/httpauth.h libavutil/opt.h libavutil/avutil.h \
- libavutil/channel_layout.h libavutil/dict.h libavutil/samplefmt.h \
- libavformat/rdt.h libavformat/tls.h libavutil/bprint.h \
- libavutil/avstring.h libavformat/version.h libavformat/version_major.h
+ libavformat/os_support.h libavformat/url.h libavformat/rtpproto.h \
+ libavformat/rtsp.h libavformat/rtspcodes.h libavutil/common.h \
+ libavformat/http.h libavformat/url.h libavformat/rtpdec.h \
+ libavcodec/codec_id.h libavformat/rtp.h libavformat/avformat.h \
+ libavformat/srtp.h libavformat/httpauth.h libavutil/opt.h \
+ libavutil/avutil.h libavutil/channel_layout.h libavutil/dict.h \
+ libavutil/samplefmt.h libavformat/rdt.h libavformat/tls.h \
+ libavutil/bprint.h libavutil/avstring.h libavformat/version.h \
+ libavformat/version_major.h

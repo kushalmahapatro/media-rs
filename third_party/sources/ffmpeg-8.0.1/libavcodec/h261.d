@@ -18,6 +18,5 @@ libavcodec/h261.o: libavcodec/h261.c libavcodec/h261.h \
  libavcodec/blockdsp.h libavcodec/error_resilience.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/internal.h libavutil/mem.h libavutil/time.h \
- libavcodec/qpeldsp.h libavcodec/videodsp.h
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h

@@ -10,12 +10,11 @@ libswscale/utils.o: libswscale/utils.c config.h libavutil/attributes.h \
  libavutil/intmath.h libavutil/x86/intmath.h libavutil/internal.h \
  libavutil/libm.h libavutil/channel_layout.h libavutil/dict.h \
  libavutil/samplefmt.h libavutil/pixdesc.h libavutil/slicethread.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/common.h \
- libavutil/internal.h libavutil/time.h libavutil/aarch64/cpu.h \
- libavutil/cpu_internal.h libavutil/cpu.h libavutil/ppc/cpu.h \
- libavutil/x86/asm.h libavutil/x86/cpu.h libavutil/loongarch/cpu.h \
- libswscale/rgb2rgb.h libswscale/swscale.h libavutil/avutil.h \
- libavutil/frame.h libavutil/buffer.h libavutil/log.h libavutil/pixfmt.h \
+ libavutil/thread.h libavutil/aarch64/cpu.h libavutil/cpu_internal.h \
+ libavutil/cpu.h libavutil/ppc/cpu.h libavutil/x86/asm.h \
+ libavutil/x86/cpu.h libavutil/loongarch/cpu.h libswscale/rgb2rgb.h \
+ libswscale/swscale.h libavutil/avutil.h libavutil/frame.h \
+ libavutil/buffer.h libavutil/log.h libavutil/pixfmt.h \
  libswscale/version_major.h libswscale/swscale_internal.h \
- libswscale/graph.h libswscale/format.h libavutil/mem_internal.h \
- libavutil/half2float.h
+ libswscale/graph.h libswscale/format.h libavutil/common.h \
+ libavutil/mem_internal.h libavutil/half2float.h

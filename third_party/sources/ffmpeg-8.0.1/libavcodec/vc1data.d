@@ -21,9 +21,7 @@ libavcodec/vc1data.o: libavcodec/vc1data.c libavcodec/vc1.h \
  libavcodec/h264chroma.h libavcodec/mpegvideo.h libavcodec/blockdsp.h \
  libavcodec/error_resilience.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/mem.h libavutil/time.h \
- libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/intrax8.h \
- libavcodec/intrax8dsp.h libavcodec/wmv2dsp.h libavcodec/vc1_common.h \
- libavcodec/startcode.h libavcodec/vc1dsp.h libavutil/mem_internal.h \
- libavcodec/vc1data.h
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h libavcodec/intrax8.h libavcodec/intrax8dsp.h \
+ libavcodec/wmv2dsp.h libavcodec/vc1_common.h libavcodec/startcode.h \
+ libavcodec/vc1dsp.h libavutil/mem_internal.h libavcodec/vc1data.h

@@ -24,13 +24,12 @@ libavcodec/vc1dec.o: libavcodec/vc1dec.c config_components.h \
  libavcodec/mpegvideo.h libavcodec/error_resilience.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/mem.h libavutil/time.h \
- libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/mpegutils.h \
- libavcodec/mpegvideodec.h libavcodec/mpegvideodata.h \
- libavcodec/msmpeg4_vc1_data.h libavcodec/profiles.h libavutil/opt.h \
- libavcodec/simple_idct.h libavcodec/vc1.h libavcodec/intrax8.h \
- libavcodec/intrax8dsp.h libavcodec/wmv2dsp.h libavcodec/vc1_common.h \
- libavcodec/startcode.h libavcodec/vc1dsp.h libavutil/mem_internal.h \
- libavcodec/vc1data.h libavcodec/vc1_vlc_data.h libavutil/imgutils.h \
- libavutil/pixdesc.h
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h libavcodec/mpegutils.h libavcodec/mpegvideodec.h \
+ libavcodec/mpegvideodata.h libavcodec/msmpeg4_vc1_data.h \
+ libavcodec/profiles.h libavutil/opt.h libavcodec/simple_idct.h \
+ libavcodec/vc1.h libavcodec/intrax8.h libavcodec/intrax8dsp.h \
+ libavcodec/wmv2dsp.h libavcodec/vc1_common.h libavcodec/startcode.h \
+ libavcodec/vc1dsp.h libavutil/mem_internal.h libavcodec/vc1data.h \
+ libavcodec/vc1_vlc_data.h libavutil/imgutils.h libavutil/pixdesc.h \
+ libavutil/mem.h

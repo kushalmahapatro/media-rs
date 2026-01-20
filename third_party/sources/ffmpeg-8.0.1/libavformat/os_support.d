@@ -12,5 +12,4 @@ libavformat/os_support.o: libavformat/os_support.c config.h \
  libavutil/version.h libavcodec/version_major.h libavcodec/defs.h \
  libavcodec/packet.h libavutil/log.h libavformat/avio.h \
  libavformat/version_major.h libavformat/os_support.h \
- libavutil/wchar_filename.h libavutil/mem.h libavformat/network.h \
- libavutil/error.h libavformat/url.h
+ libavformat/network.h libavutil/error.h libavformat/url.h

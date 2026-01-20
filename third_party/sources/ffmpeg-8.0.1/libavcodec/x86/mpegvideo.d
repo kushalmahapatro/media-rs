@@ -18,7 +18,6 @@ libavcodec/x86/mpegvideo.o: libavcodec/x86/mpegvideo.c \
  libavcodec/codec_id.h libavcodec/defs.h libavcodec/packet.h \
  libavutil/version.h libavcodec/h264chroma.h libavcodec/h263dsp.h \
  libavcodec/hpeldsp.h libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/internal.h libavutil/mem.h libavutil/time.h \
- libavcodec/qpeldsp.h libavcodec/videodsp.h libavcodec/mpegvideodata.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
+ libavcodec/videodsp.h libavcodec/mpegvideodata.h \
  libavutil/attributes_internal.h libavcodec/mpegvideo_unquantize.h

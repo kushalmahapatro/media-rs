@@ -1,12 +1,11 @@
 libavcodec/svq1dec.o: libavcodec/svq1dec.c libavutil/crc.h \
  libavutil/attributes.h libavutil/mem.h libavutil/thread.h config.h \
  libavutil/error.h libavutil/macros.h libavutil/avconfig.h \
- compat/w32pthreads.h libavutil/attributes.h libavutil/common.h \
- libavutil/version.h libavutil/intmath.h libavutil/x86/intmath.h \
- libavutil/internal.h libavutil/libm.h libavutil/mathematics.h \
- libavutil/rational.h libavutil/intfloat.h libavutil/internal.h \
- libavutil/time.h libavcodec/avcodec.h libavutil/samplefmt.h \
- libavutil/avutil.h libavutil/common.h libavutil/log.h libavutil/pixfmt.h \
+ libavcodec/avcodec.h libavutil/samplefmt.h libavutil/attributes.h \
+ libavutil/avutil.h libavutil/common.h libavutil/version.h \
+ libavutil/intmath.h libavutil/x86/intmath.h libavutil/internal.h \
+ libavutil/libm.h libavutil/mathematics.h libavutil/rational.h \
+ libavutil/intfloat.h libavutil/log.h libavutil/pixfmt.h \
  libavutil/buffer.h libavutil/channel_layout.h libavutil/dict.h \
  libavutil/frame.h libavutil/avutil.h libavutil/buffer.h \
  libavutil/channel_layout.h libavutil/dict.h libavutil/samplefmt.h \
@@ -16,9 +15,9 @@ libavcodec/svq1dec.o: libavcodec/svq1dec.c libavutil/crc.h \
  libavcodec/version_major.h libavcodec/codec_id.h libavcodec/defs.h \
  libavcodec/packet.h libavutil/version.h libavcodec/version_major.h \
  libavcodec/codec_internal.h libavcodec/decode.h libavcodec/get_bits.h \
- libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
- libavutil/x86/intreadwrite.h libavutil/avassert.h libavcodec/mathops.h \
- libavutil/attributes_internal.h libavcodec/x86/mathops.h \
- libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
- libavcodec/h263data.h libavcodec/rl.h libavcodec/hpeldsp.h \
- libavcodec/svq1.h
+ libavutil/common.h libavutil/intreadwrite.h libavutil/bswap.h \
+ libavutil/x86/bswap.h libavutil/x86/intreadwrite.h libavutil/avassert.h \
+ libavcodec/mathops.h libavutil/attributes_internal.h \
+ libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/vlc.h \
+ libavutil/macros.h libavcodec/h263data.h libavcodec/rl.h \
+ libavcodec/hpeldsp.h libavcodec/svq1.h

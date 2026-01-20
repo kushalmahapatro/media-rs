@@ -37,5 +37,4 @@ libavcodec/hevc/hevcdec.o: libavcodec/hevc/hevcdec.c config_components.h \
  libavcodec/hwaccel_internal.h libavutil/refstruct.h \
  libavcodec/hwconfig.h libavcodec/hwaccels.h libavcodec/internal.h \
  libavcodec/profiles.h libavcodec/progressframe.h libavcodec/thread.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/time.h
+ libavcodec/threadprogress.h libavutil/thread.h

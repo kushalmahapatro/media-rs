@@ -21,9 +21,8 @@ libavcodec/x86/me_cmp_init.o: libavcodec/x86/me_cmp_init.c \
  libavcodec/qpeldsp.h libavcodec/mpegvideo.h libavcodec/blockdsp.h \
  libavcodec/error_resilience.h libavcodec/h264chroma.h \
  libavcodec/h263dsp.h libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/common.h libavutil/internal.h libavutil/mem.h libavutil/time.h \
- libavcodec/videodsp.h libavcodec/mpegvideoencdsp.h \
- libavcodec/pixblockdsp.h libavcodec/put_bits.h libavutil/intreadwrite.h \
- libavutil/bswap.h libavutil/x86/bswap.h libavutil/x86/intreadwrite.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/videodsp.h \
+ libavcodec/mpegvideoencdsp.h libavcodec/pixblockdsp.h \
+ libavcodec/put_bits.h libavutil/intreadwrite.h libavutil/bswap.h \
+ libavutil/x86/bswap.h libavutil/x86/intreadwrite.h libavutil/common.h \
  libavcodec/ratecontrol.h

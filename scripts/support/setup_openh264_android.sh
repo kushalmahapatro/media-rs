@@ -179,7 +179,7 @@ build_openh264_android() {
     
     # Manually install static library and headers (skip make install to avoid shared library build)
     mkdir -p "$BUILD_DIR/lib"
-    mkdir -p "$BUILD_DIR/include"
+    mkdir -p "$BUILD_DIR/include/wels"
     
     # Copy static library
     if [ -f "libopenh264.a" ]; then
@@ -189,9 +189,9 @@ build_openh264_android() {
         return 1
     fi
     
-    # Copy headers
+    # Copy headers to wels subdirectory (FFmpeg expects wels/codec_api.h)
     if [ -d "codec/api/wels" ]; then
-        cp -r codec/api/wels/*.h "$BUILD_DIR/include/" 2>/dev/null || true
+        cp -r codec/api/wels/*.h "$BUILD_DIR/include/wels/" 2>/dev/null || true
     fi
     
     # Create pkg-config file for FFmpeg
@@ -205,13 +205,13 @@ includedir=\${prefix}/include
 Name: openh264
 Description: OpenH264 is a codec library which supports H.264 encoding and decoding
 Version: 2.6.0
-Libs: -L\${libdir} -lopenh264
+Libs: -L\${libdir} -lopenh264 -lstdc++
 Cflags: -I\${includedir}
 EOF
     
     # Copy to install dir
     mkdir -p "$INSTALL_ABI_DIR/lib"
-    mkdir -p "$INSTALL_ABI_DIR/include"
+    mkdir -p "$INSTALL_ABI_DIR/include/wels"
     mkdir -p "$INSTALL_ABI_DIR/lib/pkgconfig"
     
     cp -r "$BUILD_DIR/include/"* "$INSTALL_ABI_DIR/include/" 2>/dev/null || true

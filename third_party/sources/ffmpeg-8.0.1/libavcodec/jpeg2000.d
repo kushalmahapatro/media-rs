@@ -6,7 +6,6 @@ libavcodec/jpeg2000.o: libavcodec/jpeg2000.c libavutil/attributes.h \
  libavutil/mathematics.h libavutil/rational.h libavutil/intfloat.h \
  libavutil/imgutils.h libavutil/pixdesc.h libavutil/pixfmt.h \
  libavutil/intfloat.h libavutil/mem.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/time.h \
  libavcodec/avcodec.h libavutil/samplefmt.h libavutil/avutil.h \
  libavutil/common.h libavutil/buffer.h libavutil/channel_layout.h \
  libavutil/dict.h libavutil/frame.h libavutil/avutil.h libavutil/buffer.h \

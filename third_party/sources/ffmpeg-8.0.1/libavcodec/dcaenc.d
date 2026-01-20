@@ -7,9 +7,8 @@ libavcodec/dcaenc.o: libavcodec/dcaenc.c libavutil/avassert.h config.h \
  libavutil/ffmath.h libavutil/mem.h libavutil/mem_internal.h \
  libavutil/opt.h libavutil/avutil.h libavutil/common.h libavutil/pixfmt.h \
  libavutil/channel_layout.h libavutil/dict.h libavutil/samplefmt.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/attributes.h \
- libavutil/internal.h libavutil/time.h libavutil/tx.h \
- libavcodec/avcodec.h libavutil/samplefmt.h libavutil/avutil.h \
+ libavutil/thread.h libavutil/tx.h libavcodec/avcodec.h \
+ libavutil/samplefmt.h libavutil/attributes.h libavutil/avutil.h \
  libavutil/buffer.h libavutil/dict.h libavutil/frame.h libavutil/buffer.h \
  libavutil/log.h libavutil/pixfmt.h libavutil/rational.h \
  libavcodec/codec.h libavutil/hwcontext.h libavutil/frame.h \

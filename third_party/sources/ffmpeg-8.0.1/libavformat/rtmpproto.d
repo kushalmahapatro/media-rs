@@ -19,6 +19,6 @@ libavformat/rtmpproto.o: libavformat/rtmpproto.c config_components.h \
  libavutil/log.h libavformat/avio.h libavformat/version_major.h \
  libavformat/internal.h libavcodec/packet_internal.h \
  libavformat/network.h libavutil/error.h libavformat/os_support.h \
- libavutil/wchar_filename.h libavutil/mem.h libavformat/url.h \
- libavformat/flv.h libavformat/rtmp.h libavformat/rtmpcrypt.h \
- libavformat/rtmppkt.h libavformat/version.h libavformat/version_major.h
+ libavformat/url.h libavformat/flv.h libavformat/rtmp.h \
+ libavformat/rtmpcrypt.h libavformat/rtmppkt.h libavformat/version.h \
+ libavformat/version_major.h

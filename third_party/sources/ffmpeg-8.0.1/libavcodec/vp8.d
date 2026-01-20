@@ -20,7 +20,6 @@ libavcodec/vp8.o: libavcodec/vp8.c config_components.h libavutil/mem.h \
  libavutil/attributes_internal.h libavutil/common.h \
  libavcodec/x86/mathops.h libavutil/x86/asm.h libavcodec/progressframe.h \
  libavcodec/thread.h libavcodec/vp8.h libavutil/thread.h \
- compat/w32pthreads.h libavutil/internal.h libavutil/time.h \
  libavcodec/h264pred.h libavcodec/videodsp.h libavcodec/vp8dsp.h \
  libavcodec/vpx_rac.h libavcodec/bytestream.h libavutil/avassert.h \
  libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \

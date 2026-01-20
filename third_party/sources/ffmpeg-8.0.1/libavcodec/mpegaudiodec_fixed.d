@@ -14,13 +14,12 @@ libavcodec/mpegaudiodec_fixed.o: libavcodec/mpegaudiodec_fixed.c config.h \
  libavcodec/mpegaudiodec_template.c libavutil/avassert.h \
  libavutil/channel_layout.h libavutil/crc.h libavutil/float_dsp.h \
  libavutil/libm.h libavutil/mem.h libavutil/mem_internal.h \
- libavutil/thread.h compat/w32pthreads.h libavutil/common.h \
- libavutil/time.h libavcodec/avcodec.h libavutil/buffer.h \
+ libavutil/thread.h libavcodec/avcodec.h libavutil/buffer.h \
  libavutil/dict.h libavutil/frame.h libavcodec/codec_id.h \
  libavcodec/defs.h libavcodec/packet.h libavutil/version.h \
  libavcodec/version_major.h libavcodec/decode.h libavcodec/get_bits.h \
- libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
- libavutil/x86/intreadwrite.h libavcodec/mathops.h \
+ libavutil/common.h libavutil/intreadwrite.h libavutil/bswap.h \
+ libavutil/x86/bswap.h libavutil/x86/intreadwrite.h libavcodec/mathops.h \
  libavutil/attributes_internal.h libavcodec/x86/mathops.h \
  libavutil/x86/asm.h libavcodec/vlc.h libavutil/macros.h \
  libavcodec/mpegaudiodsp.h libavcodec/mpegaudiodecheader.h \

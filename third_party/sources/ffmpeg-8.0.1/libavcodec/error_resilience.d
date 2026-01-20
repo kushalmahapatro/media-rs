@@ -20,6 +20,5 @@ libavcodec/error_resilience.o: libavcodec/error_resilience.c \
  libavcodec/mpegutils.h libavcodec/mpegvideo.h libavcodec/blockdsp.h \
  libavcodec/h264chroma.h libavcodec/h263dsp.h libavcodec/hpeldsp.h \
  libavcodec/idctdsp.h libavcodec/mpegpicture.h \
- libavcodec/threadprogress.h libavutil/thread.h compat/w32pthreads.h \
- libavutil/internal.h libavutil/time.h libavcodec/qpeldsp.h \
+ libavcodec/threadprogress.h libavutil/thread.h libavcodec/qpeldsp.h \
  libavcodec/videodsp.h libavcodec/threadframe.h

@@ -1,8 +1,8 @@
 name: media
 description: A media based library Dart.
 version: 0.0.1+1
-homepage: https://katim.com
-publish_to: 'https://artifactory.katim.com/artifactory/api/pub/pub-dev-virtual/' 
+homepage: ''
+publish_to: '' 
 
 environment:
   sdk: "^3.10.0"

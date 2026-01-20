@@ -5,7 +5,9 @@
 
 set -e
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Resolve repo root regardless of current working directory.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 THIRD_PARTY_DIR="$PROJECT_ROOT/third_party"
 SOURCE_DIR="$THIRD_PARTY_DIR/sources"
 INSTALL_DIR="$THIRD_PARTY_DIR/libheif_install"
@@ -427,6 +429,12 @@ build_ios() {
                     echo "✓ Copied libheif.a manually"
                 fi
             fi
+            # Ensure headers are copied if cmake install didn't include them
+            if [ ! -d "$BUILD_DIR/include/libheif" ] && [ -d "../libheif/api/libheif" ]; then
+                mkdir -p "$BUILD_DIR/include"
+                cp -r "../libheif/api/libheif" "$BUILD_DIR/include/"
+                echo "✓ Copied headers manually"
+            fi
         elif make install/strip 2>/dev/null; then
             echo "✓ Installed via make install/strip"
         else
@@ -447,7 +455,16 @@ build_ios() {
         PLATFORM_INSTALL="$IOS_INSTALL_DIR/$PLATFORM/$ARCH"
         mkdir -p "$PLATFORM_INSTALL/lib" "$PLATFORM_INSTALL/include"
         cp "$BUILD_DIR/lib/libheif.a" "$PLATFORM_INSTALL/lib/"
-        cp -r "$BUILD_DIR/include/libheif" "$PLATFORM_INSTALL/include/"
+        
+        # Copy headers - try from BUILD_DIR first, fallback to source directory
+        if [ -d "$BUILD_DIR/include/libheif" ]; then
+            cp -r "$BUILD_DIR/include/libheif" "$PLATFORM_INSTALL/include/"
+        elif [ -d "../libheif/api/libheif" ]; then
+            cp -r "../libheif/api/libheif" "$PLATFORM_INSTALL/include/libheif"
+        else
+            echo "Warning: libheif headers not found, skipping header copy"
+        fi
+        
         cp "$DE265_INSTALL/lib/libde265.a" "$PLATFORM_INSTALL/lib/"
         cp -r "$DE265_INSTALL/include/libde265" "$PLATFORM_INSTALL/include/" 2>/dev/null || true
         

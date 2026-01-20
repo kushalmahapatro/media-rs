@@ -1,9 +1,0 @@
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/lib/libde265.a
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/include/libde265/de265.h
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/include/libde265/en265.h
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/include/libde265/de265-version.h
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/lib/cmake/libde265/libde265Config.cmake
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/lib/cmake/libde265/libde265Config-release.cmake
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/lib/cmake/libde265/libde265ConfigVersion.cmake
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/lib/pkgconfig/libde265.pc
-/home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/bin/dec265

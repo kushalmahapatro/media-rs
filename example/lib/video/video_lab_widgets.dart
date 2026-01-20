@@ -345,24 +345,30 @@ class ThumbnailSeekerWidget extends StatelessWidget {
             },
           ),
         ],
-        if (viewModel.isThumbnailLoading)
-          const Center(child: CircularProgressIndicator())
-        else if (viewModel.thumbnailPath != null) ...[
-          const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-            child: InkWell(
-              onTap: () => showInExplorer(viewModel.thumbnailPath!),
-              child: Image.file(File(viewModel.thumbnailPath!), height: 200, fit: BoxFit.contain),
+        Visibility(
+          visible: viewModel.isThumbnailLoading,
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+          child: InkWell(
+            onTap: () => viewModel.thumbnailPath != null ? showInExplorer(viewModel.thumbnailPath!) : null,
+            child: SizedBox(
+              height: 200,
+              child: viewModel.thumbnailPath != null
+                  ? Image.file(File(viewModel.thumbnailPath!), height: 200, fit: BoxFit.contain)
+                  : const SizedBox.shrink(),
             ),
           ),
-          const SizedBox(height: 8),
-          TextButton.icon(
-            onPressed: () => showInExplorer(viewModel.thumbnailPath!),
-            icon: const Icon(Icons.folder_open),
-            label: const Text('Show in Explorer'),
-          ),
-        ],
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: () => showInExplorer(viewModel.thumbnailPath!),
+          icon: const Icon(Icons.folder_open),
+          label: const Text('Show in Explorer'),
+        ),
       ],
     );
   }

@@ -1,5 +1,4 @@
-
-rust_input: crate::api::media
+rust_input: crate::api::media, crate::api::logger
 
 rust_root: ./
 dart_output: ../media/lib/src/bindings/

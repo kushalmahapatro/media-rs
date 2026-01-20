@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG -arch arm64 -mmacosx-version-min=11.0 -Wl,-search_paths_first -Wl,-headerpad_max_install_names -L/opt/homebrew/opt/llvm/lib/unwind -lunwind CMakeFiles/dec265.dir/dec265.cc.o -o dec265  ../libde265/libde265.a

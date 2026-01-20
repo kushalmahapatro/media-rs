@@ -1,4 +1,5 @@
 #![doc = include_str!("../README.md")]
+#![allow(warnings)] // Suppress all warnings from this third-party crate
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]

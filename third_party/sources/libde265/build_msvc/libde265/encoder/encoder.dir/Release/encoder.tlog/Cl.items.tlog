@@ -1,9 +1,0 @@
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\encoder-core.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encoder-core.obj
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\encoder-types.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encoder-types.obj
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\encoder-params.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encoder-params.obj
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\encoder-context.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encoder-context.obj
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\encoder-syntax.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encoder-syntax.obj
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\encoder-intrapred.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encoder-intrapred.obj
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\encoder-motion.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encoder-motion.obj
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\encpicbuf.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encpicbuf.obj
-D:\media-rs\media-rs\third_party\sources\libde265\libde265\encoder\sop.cc;D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\sop.obj

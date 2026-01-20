@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC -O3 -DNDEBUG   CMakeFiles/region.dir/region.cc.o  -o region  ../libheif/libheif.a libtestframework.a ../libheif/libheif.a /home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/lib/libde265.a -lpthread 

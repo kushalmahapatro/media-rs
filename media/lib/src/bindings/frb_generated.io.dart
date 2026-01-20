@@ -3,6 +3,7 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/logger.dart';
 import 'api/media.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -65,6 +66,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  WriteToFiles dco_decode_box_autoadd_write_to_files(dynamic raw);
+
+  @protected
   CompressParams dco_decode_compress_params(dynamic raw);
 
   @protected
@@ -81,6 +85,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ResolutionPreset> dco_decode_list_resolution_preset(dynamic raw);
+
+  @protected
+  LogLevel dco_decode_log_level(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -111,6 +118,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int? dco_decode_opt_box_autoadd_u_8(dynamic raw);
 
   @protected
+  WriteToFiles? dco_decode_opt_box_autoadd_write_to_files(dynamic raw);
+
+  @protected
   OutputFormat dco_decode_output_format(dynamic raw);
 
   @protected
@@ -139,6 +149,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   VideoThumbnailParams dco_decode_video_thumbnail_params(dynamic raw);
+
+  @protected
+  WriteToFiles dco_decode_write_to_files(dynamic raw);
 
   @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
@@ -197,6 +210,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  WriteToFiles sse_decode_box_autoadd_write_to_files(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   CompressParams sse_decode_compress_params(SseDeserializer deserializer);
 
   @protected
@@ -219,6 +237,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ResolutionPreset> sse_decode_list_resolution_preset(
     SseDeserializer deserializer,
   );
+
+  @protected
+  LogLevel sse_decode_log_level(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -249,6 +270,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int? sse_decode_opt_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
+  WriteToFiles? sse_decode_opt_box_autoadd_write_to_files(
+    SseDeserializer deserializer,
+  );
 
   @protected
   OutputFormat sse_decode_output_format(SseDeserializer deserializer);
@@ -283,6 +309,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   VideoThumbnailParams sse_decode_video_thumbnail_params(
     SseDeserializer deserializer,
   );
+
+  @protected
+  WriteToFiles sse_decode_write_to_files(SseDeserializer deserializer);
 
   @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(
@@ -394,6 +423,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  ffi.Pointer<wire_cst_write_to_files> cst_encode_box_autoadd_write_to_files(
+    WriteToFiles raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_write_to_files();
+    cst_api_fill_to_wire_write_to_files(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
     Uint8List raw,
   ) {
@@ -475,6 +514,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  ffi.Pointer<wire_cst_write_to_files>
+  cst_encode_opt_box_autoadd_write_to_files(WriteToFiles? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_write_to_files(raw);
+  }
+
+  @protected
   int cst_encode_u_64(BigInt raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.toSigned(64).toInt();
@@ -518,6 +566,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     ffi.Pointer<wire_cst_video_thumbnail_params> wireObj,
   ) {
     cst_api_fill_to_wire_video_thumbnail_params(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_write_to_files(
+    WriteToFiles apiObj,
+    ffi.Pointer<wire_cst_write_to_files> wireObj,
+  ) {
+    cst_api_fill_to_wire_write_to_files(apiObj, wireObj.ref);
   }
 
   @protected
@@ -637,10 +693,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  void cst_api_fill_to_wire_write_to_files(
+    WriteToFiles apiObj,
+    wire_cst_write_to_files wireObj,
+  ) {
+    wireObj.path = cst_encode_String(apiObj.path);
+    wireObj.file_prefix = cst_encode_String(apiObj.filePrefix);
+    wireObj.file_suffix = cst_encode_opt_String(apiObj.fileSuffix);
+    wireObj.max_files = cst_encode_opt_box_autoadd_u_64(apiObj.maxFiles);
+  }
+
+  @protected
   bool cst_encode_bool(bool raw);
 
   @protected
   int cst_encode_i_32(int raw);
+
+  @protected
+  int cst_encode_log_level(LogLevel raw);
 
   @protected
   int cst_encode_output_format(OutputFormat raw);
@@ -721,6 +791,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_write_to_files(
+    WriteToFiles self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_compress_params(
     CompressParams self,
     SseSerializer serializer,
@@ -754,6 +830,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_log_level(LogLevel self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
@@ -785,6 +864,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_box_autoadd_u_8(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_write_to_files(
+    WriteToFiles? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_output_format(OutputFormat self, SseSerializer serializer);
@@ -824,6 +909,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     VideoThumbnailParams self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_write_to_files(WriteToFiles self, SseSerializer serializer);
 }
 
 // Section: wire_class
@@ -898,6 +986,18 @@ class RustLibWire implements BaseWire {
               ffi.Pointer<wire_cst_compress_params>,
             )
           >();
+
+  void wire__crate__api__logger__debug_threads(int port_) {
+    return _wire__crate__api__logger__debug_threads(port_);
+  }
+
+  late final _wire__crate__api__logger__debug_threadsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+        'frbgen_media_wire__crate__api__logger__debug_threads',
+      );
+  late final _wire__crate__api__logger__debug_threads =
+      _wire__crate__api__logger__debug_threadsPtr
+          .asFunction<void Function(int)>();
 
   void wire__crate__api__media__estimate_compression(
     int port_,
@@ -1087,6 +1187,89 @@ class RustLibWire implements BaseWire {
             void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
 
+  void wire__crate__api__logger__init_logger(
+    int port_,
+    int log_level,
+    bool write_to_stdout_or_system,
+    ffi.Pointer<wire_cst_write_to_files> write_to_files,
+    bool use_lightweight_tokio_runtime,
+  ) {
+    return _wire__crate__api__logger__init_logger(
+      port_,
+      log_level,
+      write_to_stdout_or_system,
+      write_to_files,
+      use_lightweight_tokio_runtime,
+    );
+  }
+
+  late final _wire__crate__api__logger__init_loggerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Int32,
+            ffi.Bool,
+            ffi.Pointer<wire_cst_write_to_files>,
+            ffi.Bool,
+          )
+        >
+      >('frbgen_media_wire__crate__api__logger__init_logger');
+  late final _wire__crate__api__logger__init_logger =
+      _wire__crate__api__logger__init_loggerPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              bool,
+              ffi.Pointer<wire_cst_write_to_files>,
+              bool,
+            )
+          >();
+
+  void wire__crate__api__logger__log(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> file,
+    ffi.Pointer<ffi.Uint32> line,
+    int level,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> target,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> message,
+  ) {
+    return _wire__crate__api__logger__log(
+      port_,
+      file,
+      line,
+      level,
+      target,
+      message,
+    );
+  }
+
+  late final _wire__crate__api__logger__logPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<ffi.Uint32>,
+            ffi.Int32,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_media_wire__crate__api__logger__log');
+  late final _wire__crate__api__logger__log = _wire__crate__api__logger__logPtr
+      .asFunction<
+        void Function(
+          int,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<ffi.Uint32>,
+          int,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
+      >();
+
   void wire__crate__api__media__output_format_extension(int port_, int that) {
     return _wire__crate__api__media__output_format_extension(port_, that);
   }
@@ -1098,6 +1281,28 @@ class RustLibWire implements BaseWire {
   late final _wire__crate__api__media__output_format_extension =
       _wire__crate__api__media__output_format_extensionPtr
           .asFunction<void Function(int, int)>();
+
+  void wire__crate__api__logger__reload_tracing_file_writer(
+    int port_,
+    ffi.Pointer<wire_cst_write_to_files> write_to_files,
+  ) {
+    return _wire__crate__api__logger__reload_tracing_file_writer(
+      port_,
+      write_to_files,
+    );
+  }
+
+  late final _wire__crate__api__logger__reload_tracing_file_writerPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_cst_write_to_files>)
+        >
+      >('frbgen_media_wire__crate__api__logger__reload_tracing_file_writer');
+  late final _wire__crate__api__logger__reload_tracing_file_writer =
+      _wire__crate__api__logger__reload_tracing_file_writerPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_write_to_files>)
+          >();
 
   void wire__crate__api__media__thumbnail_size_type_dimensions(
     int port_,
@@ -1252,6 +1457,18 @@ class RustLibWire implements BaseWire {
             ffi.Pointer<wire_cst_video_thumbnail_params> Function()
           >();
 
+  ffi.Pointer<wire_cst_write_to_files> cst_new_box_autoadd_write_to_files() {
+    return _cst_new_box_autoadd_write_to_files();
+  }
+
+  late final _cst_new_box_autoadd_write_to_filesPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_write_to_files> Function()>
+      >('frbgen_media_cst_new_box_autoadd_write_to_files');
+  late final _cst_new_box_autoadd_write_to_files =
+      _cst_new_box_autoadd_write_to_filesPtr
+          .asFunction<ffi.Pointer<wire_cst_write_to_files> Function()>();
+
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
     int len,
   ) {
@@ -1364,6 +1581,16 @@ final class wire_cst_video_thumbnail_params extends ffi.Struct {
   external ffi.Pointer<wire_cst_thumbnail_size_type> size_type;
 
   external ffi.Pointer<ffi.Int32> format;
+}
+
+final class wire_cst_write_to_files extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> path;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> file_prefix;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> file_suffix;
+
+  external ffi.Pointer<ffi.Uint64> max_files;
 }
 
 final class wire_cst_resolution_preset extends ffi.Struct {

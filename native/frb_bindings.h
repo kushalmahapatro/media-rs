@@ -57,6 +57,13 @@ typedef struct wire_cst_video_thumbnail_params {
   int32_t *format;
 } wire_cst_video_thumbnail_params;
 
+typedef struct wire_cst_write_to_files {
+  struct wire_cst_list_prim_u_8_strict *path;
+  struct wire_cst_list_prim_u_8_strict *file_prefix;
+  struct wire_cst_list_prim_u_8_strict *file_suffix;
+  uint64_t *max_files;
+} wire_cst_write_to_files;
+
 typedef struct wire_cst_resolution_preset {
   struct wire_cst_list_prim_u_8_strict *name;
   uint32_t width;
@@ -91,6 +98,8 @@ void frbgen_media_wire__crate__api__media__compress_video(int64_t port_,
                                                           struct wire_cst_list_prim_u_8_strict *output_path,
                                                           struct wire_cst_compress_params *params);
 
+void frbgen_media_wire__crate__api__logger__debug_threads(int64_t port_);
+
 void frbgen_media_wire__crate__api__media__estimate_compression(int64_t port_,
                                                                 struct wire_cst_list_prim_u_8_strict *path,
                                                                 struct wire_cst_list_prim_u_8_strict *temp_output_path,
@@ -119,7 +128,23 @@ void frbgen_media_wire__crate__api__media__generate_video_timeline_thumbnails(in
 void frbgen_media_wire__crate__api__media__get_video_info(int64_t port_,
                                                           struct wire_cst_list_prim_u_8_strict *path);
 
+void frbgen_media_wire__crate__api__logger__init_logger(int64_t port_,
+                                                        int32_t log_level,
+                                                        bool write_to_stdout_or_system,
+                                                        struct wire_cst_write_to_files *write_to_files,
+                                                        bool use_lightweight_tokio_runtime);
+
+void frbgen_media_wire__crate__api__logger__log(int64_t port_,
+                                                struct wire_cst_list_prim_u_8_strict *file,
+                                                uint32_t *line,
+                                                int32_t level,
+                                                struct wire_cst_list_prim_u_8_strict *target,
+                                                struct wire_cst_list_prim_u_8_strict *message);
+
 void frbgen_media_wire__crate__api__media__output_format_extension(int64_t port_, int32_t that);
+
+void frbgen_media_wire__crate__api__logger__reload_tracing_file_writer(int64_t port_,
+                                                                       struct wire_cst_write_to_files *write_to_files);
 
 void frbgen_media_wire__crate__api__media__thumbnail_size_type_dimensions(int64_t port_,
                                                                           struct wire_cst_thumbnail_size_type *that);
@@ -144,6 +169,8 @@ uint8_t *frbgen_media_cst_new_box_autoadd_u_8(uint8_t value);
 
 struct wire_cst_video_thumbnail_params *frbgen_media_cst_new_box_autoadd_video_thumbnail_params(void);
 
+struct wire_cst_write_to_files *frbgen_media_cst_new_box_autoadd_write_to_files(void);
+
 struct wire_cst_list_prim_u_8_strict *frbgen_media_cst_new_list_prim_u_8_strict(int32_t len);
 
 struct wire_cst_list_resolution_preset *frbgen_media_cst_new_list_resolution_preset(int32_t len);
@@ -159,8 +186,13 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_u_64);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_u_8);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_video_thumbnail_params);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_write_to_files);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_list_prim_u_8_strict);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_list_resolution_preset);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__debug_threads);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__init_logger);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__log);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__reload_tracing_file_writer);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__compress_video);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__estimate_compression);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__generate_image_thumbnail);

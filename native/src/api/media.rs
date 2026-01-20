@@ -3,7 +3,7 @@ use crate::frb_generated::StreamSink;
 use anyhow::{Context, Error};
 use image::{DynamicImage, ImageBuffer, Rgb};
 use serde::{Deserialize, Serialize};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResolutionPreset {
@@ -105,8 +105,6 @@ pub struct CompressionEstimate {
 
 /// Exposed via FRB
 pub fn get_video_info(path: String) -> anyhow::Result<VideoInfo> {
-    // Ensure logging is initialized (in case ctor didn't run)
-    crate::init_logging_manual();
     video::get_video_info(&path)
 }
 
@@ -139,7 +137,7 @@ pub async fn generate_video_thumbnail(
             Ok(output_path_str)
         }
         Err((e, w, h)) => {
-            eprintln!("Error generating thumbnail (fallback to empty): {:?}", e);
+            error!("Error generating thumbnail (fallback to empty): {:?}", e);
             if empty_image_fallback.unwrap_or(false) {
                 let size = if w > 0 && h > 0 {
                     ThumbnailSizeType::Custom((w, h))
@@ -179,15 +177,37 @@ pub fn generate_video_timeline_thumbnails(
     let video_info = video::get_video_info(&path)
         .map_err(|e| anyhow::anyhow!("Failed to get video info for timeline generation: {}", e))?;
     let duration_ms = video_info.duration_ms;
-    let time_ms = duration_ms / num_thumbnails as u64;
+    
+    // Validate: num_thumbnails should not exceed duration_ms
+    if num_thumbnails > duration_ms as u32 {
+        let error = anyhow::anyhow!(
+            "Number of thumbnails ({}) cannot exceed video duration ({}ms)",
+            num_thumbnails,
+            duration_ms
+        );
+        let _ = sink.add_error(error).map_err(|_| anyhow::anyhow!("Sink closed"))?;
+        return Ok(());
+    }
+    
+    // Keep a buffer of 1.5 seconds from the end
+    const BUFFER_MS: u64 = 1500; // 1.5 seconds
+    let effective_duration_ms = if duration_ms > BUFFER_MS {
+        duration_ms - BUFFER_MS
+    } else {
+        // If video is shorter than buffer, use at least 1ms to avoid division by zero
+        duration_ms.max(1)
+    };
+    
+    let time_ms = effective_duration_ms / num_thumbnails as u64;
 
     // Generate thumbnails sequentially
     // Each generate_thumbnail call will acquire and release the mutex individually
     // This prevents conflicts with other FFmpeg operations
     for i in 0..num_thumbnails {
         let mut time = time_ms * i as u64;
-        if time > duration_ms {
-            time = duration_ms;
+        // Clamp to effective duration (which already has the buffer applied)
+        if time > effective_duration_ms {
+            time = effective_duration_ms;
         }
         let params = VideoThumbnailParams {
             time_ms: time,
@@ -674,8 +694,6 @@ pub fn estimate_compression(
     temp_output_path: String,
     params: CompressParams,
 ) -> Result<CompressionEstimate, Error> {
-    // Ensure logging is initialized (in case ctor didn't run)
-    crate::init_logging_manual();
     tracing::debug!("estimate_compression called with path: {}, temp_output: {}", path, temp_output_path);
     
     // Validate input file exists
@@ -739,11 +757,11 @@ pub fn estimate_compression(
         match result {
             Ok(Ok(stats)) => {
                 info!("estimate_compression succeeded");
-                return Ok(stats);
+                Ok(stats)
             },
             Ok(Err(e)) => {
                 error!("estimate_compression returned error: {}", e);
-                return Err(e.into());
+                Err(e)
             },
             Err(panic) => {
                 let panic_msg = if let Some(s) = panic.downcast_ref::<&str>() {
@@ -754,7 +772,7 @@ pub fn estimate_compression(
                     "Panic in estimate_compression: unknown error".to_string()
                 };
                 error!("FATAL: {}", panic_msg);
-                return Err(anyhow::anyhow!(panic_msg));
+                Err(anyhow::anyhow!(panic_msg))
             }
         }
     }
@@ -765,8 +783,6 @@ pub fn compress_video(
     output_path: String,
     params: CompressParams,
 ) -> Result<String, Error> {
-    // Ensure logging is initialized (in case ctor didn't run)
-    crate::init_logging_manual();
     tracing::debug!("compress_video called with path: {}, output: {}", path, output_path);
     
     // Validate input file exists
@@ -789,7 +805,7 @@ pub fn compress_video(
         },
         Ok(Err(e)) => {
             error!("compress_video returned error: {}", e);
-            Err(e.into())
+            Err(e)
         },
         Err(panic) => {
             let panic_msg = if let Some(s) = panic.downcast_ref::<&str>() {

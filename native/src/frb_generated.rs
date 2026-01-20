@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1166833132;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1535488819;
 
 // Section: executor
 
@@ -69,6 +69,27 @@ fn wire__crate__api__media__compress_video_impl(
                             api_output_path,
                             api_params,
                         )?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__logger__debug_threads_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "debug_threads",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::logger::debug_threads()?;
                         Ok(output_ok)
                     })(),
                 )
@@ -242,6 +263,83 @@ fn wire__crate__api__media__get_video_info_impl(
         },
     )
 }
+fn wire__crate__api__logger__init_logger_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    log_level: impl CstDecode<crate::api::logger::LogLevel>,
+    write_to_stdout_or_system: impl CstDecode<bool>,
+    write_to_files: impl CstDecode<Option<crate::api::logger::WriteToFiles>>,
+    use_lightweight_tokio_runtime: impl CstDecode<bool>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "init_logger",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_log_level = log_level.cst_decode();
+            let api_write_to_stdout_or_system = write_to_stdout_or_system.cst_decode();
+            let api_write_to_files = write_to_files.cst_decode();
+            let api_use_lightweight_tokio_runtime = use_lightweight_tokio_runtime.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::logger::init_logger(
+                            api_log_level,
+                            api_write_to_stdout_or_system,
+                            api_write_to_files,
+                            api_use_lightweight_tokio_runtime,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__logger__log_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    file: impl CstDecode<String>,
+    line: impl CstDecode<Option<u32>>,
+    level: impl CstDecode<crate::api::logger::LogLevel>,
+    target: impl CstDecode<String>,
+    message: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "log",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_file = file.cst_decode();
+            let api_line = line.cst_decode();
+            let api_level = level.cst_decode();
+            let api_target = target.cst_decode();
+            let api_message = message.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok({
+                            crate::api::logger::log(
+                                api_file,
+                                api_line,
+                                api_level,
+                                api_target,
+                                api_message,
+                            )
+                            .await;
+                        })?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__media__output_format_extension_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     that: impl CstDecode<crate::api::media::OutputFormat>,
@@ -261,6 +359,32 @@ fn wire__crate__api__media__output_format_extension_impl(
                     })?;
                     Ok(output_ok)
                 })())
+            }
+        },
+    )
+}
+fn wire__crate__api__logger__reload_tracing_file_writer_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    write_to_files: impl CstDecode<crate::api::logger::WriteToFiles>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "reload_tracing_file_writer",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_write_to_files = write_to_files.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok =
+                            crate::api::logger::reload_tracing_file_writer(api_write_to_files)
+                                .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
             }
         },
     )
@@ -301,6 +425,19 @@ impl CstDecode<i32> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> i32 {
         self
+    }
+}
+impl CstDecode<crate::api::logger::LogLevel> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::api::logger::LogLevel {
+        match self {
+            0 => crate::api::logger::LogLevel::Error,
+            1 => crate::api::logger::LogLevel::Warn,
+            2 => crate::api::logger::LogLevel::Info,
+            3 => crate::api::logger::LogLevel::Debug,
+            4 => crate::api::logger::LogLevel::Trace,
+            _ => unreachable!("Invalid variant for LogLevel: {}", self),
+        }
     }
 }
 impl CstDecode<crate::api::media::OutputFormat> for i32 {
@@ -441,6 +578,21 @@ impl SseDecode for Vec<crate::api::media::ResolutionPreset> {
     }
 }
 
+impl SseDecode for crate::api::logger::LogLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::logger::LogLevel::Error,
+            1 => crate::api::logger::LogLevel::Warn,
+            2 => crate::api::logger::LogLevel::Info,
+            3 => crate::api::logger::LogLevel::Debug,
+            4 => crate::api::logger::LogLevel::Trace,
+            _ => unreachable!("Invalid variant for LogLevel: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -527,6 +679,17 @@ impl SseDecode for Option<u8> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<u8>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::logger::WriteToFiles> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::logger::WriteToFiles>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -670,6 +833,22 @@ impl SseDecode for crate::api::media::VideoThumbnailParams {
     }
 }
 
+impl SseDecode for crate::api::logger::WriteToFiles {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_path = <String>::sse_decode(deserializer);
+        let mut var_filePrefix = <String>::sse_decode(deserializer);
+        let mut var_fileSuffix = <Option<String>>::sse_decode(deserializer);
+        let mut var_maxFiles = <Option<u64>>::sse_decode(deserializer);
+        return crate::api::logger::WriteToFiles {
+            path: var_path,
+            file_prefix: var_filePrefix,
+            file_suffix: var_fileSuffix,
+            max_files: var_maxFiles,
+        };
+    }
+}
+
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -762,6 +941,30 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::media::ImageThumbnailParams>
 {
     fn into_into_dart(self) -> crate::api::media::ImageThumbnailParams {
         self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::logger::LogLevel> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self.0 {
+            crate::api::logger::LogLevel::Error => 0.into_dart(),
+            crate::api::logger::LogLevel::Warn => 1.into_dart(),
+            crate::api::logger::LogLevel::Info => 2.into_dart(),
+            crate::api::logger::LogLevel::Debug => 3.into_dart(),
+            crate::api::logger::LogLevel::Trace => 4.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::logger::LogLevel>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::logger::LogLevel>>
+    for crate::api::logger::LogLevel
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::logger::LogLevel> {
+        self.into()
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -885,6 +1088,29 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::media::VideoThumbnailParams>
         self
     }
 }
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::logger::WriteToFiles {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.path.into_into_dart().into_dart(),
+            self.file_prefix.into_into_dart().into_dart(),
+            self.file_suffix.into_into_dart().into_dart(),
+            self.max_files.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::logger::WriteToFiles
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::logger::WriteToFiles>
+    for crate::api::logger::WriteToFiles
+{
+    fn into_into_dart(self) -> crate::api::logger::WriteToFiles {
+        self
+    }
+}
 
 impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -969,6 +1195,25 @@ impl SseEncode for Vec<crate::api::media::ResolutionPreset> {
     }
 }
 
+impl SseEncode for crate::api::logger::LogLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::logger::LogLevel::Error => 0,
+                crate::api::logger::LogLevel::Warn => 1,
+                crate::api::logger::LogLevel::Info => 2,
+                crate::api::logger::LogLevel::Debug => 3,
+                crate::api::logger::LogLevel::Trace => 4,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1045,6 +1290,16 @@ impl SseEncode for Option<u8> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <u8>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::logger::WriteToFiles> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::logger::WriteToFiles>::sse_encode(value, serializer);
         }
     }
 }
@@ -1164,6 +1419,16 @@ impl SseEncode for crate::api::media::VideoThumbnailParams {
     }
 }
 
+impl SseEncode for crate::api::logger::WriteToFiles {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.path, serializer);
+        <String>::sse_encode(self.file_prefix, serializer);
+        <Option<String>>::sse_encode(self.file_suffix, serializer);
+        <Option<u64>>::sse_encode(self.max_files, serializer);
+    }
+}
+
 #[cfg(not(target_family = "wasm"))]
 mod io {
     // This file is automatically generated, so please do not edit it.
@@ -1274,6 +1539,13 @@ mod io {
             CstDecode::<crate::api::media::VideoThumbnailParams>::cst_decode(*wrap).into()
         }
     }
+    impl CstDecode<crate::api::logger::WriteToFiles> for *mut wire_cst_write_to_files {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::logger::WriteToFiles {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::api::logger::WriteToFiles>::cst_decode(*wrap).into()
+        }
+    }
     impl CstDecode<crate::api::media::CompressParams> for wire_cst_compress_params {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::api::media::CompressParams {
@@ -1381,6 +1653,17 @@ mod io {
                 time_ms: self.time_ms.cst_decode(),
                 size_type: self.size_type.cst_decode(),
                 format: self.format.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::logger::WriteToFiles> for wire_cst_write_to_files {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::logger::WriteToFiles {
+            crate::api::logger::WriteToFiles {
+                path: self.path.cst_decode(),
+                file_prefix: self.file_prefix.cst_decode(),
+                file_suffix: self.file_suffix.cst_decode(),
+                max_files: self.max_files.cst_decode(),
             }
         }
     }
@@ -1502,6 +1785,21 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_write_to_files {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                path: core::ptr::null_mut(),
+                file_prefix: core::ptr::null_mut(),
+                file_suffix: core::ptr::null_mut(),
+                max_files: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_write_to_files {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
 
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_media_wire__crate__api__media__compress_video(
@@ -1511,6 +1809,11 @@ mod io {
         params: *mut wire_cst_compress_params,
     ) {
         wire__crate__api__media__compress_video_impl(port_, path, output_path, params)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__debug_threads(port_: i64) {
+        wire__crate__api__logger__debug_threads_impl(port_)
     }
 
     #[unsafe(no_mangle)]
@@ -1587,11 +1890,48 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__init_logger(
+        port_: i64,
+        log_level: i32,
+        write_to_stdout_or_system: bool,
+        write_to_files: *mut wire_cst_write_to_files,
+        use_lightweight_tokio_runtime: bool,
+    ) {
+        wire__crate__api__logger__init_logger_impl(
+            port_,
+            log_level,
+            write_to_stdout_or_system,
+            write_to_files,
+            use_lightweight_tokio_runtime,
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__log(
+        port_: i64,
+        file: *mut wire_cst_list_prim_u_8_strict,
+        line: *mut u32,
+        level: i32,
+        target: *mut wire_cst_list_prim_u_8_strict,
+        message: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__logger__log_impl(port_, file, line, level, target, message)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_media_wire__crate__api__media__output_format_extension(
         port_: i64,
         that: i32,
     ) {
         wire__crate__api__media__output_format_extension_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__reload_tracing_file_writer(
+        port_: i64,
+        write_to_files: *mut wire_cst_write_to_files,
+    ) {
+        wire__crate__api__logger__reload_tracing_file_writer_impl(port_, write_to_files)
     }
 
     #[unsafe(no_mangle)]
@@ -1664,6 +2004,14 @@ mod io {
     ) -> *mut wire_cst_video_thumbnail_params {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_video_thumbnail_params::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_write_to_files(
+    ) -> *mut wire_cst_write_to_files {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_write_to_files::new_with_null_ptr(),
         )
     }
 
@@ -1776,6 +2124,14 @@ mod io {
         time_ms: u64,
         size_type: *mut wire_cst_thumbnail_size_type,
         format: *mut i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_write_to_files {
+        path: *mut wire_cst_list_prim_u_8_strict,
+        file_prefix: *mut wire_cst_list_prim_u_8_strict,
+        file_suffix: *mut wire_cst_list_prim_u_8_strict,
+        max_files: *mut u64,
     }
 }
 #[cfg(not(target_family = "wasm"))]
@@ -2012,6 +2368,28 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::api::logger::WriteToFiles>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::logger::WriteToFiles {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::api::logger::WriteToFiles {
+                path: self_.get(0).cst_decode(),
+                file_prefix: self_.get(1).cst_decode(),
+                file_suffix: self_.get(2).cst_decode(),
+                max_files: self_.get(3).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<flutter_rust_bridge::for_generated::anyhow::Error>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -2054,6 +2432,14 @@ mod web {
                 .into()
         }
     }
+    impl CstDecode<crate::api::logger::LogLevel>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::logger::LogLevel {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<crate::api::media::OutputFormat>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -2089,6 +2475,13 @@ mod web {
         params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__api__media__compress_video_impl(port_, path, output_path, params)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__logger__debug_threads(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+    ) {
+        wire__crate__api__logger__debug_threads_impl(port_)
     }
 
     #[wasm_bindgen]
@@ -2165,11 +2558,48 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__logger__init_logger(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        log_level: i32,
+        write_to_stdout_or_system: bool,
+        write_to_files: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        use_lightweight_tokio_runtime: bool,
+    ) {
+        wire__crate__api__logger__init_logger_impl(
+            port_,
+            log_level,
+            write_to_stdout_or_system,
+            write_to_files,
+            use_lightweight_tokio_runtime,
+        )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__logger__log(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        file: String,
+        line: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        level: i32,
+        target: String,
+        message: String,
+    ) {
+        wire__crate__api__logger__log_impl(port_, file, line, level, target, message)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__media__output_format_extension(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         that: i32,
     ) {
         wire__crate__api__media__output_format_extension_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__logger__reload_tracing_file_writer(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        write_to_files: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__logger__reload_tracing_file_writer_impl(port_, write_to_files)
     }
 
     #[wasm_bindgen]

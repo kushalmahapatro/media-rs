@@ -7,7 +7,8 @@ use ffmpeg_next::{self as ffmpeg};
 use tracing::{debug, error, info, warn};
 
 use crate::api::media::VideoThumbnailParams;
-use std::sync::Mutex; // Still needed for cache
+#[cfg(target_os = "windows")]
+use std::sync::Mutex; // Still needed for cache on Windows
 
 // Use std::sync::Once to ensure FFmpeg is only initialized once
 // This is important for thread safety and to avoid issues when called from Flutter
@@ -25,15 +26,18 @@ static FFMPEG_CONTEXT_SEMAPHORE: AtomicU32 = AtomicU32::new(3); // Allow 3 concu
 
 // Cache for video info to avoid opening multiple FFmpeg contexts on Windows
 // Key: file path, Value: VideoInfo and timestamp
+#[cfg(target_os = "windows")]
 use std::collections::HashMap;
+#[cfg(target_os = "windows")]
 use std::sync::OnceLock;
-use std::time::{SystemTime, UNIX_EPOCH};
 
+#[cfg(target_os = "windows")]
 fn get_video_info_cache() -> &'static Mutex<HashMap<String, (crate::api::media::VideoInfo, u64)>> {
     static CACHE: OnceLock<Mutex<HashMap<String, (crate::api::media::VideoInfo, u64)>>> = OnceLock::new();
     CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
+#[cfg(target_os = "windows")]
 const CACHE_TTL_SECONDS: u64 = 60; // Cache for 60 seconds
 
 fn init_ffmpeg() -> Result<()> {
@@ -484,12 +488,12 @@ fn get_video_info_internal(path: &str) -> Result<crate::api::media::VideoInfo> {
 
     debug!("get_video_info_internal - creating codec context");
     let context = ffmpeg::codec::context::Context::from_parameters(stream.parameters())
-        .with_context(|| format!("Failed to create codec context from stream parameters"))?;
+        .with_context(|| "Failed to create codec context from stream parameters".to_string())?;
     debug!("get_video_info_internal - codec context created");
     
     debug!("get_video_info_internal - getting video decoder");
     let decoder = context.decoder().video()
-        .with_context(|| format!("Failed to get video decoder from context"))?;
+        .with_context(|| "Failed to get video decoder from context".to_string())?;
     debug!("get_video_info_internal - video decoder obtained");
 
     debug!("get_video_info_internal - getting decoder dimensions");
@@ -513,12 +517,10 @@ fn get_video_info_internal(path: &str) -> Result<crate::api::media::VideoInfo> {
     // Estimate bitrate if missing (size * 8 / seconds)
     let bitrate = if ictx.bit_rate() > 0 {
         Some(ictx.bit_rate() as u64)
+    } else if duration_ms > 0 {
+        Some((size_bytes * 8 * 1000) / duration_ms)
     } else {
-        if duration_ms > 0 {
-            Some((size_bytes * 8 * 1000) / duration_ms)
-        } else {
-            None
-        }
+        None
     };
 
     let codec_name = decoder.codec().map(|c| c.name().to_string());
@@ -558,15 +560,9 @@ fn get_video_info_internal(path: &str) -> Result<crate::api::media::VideoInfo> {
 }
 
 /// Normalize path for cache key (convert backslashes to forward slashes on Windows)
+#[cfg(target_os = "windows")]
 fn normalize_path_for_cache(path: &str) -> String {
-    #[cfg(target_os = "windows")]
-    {
-        path.replace('\\', "/")
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        path.to_string()
-    }
+    path.replace('\\', "/")
 }
 
 /// Public version that acquires the mutex before calling the internal version
@@ -891,28 +887,59 @@ pub fn generate_thumbnail(
     // target timestamp in microseconds (AV_TIME_BASE)
     let mut ts = params.time_ms as i64 * 1000;
 
-    // Clamp to duration if available
-    if duration_us != ffmpeg::ffi::AV_NOPTS_VALUE {
-        if ts > duration_us {
+    // Clamp to duration if available, but keep a buffer from the end to avoid seek failures
+    // Use 5% of duration or 3 seconds, whichever is larger, but cap at half duration
+    if duration_us != ffmpeg::ffi::AV_NOPTS_VALUE && duration_us > 0 {
+        let duration_ms = duration_us / 1000;
+        let buffer_ms = (duration_ms * 5 / 100).max(3000).min(duration_ms / 2);
+        let max_seekable_us = duration_us - (buffer_ms * 1000);
+        
+        if ts > max_seekable_us {
+            debug!("Requested timestamp {}us is too close to end (duration: {}us, buffer: {}ms), clamping to {}us", 
+                   ts, duration_us, buffer_ms, max_seekable_us);
+            ts = max_seekable_us.max(0);
+        } else if ts > duration_us {
             ts = duration_us;
         }
     }
 
-    ictx.seek(ts, ts..ts)
-        .map_err(|e| {
-            // Release semaphore on error
-            #[cfg(target_os = "windows")]
-            {
-                use std::sync::atomic::Ordering;
-                use std::thread;
-                use std::time::Duration;
-                thread::sleep(Duration::from_millis(50));
-                thread::yield_now();
-                FFMPEG_CONTEXT_SEMAPHORE.fetch_add(1, Ordering::AcqRel);
-                debug!("generate_thumbnail - released FFmpeg context semaphore (seek error)");
-            }
-            (e.into(), display_width, display_height)
-        })?;
+    // Attempt to seek to the target timestamp
+    // Use a range that allows FFmpeg to seek to the nearest keyframe before the target
+    // This is more robust than exact seeking, especially for videos with sparse keyframes
+    // The range (min_ts..ts) allows seeking backward up to 2 seconds to find a keyframe
+    let min_ts = (ts - 2_000_000).max(0); // Allow up to 2 seconds backward for keyframe seeking
+    let seek_result = ictx.seek(ts, min_ts..ts);
+    
+    seek_result.map_err(|e| {
+        // Release semaphore on error
+        #[cfg(target_os = "windows")]
+        {
+            use std::sync::atomic::Ordering;
+            use std::thread;
+            use std::time::Duration;
+            thread::sleep(Duration::from_millis(50));
+            thread::yield_now();
+            FFMPEG_CONTEXT_SEMAPHORE.fetch_add(1, Ordering::AcqRel);
+            debug!("generate_thumbnail - released FFmpeg context semaphore (seek error)");
+        }
+        // Provide platform-specific context about the error
+        let platform_hint = if cfg!(target_os = "android") {
+            "On Android, this may indicate file permissions issue (the file might be in a restricted cache directory), \
+            the file might be locked by another process, or there may be an issue with the video file format/codec."
+        } else if cfg!(target_os = "macos") || cfg!(target_os = "ios") {
+            "On macOS/iOS, this may indicate missing file permissions (check System Settings > Privacy & Security > Files and Folders) \
+            or the timestamp may be too close to the end of the video."
+        } else {
+            "This may indicate file permissions issue, the file might be locked, or the timestamp may be too close to the end of the video."
+        };
+        
+        let error_msg = format!(
+            "Failed to seek to {}ms (timestamp: {}us) in video file '{}': {}. {}",
+            params.time_ms, ts, path, e, platform_hint
+        );
+        warn!("{}", error_msg);
+        (anyhow::anyhow!(error_msg), display_width, display_height)
+    })?;
 
     let mut scaler = None::<ffmpeg::software::scaling::Context>;
     let mut decoded = ffmpeg::util::frame::video::Video::empty();
@@ -948,7 +975,7 @@ pub fn generate_thumbnail(
                 // Use display dimensions for thumbnail size calculation
                 let size = params
                     .size_type
-                    .unwrap_or_else(|| ThumbnailSizeType::Custom((display_width, display_height)))
+                    .unwrap_or(ThumbnailSizeType::Custom((display_width, display_height)))
                     .dimensions();
 
                 // Scale to fit, but account for rotation in target dimensions
@@ -1047,7 +1074,7 @@ pub fn generate_thumbnail(
                                 FFMPEG_CONTEXT_SEMAPHORE.fetch_add(1, Ordering::AcqRel);
                                 debug!("generate_thumbnail - released FFmpeg context semaphore (encode error)");
                             }
-                            (e.into(), display_width, display_height)
+                            (e, display_width, display_height)
                         })?;
 
                 // Release semaphore before returning success
@@ -1120,7 +1147,7 @@ fn encode_png_from_rgb_frame_with_rotation(
 
     // frame data is RGB24: contiguous buffer
     let data = frame.data(0);
-    let stride = frame.stride(0) as usize;
+    let stride = frame.stride(0);
 
     // Copy into tightly-packed buffer (no stride padding)
     let mut buf = Vec::with_capacity((width * height * 3) as usize);
@@ -1206,8 +1233,8 @@ pub fn get_file_name_without_extension(path: &str) -> PathBuf {
         .file_name()
         .unwrap_or_else(|| std::ffi::OsStr::new("output"));
 
-    let filename_without_extension = PathBuf::from(filename_with_extension).with_extension("");
-    filename_without_extension
+    
+    PathBuf::from(filename_with_extension).with_extension("")
 }
 
 pub fn check_output_path(output_path: &str) -> anyhow::Result<PathBuf> {
@@ -1262,11 +1289,11 @@ pub fn estimate_compression_with_info(
     debug!("estimate_compression - init_ffmpeg() succeeded");
 
     debug!("estimate_compression - getting filename without extension");
-    let filename_without_extension = get_file_name_without_extension(&path);
+    let filename_without_extension = get_file_name_without_extension(path);
     debug!("estimate_compression - filename: {}", filename_without_extension.display());
     
     debug!("estimate_compression - checking output path");
-    let base_output_dir = check_output_path(&temp_output_path)?;
+    let base_output_dir = check_output_path(temp_output_path)?;
     debug!("estimate_compression - output dir: {}", base_output_dir.display());
 
     // CRITICAL WORKAROUND: On Windows, FFmpeg crashes when opening a second context
@@ -1579,13 +1606,7 @@ pub fn estimate_compression_with_info(
         } else {
             // CRF mode or no bitrate hint: approximate using a modest video bitrate
             // plus 192kbps audio, based on the source duration.
-            let video_bitrate_bps = if let Some(src_bitrate) = info.bitrate {
-                // Use source bitrate as an upper bound
-                src_bitrate
-            } else {
-                // Fallback to ~2Mbps video if input bitrate is unknown
-                2_000_000u64
-            };
+            let video_bitrate_bps = info.bitrate.unwrap_or(2_000_000u64);
             let audio_bitrate_bps = 192_000u64;
             let total_bps = video_bitrate_bps + audio_bitrate_bps;
             (total_bps * total_duration_ms) / 8000
@@ -1750,7 +1771,7 @@ fn perform_compression(
         thread::yield_now();
     }
 
-    let filename_without_extension = get_file_name_without_extension(&path);
+    let filename_without_extension = get_file_name_without_extension(path);
     let output_path_buf = PathBuf::from(output_path);
 
     // Determine target output path
@@ -1764,7 +1785,7 @@ fn perform_compression(
         }
         output_path_buf
     } else {
-        let base_output_dir = check_output_path(&output_path)?;
+        let base_output_dir = check_output_path(output_path)?;
         base_output_dir.join(format!(
             "compressed_{}.mp4",
             filename_without_extension.display()
@@ -2087,16 +2108,14 @@ fn perform_compression(
     // HDR videos typically use limited range (16-235), not full range (0-255)
     // Setting this explicitly helps encoders interpret the color range correctly
     // AVCOL_RANGE_JPEG = 2, AVCOL_RANGE_UNSPECIFIED = 0, AVCOL_RANGE_MPEG = 1
-    unsafe {
-        // Compare as integers since these are C enums
-        let range_val = input_color_range as i32;
-        if range_val == 2 {
-            // Full range (0-255) - typically for JPEG/PC content
-            opts.set("color_range", "pc");
-        } else if range_val != 0 {
-            // Limited range (16-235) - typical for HDR/TV content
-            opts.set("color_range", "tv");
-        }
+    // Compare as integers since these are C enums
+    let range_val = input_color_range as i32;
+    if range_val == 2 {
+        // Full range (0-255) - typically for JPEG/PC content
+        opts.set("color_range", "pc");
+    } else if range_val != 0 {
+        // Limited range (16-235) - typical for HDR/TV content
+        opts.set("color_range", "tv");
     }
 
     // Try to open encoder with options
@@ -2131,6 +2150,8 @@ fn perform_compression(
 
     // Collect rotation metadata and display matrix side data
     // (input_video_stream was already obtained above for dimension calculation)
+    // Note: rotation_metadata is collected but currently unused (display_matrix_data is used instead)
+    #[allow(dead_code, unused_assignments)]
     let mut rotation_metadata: Option<String> = None;
     let mut display_matrix_data: Option<Vec<u8>> = None;
 
@@ -2181,12 +2202,12 @@ fn perform_compression(
         }
     }
 
-    // Also check format metadata for rotation (MOV files)
-    if rotation_metadata.is_none() {
-        if let Some(rotation_str) = ictx.metadata().get("rotate") {
-            rotation_metadata = Some(rotation_str.to_string());
-        }
-    }
+    // // Also check format metadata for rotation (MOV files)
+    // if rotation_metadata.is_none() {
+    //     if let Some(rotation_str) = ictx.metadata().get("rotate") {
+    //         rotation_metadata = Some(rotation_str.to_string());
+    //     }
+    // }
 
     // 2. Add video stream
     let video_ost_index = {
@@ -2705,7 +2726,7 @@ fn perform_compression(
 
                             // Calculate exact output samples needed (with ceiling for rounding)
                             let out_samples_est =
-                                ((in_samples * out_rate + in_rate - 1) / in_rate) as usize;
+                                (in_samples * out_rate).div_ceil(in_rate) as usize;
                             // Add some padding for resampler delay/compensation (typically 32-64 samples)
                             let out_samples_with_padding = out_samples_est + 64;
 
@@ -2935,12 +2956,12 @@ fn perform_compression(
             }
 
             // Pad and encode final incomplete frame if any samples remain
-            if lb.len() > 0 {
+            if !lb.is_empty() {
                 let pad_len = frame_size - lb.len();
                 if pad_len > 0 && pad_len < frame_size {
                     // Pad with silence
-                    lb.extend(std::iter::repeat(0.0).take(pad_len));
-                    rb.extend(std::iter::repeat(0.0).take(pad_len));
+                    lb.extend(std::iter::repeat_n(0.0, pad_len));
+                    rb.extend(std::iter::repeat_n(0.0, pad_len));
                 }
 
                 if lb.len() >= frame_size {

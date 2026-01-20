@@ -3,6 +3,7 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/logger.dart';
 import 'api/media.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -64,7 +65,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1166833132;
+  int get rustContentHash => -1535488819;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -80,6 +81,8 @@ abstract class RustLibApi extends BaseApi {
     required String outputPath,
     required CompressParams params,
   });
+
+  Future<void> crateApiLoggerDebugThreads();
 
   Future<CompressionEstimate> crateApiMediaEstimateCompression({
     required String path,
@@ -111,7 +114,26 @@ abstract class RustLibApi extends BaseApi {
 
   Future<VideoInfo> crateApiMediaGetVideoInfo({required String path});
 
+  Future<void> crateApiLoggerInitLogger({
+    required LogLevel logLevel,
+    required bool writeToStdoutOrSystem,
+    WriteToFiles? writeToFiles,
+    required bool useLightweightTokioRuntime,
+  });
+
+  Future<void> crateApiLoggerLog({
+    required String file,
+    int? line,
+    required LogLevel level,
+    required String target,
+    required String message,
+  });
+
   Future<void> crateApiMediaOutputFormatExtension({required OutputFormat that});
+
+  Future<void> crateApiLoggerReloadTracingFileWriter({
+    required WriteToFiles writeToFiles,
+  });
 
   Future<(int, int)> crateApiMediaThumbnailSizeTypeDimensions({
     required ThumbnailSizeType that,
@@ -160,6 +182,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     debugName: "compress_video",
     argNames: ["path", "outputPath", "params"],
   );
+
+  @override
+  Future<void> crateApiLoggerDebugThreads() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          return wire.wire__crate__api__logger__debug_threads(port_);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiLoggerDebugThreadsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLoggerDebugThreadsConstMeta =>
+      const TaskConstMeta(debugName: "debug_threads", argNames: []);
 
   @override
   Future<CompressionEstimate> crateApiMediaEstimateCompression({
@@ -363,6 +406,95 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "get_video_info", argNames: ["path"]);
 
   @override
+  Future<void> crateApiLoggerInitLogger({
+    required LogLevel logLevel,
+    required bool writeToStdoutOrSystem,
+    WriteToFiles? writeToFiles,
+    required bool useLightweightTokioRuntime,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_log_level(logLevel);
+          var arg1 = cst_encode_bool(writeToStdoutOrSystem);
+          var arg2 = cst_encode_opt_box_autoadd_write_to_files(writeToFiles);
+          var arg3 = cst_encode_bool(useLightweightTokioRuntime);
+          return wire.wire__crate__api__logger__init_logger(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiLoggerInitLoggerConstMeta,
+        argValues: [
+          logLevel,
+          writeToStdoutOrSystem,
+          writeToFiles,
+          useLightweightTokioRuntime,
+        ],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLoggerInitLoggerConstMeta => const TaskConstMeta(
+    debugName: "init_logger",
+    argNames: [
+      "logLevel",
+      "writeToStdoutOrSystem",
+      "writeToFiles",
+      "useLightweightTokioRuntime",
+    ],
+  );
+
+  @override
+  Future<void> crateApiLoggerLog({
+    required String file,
+    int? line,
+    required LogLevel level,
+    required String target,
+    required String message,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(file);
+          var arg1 = cst_encode_opt_box_autoadd_u_32(line);
+          var arg2 = cst_encode_log_level(level);
+          var arg3 = cst_encode_String(target);
+          var arg4 = cst_encode_String(message);
+          return wire.wire__crate__api__logger__log(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiLoggerLogConstMeta,
+        argValues: [file, line, level, target, message],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLoggerLogConstMeta => const TaskConstMeta(
+    debugName: "log",
+    argNames: ["file", "line", "level", "target", "message"],
+  );
+
+  @override
   Future<void> crateApiMediaOutputFormatExtension({
     required OutputFormat that,
   }) {
@@ -390,6 +522,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(
         debugName: "output_format_extension",
         argNames: ["that"],
+      );
+
+  @override
+  Future<void> crateApiLoggerReloadTracingFileWriter({
+    required WriteToFiles writeToFiles,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_box_autoadd_write_to_files(writeToFiles);
+          return wire.wire__crate__api__logger__reload_tracing_file_writer(
+            port_,
+            arg0,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiLoggerReloadTracingFileWriterConstMeta,
+        argValues: [writeToFiles],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLoggerReloadTracingFileWriterConstMeta =>
+      const TaskConstMeta(
+        debugName: "reload_tracing_file_writer",
+        argNames: ["writeToFiles"],
       );
 
   @override
@@ -511,6 +673,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  WriteToFiles dco_decode_box_autoadd_write_to_files(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_write_to_files(raw);
+  }
+
+  @protected
   CompressParams dco_decode_compress_params(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -569,6 +737,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  LogLevel dco_decode_log_level(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return LogLevel.values[raw as int];
+  }
+
+  @protected
   String? dco_decode_opt_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_String(raw);
@@ -620,6 +794,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int? dco_decode_opt_box_autoadd_u_8(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_u_8(raw);
+  }
+
+  @protected
+  WriteToFiles? dco_decode_opt_box_autoadd_write_to_files(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_write_to_files(raw);
   }
 
   @protected
@@ -732,6 +912,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  WriteToFiles dco_decode_write_to_files(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return WriteToFiles(
+      path: dco_decode_String(arr[0]),
+      filePrefix: dco_decode_String(arr[1]),
+      fileSuffix: dco_decode_opt_String(arr[2]),
+      maxFiles: dco_decode_opt_box_autoadd_u_64(arr[3]),
+    );
+  }
+
+  @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_String(deserializer);
@@ -832,6 +1026,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  WriteToFiles sse_decode_box_autoadd_write_to_files(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_write_to_files(deserializer));
+  }
+
+  @protected
   CompressParams sse_decode_compress_params(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_targetBitrateKbps = sse_decode_u_32(deserializer);
@@ -900,6 +1102,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       ans_.add(sse_decode_resolution_preset(deserializer));
     }
     return ans_;
+  }
+
+  @protected
+  LogLevel sse_decode_log_level(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return LogLevel.values[inner];
   }
 
   @protected
@@ -991,6 +1200,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_u_8(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  WriteToFiles? sse_decode_opt_box_autoadd_write_to_files(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_write_to_files(deserializer));
     } else {
       return null;
     }
@@ -1118,6 +1340,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  WriteToFiles sse_decode_write_to_files(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_path = sse_decode_String(deserializer);
+    var var_filePrefix = sse_decode_String(deserializer);
+    var var_fileSuffix = sse_decode_opt_String(deserializer);
+    var var_maxFiles = sse_decode_opt_box_autoadd_u_64(deserializer);
+    return WriteToFiles(
+      path: var_path,
+      filePrefix: var_filePrefix,
+      fileSuffix: var_fileSuffix,
+      maxFiles: var_maxFiles,
+    );
+  }
+
+  @protected
   bool cst_encode_bool(bool raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
@@ -1127,6 +1364,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int cst_encode_i_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
+  }
+
+  @protected
+  int cst_encode_log_level(LogLevel raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
   }
 
   @protected
@@ -1270,6 +1513,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_write_to_files(
+    WriteToFiles self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_write_to_files(self, serializer);
+  }
+
+  @protected
   void sse_encode_compress_params(
     CompressParams self,
     SseSerializer serializer,
@@ -1329,6 +1581,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     for (final item in self) {
       sse_encode_resolution_preset(item, serializer);
     }
+  }
+
+  @protected
+  void sse_encode_log_level(LogLevel self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
@@ -1417,6 +1675,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_u_8(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_write_to_files(
+    WriteToFiles? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_write_to_files(self, serializer);
     }
   }
 
@@ -1514,5 +1785,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_u_64(self.timeMs, serializer);
     sse_encode_opt_box_autoadd_thumbnail_size_type(self.sizeType, serializer);
     sse_encode_opt_box_autoadd_output_format(self.format, serializer);
+  }
+
+  @protected
+  void sse_encode_write_to_files(WriteToFiles self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.path, serializer);
+    sse_encode_String(self.filePrefix, serializer);
+    sse_encode_opt_String(self.fileSuffix, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.maxFiles, serializer);
   }
 }

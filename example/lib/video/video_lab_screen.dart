@@ -73,7 +73,12 @@ class _VideoLabScreenState extends State<VideoLabScreen> {
                           const Icon(Icons.error_outline, color: Colors.red),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text(_viewModel.activeError!, style: const TextStyle(color: Colors.red)),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 100),
+                              child: SingleChildScrollView(
+                                child: Text(_viewModel.activeError!, style: const TextStyle(color: Colors.red)),
+                              ),
+                            ),
                           ),
                           IconButton(
                             icon: const Icon(Icons.close, color: Colors.red),

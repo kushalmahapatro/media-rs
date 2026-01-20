@@ -6,6 +6,7 @@
 // Static analysis wrongly picks the IO variant, thus ignore this
 // ignore_for_file: argument_type_not_assignable
 
+import 'api/logger.dart';
 import 'api/media.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -67,6 +68,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  WriteToFiles dco_decode_box_autoadd_write_to_files(dynamic raw);
+
+  @protected
   CompressParams dco_decode_compress_params(dynamic raw);
 
   @protected
@@ -83,6 +87,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ResolutionPreset> dco_decode_list_resolution_preset(dynamic raw);
+
+  @protected
+  LogLevel dco_decode_log_level(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -113,6 +120,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int? dco_decode_opt_box_autoadd_u_8(dynamic raw);
 
   @protected
+  WriteToFiles? dco_decode_opt_box_autoadd_write_to_files(dynamic raw);
+
+  @protected
   OutputFormat dco_decode_output_format(dynamic raw);
 
   @protected
@@ -141,6 +151,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   VideoThumbnailParams dco_decode_video_thumbnail_params(dynamic raw);
+
+  @protected
+  WriteToFiles dco_decode_write_to_files(dynamic raw);
 
   @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
@@ -199,6 +212,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  WriteToFiles sse_decode_box_autoadd_write_to_files(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   CompressParams sse_decode_compress_params(SseDeserializer deserializer);
 
   @protected
@@ -221,6 +239,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ResolutionPreset> sse_decode_list_resolution_preset(
     SseDeserializer deserializer,
   );
+
+  @protected
+  LogLevel sse_decode_log_level(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -251,6 +272,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int? sse_decode_opt_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
+  WriteToFiles? sse_decode_opt_box_autoadd_write_to_files(
+    SseDeserializer deserializer,
+  );
 
   @protected
   OutputFormat sse_decode_output_format(SseDeserializer deserializer);
@@ -285,6 +311,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   VideoThumbnailParams sse_decode_video_thumbnail_params(
     SseDeserializer deserializer,
   );
+
+  @protected
+  WriteToFiles sse_decode_write_to_files(SseDeserializer deserializer);
 
   @protected
   String cst_encode_AnyhowException(AnyhowException raw) {
@@ -373,6 +402,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_video_thumbnail_params(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_write_to_files(WriteToFiles raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_write_to_files(raw);
   }
 
   @protected
@@ -473,6 +508,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  JSAny? cst_encode_opt_box_autoadd_write_to_files(WriteToFiles? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_write_to_files(raw);
+  }
+
+  @protected
   JSAny cst_encode_record_u_32_u_32((int, int) raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [cst_encode_u_32(raw.$1), cst_encode_u_32(raw.$2)].jsify()!;
@@ -547,10 +588,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  JSAny cst_encode_write_to_files(WriteToFiles raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.path),
+      cst_encode_String(raw.filePrefix),
+      cst_encode_opt_String(raw.fileSuffix),
+      cst_encode_opt_box_autoadd_u_64(raw.maxFiles),
+    ].jsify()!;
+  }
+
+  @protected
   bool cst_encode_bool(bool raw);
 
   @protected
   int cst_encode_i_32(int raw);
+
+  @protected
+  int cst_encode_log_level(LogLevel raw);
 
   @protected
   int cst_encode_output_format(OutputFormat raw);
@@ -631,6 +686,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_write_to_files(
+    WriteToFiles self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_compress_params(
     CompressParams self,
     SseSerializer serializer,
@@ -664,6 +725,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_log_level(LogLevel self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
@@ -695,6 +759,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_box_autoadd_u_8(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_write_to_files(
+    WriteToFiles? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_output_format(OutputFormat self, SseSerializer serializer);
@@ -734,6 +804,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     VideoThumbnailParams self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_write_to_files(WriteToFiles self, SseSerializer serializer);
 }
 
 // Section: wire_class
@@ -752,6 +825,9 @@ class RustLibWire implements BaseWire {
     output_path,
     params,
   );
+
+  void wire__crate__api__logger__debug_threads(NativePortType port_) =>
+      wasmModule.wire__crate__api__logger__debug_threads(port_);
 
   void wire__crate__api__media__estimate_compression(
     NativePortType port_,
@@ -816,10 +892,48 @@ class RustLibWire implements BaseWire {
     String path,
   ) => wasmModule.wire__crate__api__media__get_video_info(port_, path);
 
+  void wire__crate__api__logger__init_logger(
+    NativePortType port_,
+    int log_level,
+    bool write_to_stdout_or_system,
+    JSAny? write_to_files,
+    bool use_lightweight_tokio_runtime,
+  ) => wasmModule.wire__crate__api__logger__init_logger(
+    port_,
+    log_level,
+    write_to_stdout_or_system,
+    write_to_files,
+    use_lightweight_tokio_runtime,
+  );
+
+  void wire__crate__api__logger__log(
+    NativePortType port_,
+    String file,
+    int? line,
+    int level,
+    String target,
+    String message,
+  ) => wasmModule.wire__crate__api__logger__log(
+    port_,
+    file,
+    line,
+    level,
+    target,
+    message,
+  );
+
   void wire__crate__api__media__output_format_extension(
     NativePortType port_,
     int that,
   ) => wasmModule.wire__crate__api__media__output_format_extension(port_, that);
+
+  void wire__crate__api__logger__reload_tracing_file_writer(
+    NativePortType port_,
+    JSAny write_to_files,
+  ) => wasmModule.wire__crate__api__logger__reload_tracing_file_writer(
+    port_,
+    write_to_files,
+  );
 
   void wire__crate__api__media__thumbnail_size_type_dimensions(
     NativePortType port_,
@@ -842,6 +956,8 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     String output_path,
     JSAny params,
   );
+
+  external void wire__crate__api__logger__debug_threads(NativePortType port_);
 
   external void wire__crate__api__media__estimate_compression(
     NativePortType port_,
@@ -881,9 +997,31 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     String path,
   );
 
+  external void wire__crate__api__logger__init_logger(
+    NativePortType port_,
+    int log_level,
+    bool write_to_stdout_or_system,
+    JSAny? write_to_files,
+    bool use_lightweight_tokio_runtime,
+  );
+
+  external void wire__crate__api__logger__log(
+    NativePortType port_,
+    String file,
+    int? line,
+    int level,
+    String target,
+    String message,
+  );
+
   external void wire__crate__api__media__output_format_extension(
     NativePortType port_,
     int that,
+  );
+
+  external void wire__crate__api__logger__reload_tracing_file_writer(
+    NativePortType port_,
+    JSAny write_to_files,
   );
 
   external void wire__crate__api__media__thumbnail_size_type_dimensions(

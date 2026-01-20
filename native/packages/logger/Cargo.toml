@@ -1,0 +1,31 @@
+[package]
+name = "logger"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["rlib"]
+name = "logging"
+path = "src/lib.rs"
+
+[dependencies]
+# Logging dependencies
+tracing = { workspace = true }
+tracing-core = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+log-panics = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true }
+once_cell = { workspace = true }
+async-compat = { workspace = true }
+
+# Utilities
+const_panic = { workspace = true }
+paranoid-android = { workspace = true }
+anyhow = { workspace = true }
+
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC -fPIC -O3 -DNDEBUG  -shared  -o libpixbufloader-heif.so CMakeFiles/pixbufloader-heif.dir/pixbufloader-heif.c.o  -lgdk_pixbuf-2.0 -lgobject-2.0 -lglib-2.0 ../libheif/libheif.a /home/kushal/project/media-rs/third_party/libheif_build_linux_x86_64/libde265_install/lib/libde265.a -lpthread 

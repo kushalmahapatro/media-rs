@@ -1,1 +1,0 @@
-D:\media-rs\media-rs\third_party\sources\libde265\build_msvc\libde265\encoder\encoder.dir\Release\encoder.lib

@@ -32,18 +32,14 @@ fn main() {
         if target_os == "windows" && target_env == "msvc" {
             // Check for .lib files (MSVC format, converted from MinGW .a)
             // Try both heif.lib and libheif.lib (Rust looks for heif.lib, but we might have libheif.lib)
-            let heif_lib_paths = vec![
-                format!("{}/lib/heif.lib", libheif_dir),
+            let heif_lib_paths = [format!("{}/lib/heif.lib", libheif_dir),
                 format!("{}\\lib\\heif.lib", libheif_dir),
                 format!("{}/lib/libheif.lib", libheif_dir),
-                format!("{}\\lib\\libheif.lib", libheif_dir),
-            ];
-            let de265_lib_paths = vec![
-                format!("{}/lib/de265.lib", libheif_dir),
+                format!("{}\\lib\\libheif.lib", libheif_dir)];
+            let de265_lib_paths = [format!("{}/lib/de265.lib", libheif_dir),
                 format!("{}\\lib\\de265.lib", libheif_dir),
                 format!("{}/lib/libde265.lib", libheif_dir),
-                format!("{}\\lib\\libde265.lib", libheif_dir),
-            ];
+                format!("{}\\lib\\libde265.lib", libheif_dir)];
             
             let heif_lib_exists = heif_lib_paths.iter().any(|p| std::path::Path::new(p).exists());
             let de265_lib_exists = de265_lib_paths.iter().any(|p| std::path::Path::new(p).exists());
@@ -96,12 +92,10 @@ fn main() {
         let target_env = std::env::var("CARGO_CFG_TARGET_ENV").unwrap_or_default();
         if target_os == "windows" && target_env == "msvc" {
             // Check for .lib files (MSVC format)
-            let openh264_lib_paths = vec![
-                format!("{}/lib/openh264.lib", openh264_dir),
+            let openh264_lib_paths = [format!("{}/lib/openh264.lib", openh264_dir),
                 format!("{}\\lib\\openh264.lib", openh264_dir),
                 format!("{}/lib/libopenh264.lib", openh264_dir),
-                format!("{}\\lib\\libopenh264.lib", openh264_dir),
-            ];
+                format!("{}\\lib\\libopenh264.lib", openh264_dir)];
             
             let openh264_lib_exists = openh264_lib_paths.iter().any(|p| std::path::Path::new(p).exists());
             

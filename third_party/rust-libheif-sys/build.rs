@@ -16,6 +16,17 @@ fn main() {
     #[allow(unused_variables)]
     let include_paths = find_libheif();
 
+    // On Apple platforms (macOS/iOS/iOS Simulator), libheif and libde265 are C++ libraries
+    // that depend on the system C++ runtime (libc++).
+    // Some toolchains don't automatically add -lc++, which leads to many undefined
+    // std::__1::* symbols at link time (as seen in the user's logs).
+    //
+    // Fix: explicitly link against libc++ on Apple platforms.
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    {
+        println!("cargo:rustc-link-lib=c++");
+    }
+
     #[cfg(target_os = "windows")]
     #[allow(unused_variables)]
     let include_paths: Vec<String> = install_libheif_by_vcpkg();

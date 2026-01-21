@@ -9,7 +9,8 @@ echo "=========================================="
 
 PROJECT_ROOT="$(pwd)"
 THIRD_PARTY_DIR="$PROJECT_ROOT/third_party"
-INSTALL_DIR="$THIRD_PARTY_DIR/ffmpeg_install"
+GENERATED_DIR="$THIRD_PARTY_DIR/generated"
+INSTALL_DIR="$GENERATED_DIR/ffmpeg_install"
 
 check_ffmpeg_config() {
     local ffmpeg_dir=$1

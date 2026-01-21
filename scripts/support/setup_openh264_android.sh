@@ -64,7 +64,7 @@ build_openh264_android() {
     
     echo "Building OpenH264 for Android $ABI (API $API_LEVEL)..."
     
-    BUILD_DIR="$THIRD_PARTY_DIR/openh264_build_android_$ABI"
+    BUILD_DIR="$GENERATED_DIR/openh264_build_android_$ABI"
     INSTALL_ABI_DIR="$ANDROID_INSTALL_DIR/$ABI"
     
     mkdir -p "$BUILD_DIR"

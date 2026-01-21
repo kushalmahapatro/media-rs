@@ -360,12 +360,6 @@ fn find_h264_encoder() -> Result<ffmpeg::Codec> {
             )
         })
     }
-
-    // This should never be reached on Android (already returned above)
-    #[cfg(target_os = "android")]
-    {
-        unreachable!("Should have returned error above for Android")
-    }
 }
 
 /// Internal version that doesn't acquire the mutex (assumes caller already holds it)

@@ -29,6 +29,36 @@
             "cwd": "media",
             "request": "launch",
             "type": "dart"
+        },
+        {
+            "name": "build (android)",
+            "cwd": "tool",
+            "request": "launch",
+            "type": "dart",
+            "program": "build.dart",
+            "args": [
+                "android"
+            ]
+        },
+        {
+            "name": "build (ios)",
+            "cwd": "tool",
+            "request": "launch",
+            "type": "dart",
+            "program": "build.dart",
+            "args": [
+                "ios"
+            ]
+        },
+        {
+            "name": "build (macos)",
+            "cwd": "tool",
+            "request": "launch",
+            "type": "dart",
+            "program": "build.dart",
+            "args": [
+                "macos"
+            ]
         }
     ]
 }

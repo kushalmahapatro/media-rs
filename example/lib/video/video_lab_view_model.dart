@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:media/media.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -87,9 +88,6 @@ class VideoLabViewModel extends ChangeNotifier {
   bool _isCompressing = false;
   bool get isCompressing => _isCompressing;
 
-  bool _isDownscaling = false;
-  bool get isDownscaling => _isDownscaling;
-
   String? _compressionError;
   String? get compressionError => _compressionError;
 
@@ -141,16 +139,23 @@ class VideoLabViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> pickFile() async {
+  Future<void> pickVideoFile() async {
+    String? path;
     try {
-      final result = await FilePicker.platform.pickFiles(
-        allowMultiple: false,
-        initialDirectory: _pickedFileDirectory?.path,
-      );
+      if (Platform.isIOS || Platform.isAndroid) {
+        final result = await ImagePicker().pickVideo(source: ImageSource.gallery);
+        path = result?.path;
+      } else {
+        final result = await FilePicker.platform.pickFiles(
+          allowMultiple: false,
+          initialDirectory: _pickedFileDirectory?.path,
+        );
+        path = result?.files.single.path;
+      }
 
-      if (result != null && result.files.single.path != null) {
-        _pickedFileDirectory = Directory(result.files.single.path!).parent;
-        _selectedPath = result.files.single.path;
+      if (path != null) {
+        _pickedFileDirectory = Directory(path).parent;
+        _selectedPath = path;
         // Reset all states
         _videoInfo = null;
         _infoError = null;

@@ -16,24 +16,17 @@ class FilePickerWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ElevatedButton.icon(
-          onPressed: viewModel.pickFile,
+          onPressed: viewModel.pickImageFile,
           icon: const Icon(Icons.photo_library),
           label: const Text('Pick Image File'),
         ),
         const SizedBox(height: 20),
         if (viewModel.selectedPath != null) ...[
-          Text(
-            'Selected: ${viewModel.selectedPath}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text('Selected: ${viewModel.selectedPath}', style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           InkWell(
             onTap: () => showInExplorer(viewModel.selectedPath!),
-            child: Image.file(
-              File(viewModel.selectedPath!),
-              height: 200,
-              fit: BoxFit.contain,
-            ),
+            child: Image.file(File(viewModel.selectedPath!), height: 200, fit: BoxFit.contain),
           ),
 
           const SizedBox(height: 8),
@@ -58,19 +51,13 @@ class ImageLabOptionsWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'Configuration',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+        const Text('Configuration', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         DropdownButtonFormField<OutputFormat>(
           decoration: const InputDecoration(labelText: 'Output Format'),
           initialValue: viewModel.outputFormat,
           items: viewModel.availableFormats.map((f) {
-            return DropdownMenuItem(
-              value: f,
-              child: Text(f.toString().split('.').last.toUpperCase()),
-            );
+            return DropdownMenuItem(value: f, child: Text(f.toString().split('.').last.toUpperCase()));
           }).toList(),
           onChanged: (v) {
             if (v != null) viewModel.setOutputFormat(v);
@@ -119,18 +106,10 @@ class ImageLabOptionsWidget extends StatelessWidget {
         ],
         const SizedBox(height: 20),
         ElevatedButton(
-          onPressed: viewModel.isThumbnailLoading
-              ? null
-              : viewModel.generateThumbnail,
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
+          onPressed: viewModel.isThumbnailLoading ? null : viewModel.generateThumbnail,
+          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
           child: viewModel.isThumbnailLoading
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
+              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
               : const Text('Generate Thumbnail'),
         ),
       ],
@@ -152,20 +131,14 @@ class ImageLabResultWidget extends StatelessWidget {
       children: [
         const Divider(),
         const SizedBox(height: 10),
-        const Text(
-          'Result:',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+        const Text('Result:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Center(
           child: Container(
             decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
             child: InkWell(
               onTap: () => showInExplorer(viewModel.thumbnailPath!),
-              child: Image.file(
-                File(viewModel.thumbnailPath!),
-                fit: BoxFit.contain,
-              ),
+              child: Image.file(File(viewModel.thumbnailPath!), fit: BoxFit.contain),
             ),
           ),
         ),

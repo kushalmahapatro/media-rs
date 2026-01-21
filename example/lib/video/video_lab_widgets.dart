@@ -17,7 +17,7 @@ class FilePickerWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ElevatedButton.icon(
-          onPressed: viewModel.isInfoLoading || viewModel.isCompressing ? null : viewModel.pickFile,
+          onPressed: viewModel.isInfoLoading || viewModel.isCompressing ? null : viewModel.pickVideoFile,
           icon: const Icon(Icons.video_library),
           label: const Text('Pick Video File'),
         ),

@@ -13,3 +13,4 @@ native/target/*
 
 # All generated third-party artifacts (sources, builds, installs)
 third_party/generated/**
+platform-builds/** # Artifacts for building the libraries

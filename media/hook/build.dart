@@ -6,7 +6,11 @@ import 'package:logging/logging.dart';
 import 'package:native_toolchain_rust/native_toolchain_rust.dart';
 import 'package:path/path.dart';
 
-import 'build_environment.dart';
+import '../../tool/build/utils/env_vars.dart';
+import '../../tool/build/utils/required_directories.dart';
+import '../../tool/build/android/setup_android.dart';
+import '../../tool/build/utils/build_environment.dart';
+import '../../tool/build/utils/target_mapping.dart';
 
 final logger = Logger.detached('MediaBuilder')
   ..level = Level.ALL
@@ -31,10 +35,6 @@ void main(List<String> args) async {
   });
 }
 
-String? _getEnv(Map<String, String> systemEnv, String key) {
-  return Platform.environment[key] ?? systemEnv[key];
-}
-
 Future<void> runLocalBuild(
   BuildInput input,
   BuildOutputBuilder output,
@@ -55,19 +55,20 @@ Future<void> runLocalBuild(
   }
 
   // Resolve paths
-  final ffmpegDir = _resolveFfmpegDir(input, targetOS, effectiveArchitecture, iOSSdk, systemEnv);
-  final libheifPath = _resolveLibheifDir(input, targetOS, effectiveArchitecture, isSimulator, systemEnv);
-  final openh264Path = _resolveOpenh264Dir(input, targetOS, effectiveArchitecture, systemEnv);
+  final ffmpegDir = resolveFfmpegDir(input.packageRoot, targetOS, effectiveArchitecture, iOSSdk, systemEnv);
+  final libheifPath = resolveLibheifDir(input.packageRoot, targetOS, effectiveArchitecture, isSimulator, systemEnv);
+  final openh264Path = resolveOpenh264Dir(input.packageRoot, targetOS, effectiveArchitecture, systemEnv);
 
   // Setup environment variables
-  final envVars = _buildEnvVars(
+  final envVars = buildEnvVars(
     ffmpegDir: ffmpegDir,
     targetOS: targetOS,
     effectiveArchitecture: effectiveArchitecture,
     isSimulator: isSimulator,
+    systemEnv: systemEnv,
+    logger: logger,
     libheifPath: libheifPath,
     openh264Path: openh264Path,
-    systemEnv: systemEnv,
   );
 
   // Platform-specific setup
@@ -77,7 +78,15 @@ Future<void> runLocalBuild(
 
   String? androidNdkHome;
   if (targetOS == OS.android) {
-    androidNdkHome = await _setupAndroid(envVars, input, effectiveArchitecture, systemEnv);
+    androidNdkHome = await setupAndroid(
+      envVars,
+      input.packageRoot,
+      effectiveArchitecture,
+      systemEnv,
+      cCompilerPath: input.config.code.cCompiler?.compiler,
+      logger: logger,
+    );
+    _cleanAndroidTarget(input, effectiveArchitecture);
     if (androidNdkHome == null) {
       logger.shout('Android NDK not found, skipping build...');
       return;
@@ -115,219 +124,10 @@ String _getPrettyJSONString(jsonObject) {
   return encoder.convert(jsonObject);
 }
 
-String _resolveFfmpegDir(
-  BuildInput input,
-  OS targetOS,
-  Architecture effectiveArchitecture,
-  dynamic iOSSdk,
-  Map<String, String> systemEnv,
-) {
-  final envDir = _getEnv(systemEnv, 'MEDIA_RS_FFMPEG_DIR');
-  if (envDir != null) return envDir;
-
-  final subDir = _getFfmpegSubDir(targetOS, effectiveArchitecture, iOSSdk);
-  final uri = input.packageRoot.resolve('../third_party/generated/ffmpeg_install/$subDir');
-  final dir = File.fromUri(uri).path;
-
-  if (!Directory(dir).existsSync()) {
-    throw Exception("FFmpeg install not found at $dir for $targetOS/$effectiveArchitecture");
-  }
-  return dir;
-}
-
-String _getFfmpegSubDir(OS targetOS, Architecture arch, dynamic iOSSdk) {
-  switch (targetOS) {
-    case OS.macOS:
-      return '';
-    case OS.iOS:
-      if (iOSSdk?.type == 'iphonesimulator') {
-        return arch == Architecture.x64 ? 'ios/simulator_x64' : 'ios/simulator_arm64';
-      }
-      return arch == Architecture.x64 ? 'ios/simulator_x64' : 'ios/device';
-    case OS.android:
-      if (arch == Architecture.arm64 || arch == Architecture.arm) {
-        return 'android/arm64-v8a';
-      }
-      return 'android/x86_64';
-    case OS.linux:
-      return arch == Architecture.arm64 ? 'linux/arm64' : 'linux/x86_64';
-    case OS.windows:
-      return 'windows/x86_64';
-    default:
-      throw Exception('Unsupported OS: $targetOS');
-  }
-}
-
-String? _resolveLibheifDir(
-  BuildInput input,
-  OS targetOS,
-  Architecture effectiveArchitecture,
-  bool isSimulator,
-  Map<String, String> systemEnv,
-) {
-  final envDir = _getEnv(systemEnv, 'MEDIA_RS_LIBHEIF_DIR');
-  if (envDir != null && Directory(envDir).existsSync()) return envDir;
-
-  final packageRoot = input.packageRoot;
-  String? path;
-
-  switch (targetOS) {
-    case OS.macOS:
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/libheif_install/macos/universal')).path;
-      break;
-    case OS.iOS:
-      final platform = isSimulator ? 'iphonesimulator' : 'iphoneos';
-      final arch = effectiveArchitecture == Architecture.arm64 ? 'arm64' : 'x86_64';
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/libheif_install/ios/$platform/$arch')).path;
-      break;
-    case OS.android:
-      final abi = (effectiveArchitecture == Architecture.arm64 || effectiveArchitecture == Architecture.arm)
-          ? 'arm64-v8a'
-          : 'x86_64';
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/libheif_install/android/$abi')).path;
-      break;
-    case OS.linux:
-      final arch = effectiveArchitecture == Architecture.arm64 ? 'arm64' : 'x86_64';
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/libheif_install/linux/$arch')).path;
-      break;
-    case OS.windows:
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/libheif_install/windows/x86_64')).path;
-      break;
-    default:
-      return null;
-  }
-
-  return Directory(path).existsSync() ? path : null;
-}
-
-String? _resolveOpenh264Dir(
-  BuildInput input,
-  OS targetOS,
-  Architecture effectiveArchitecture,
-  Map<String, String> systemEnv,
-) {
-  final envDir = _getEnv(systemEnv, 'MEDIA_RS_OPENH264_DIR');
-  if (envDir != null && Directory(envDir).existsSync()) return envDir;
-
-  final packageRoot = input.packageRoot;
-  String? path;
-
-  switch (targetOS) {
-    case OS.macOS:
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/openh264_build_arm64')).path;
-      break;
-    case OS.android:
-      final abi = (effectiveArchitecture == Architecture.arm64 || effectiveArchitecture == Architecture.arm)
-          ? 'arm64-v8a'
-          : 'x86_64';
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/openh264_install/android/$abi')).path;
-      if (!Directory(path).existsSync()) {
-        path = File.fromUri(packageRoot.resolve('../third_party/generated/openh264_build_android_$abi')).path;
-      }
-      break;
-    case OS.linux:
-      final arch = effectiveArchitecture == Architecture.arm64 ? 'arm64' : 'x86_64';
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/openh264_install/linux/$arch')).path;
-      break;
-    case OS.windows:
-      path = File.fromUri(packageRoot.resolve('../third_party/generated/openh264_install/windows/x86_64')).path;
-      break;
-    default:
-      return null;
-  }
-
-  return Directory(path).existsSync() ? path : null;
-}
-
-Map<String, String> _buildEnvVars({
-  required String ffmpegDir,
-  required OS targetOS,
-  required Architecture effectiveArchitecture,
-  required bool isSimulator,
-  String? libheifPath,
-  String? openh264Path,
-  required Map<String, String> systemEnv,
-}) {
-  final ffmpegLibDir = '$ffmpegDir/lib';
-  final ffmpegPkgConfigDir = '$ffmpegDir/lib/pkgconfig';
-  final pathSeparator = targetOS == OS.windows ? ';' : ':';
-
-  final envVars = <String, String>{
-    'FFMPEG_DIR': ffmpegDir,
-    'FFMPEG_LIB_DIR': ffmpegLibDir,
-    'FFMPEG_INCLUDE_DIR': '$ffmpegDir/include',
-    'FFMPEG_PKG_CONFIG_PATH': ffmpegPkgConfigDir,
-    'PKG_CONFIG_PATH': ffmpegPkgConfigDir,
-    'PKG_CONFIG_LIBDIR': ffmpegPkgConfigDir,
-    'FFMPEG_STATIC': '1',
-    'PKG_CONFIG_ALLOW_CROSS': '1',
-    'RUSTFLAGS': '-L $ffmpegLibDir',
-    'IPHONEOS_DEPLOYMENT_TARGET': '16.0',
-    'DISABLE_VIDEOTOOLBOX': '1',
-  };
-
-  // iOS compiler flags
-  if (targetOS == OS.iOS) {
-    if (isSimulator) {
-      envVars['CC_aarch64-apple-ios-sim'] = 'clang -mios-simulator-version-min=16.0';
-      envVars['CFLAGS_aarch64-apple-ios-sim'] = '-mios-simulator-version-min=16.0';
-    } else {
-      envVars['CC_aarch64-apple-ios'] = 'clang -mios-version-min=16.0';
-      envVars['CFLAGS_aarch64-apple-ios'] = '-mios-version-min=16.0';
-    }
-  }
-
-  // Android target override
-  if (targetOS == OS.android && effectiveArchitecture == Architecture.arm) {
-    envVars['CARGO_BUILD_TARGET'] = 'aarch64-linux-android';
-  }
-
-  // OpenH264
-  if (openh264Path != null) {
-    envVars['OPENH264_DIR'] = openh264Path;
-    logger.info('Using OpenH264 from: $openh264Path');
-  }
-
-  // Libheif
-  if (libheifPath != null) {
-    envVars['LIBHEIF_DIR'] = libheifPath;
-    final libheifPkgConfigDir = '$libheifPath/lib/pkgconfig';
-    if (Directory(libheifPkgConfigDir).existsSync()) {
-      final currentPkgConfigPath = envVars['PKG_CONFIG_PATH'] ?? ffmpegPkgConfigDir;
-      envVars['PKG_CONFIG_PATH'] = '$libheifPkgConfigDir$pathSeparator$currentPkgConfigPath';
-      envVars['PKG_CONFIG_LIBDIR'] =
-          '$libheifPkgConfigDir$pathSeparator${envVars['PKG_CONFIG_LIBDIR'] ?? ffmpegPkgConfigDir}';
-
-      // Android sysroot
-      if (targetOS == OS.android) {
-        final androidNdkHome = _getEnv(systemEnv, 'ANDROID_NDK_HOME');
-        if (androidNdkHome != null) {
-          final sysrootPaths = [
-            '$androidNdkHome/toolchains/llvm/prebuilt/darwin-x86_64/sysroot',
-            '$androidNdkHome/sysroot',
-            '$androidNdkHome/toolchains/llvm/prebuilt/darwin-arm64/sysroot',
-          ];
-          for (final sysrootPath in sysrootPaths) {
-            if (Directory(sysrootPath).existsSync()) {
-              envVars['PKG_CONFIG_SYSROOT_DIR'] = sysrootPath;
-              break;
-            }
-          }
-        }
-      }
-      logger.info('Added libheif to PKG_CONFIG_PATH: $libheifPkgConfigDir');
-    }
-  } else {
-    logger.warning('libheif_install not found, libheif-sys will try embedded or system libheif');
-  }
-
-  return envVars;
-}
-
 void _setupWindows(Map<String, String> envVars, BuildInput input, Map<String, String> systemEnv) {
-  final msys2Root = _getEnv(systemEnv, 'MSYS2_ROOT') ?? r'C:\msys64';
+  final msys2Root = getEnv(systemEnv, 'MSYS2_ROOT') ?? r'C:\msys64';
   final mingwBin = '$msys2Root\\mingw64\\bin';
-  final currentPath = _getEnv(systemEnv, 'PATH') ?? '';
+  final currentPath = getEnv(systemEnv, 'PATH') ?? '';
 
   envVars['PKG_CONFIG'] = 'pkg-config';
   envVars['PKG_CONFIG_ALLOW_SYSTEM_LIBS'] = '1';
@@ -336,9 +136,9 @@ void _setupWindows(Map<String, String> envVars, BuildInput input, Map<String, St
   envVars['VCPKG_ROOT'] = r'C:\nonexistent_vcpkg_path';
 
   // Find LLVM/Clang
-  final vsInstallDir = _getEnv(systemEnv, 'VSINSTALLDIR');
+  final vsInstallDir = getEnv(systemEnv, 'VSINSTALLDIR');
   final possibleClangPaths = <String>[
-    if (_getEnv(systemEnv, 'LIBCLANG_PATH') != null) _getEnv(systemEnv, 'LIBCLANG_PATH')!,
+    if (getEnv(systemEnv, 'LIBCLANG_PATH') != null) getEnv(systemEnv, 'LIBCLANG_PATH')!,
     r'C:\Program Files\LLVM\bin',
     r'C:\Program Files (x86)\LLVM\bin',
     r'C:\msys64\mingw64\bin',
@@ -368,113 +168,15 @@ void _setupWindows(Map<String, String> envVars, BuildInput input, Map<String, St
 
 Future<Map<String, String>> _getShellEnvironment(BuildInput input) async {
   final buildEnvironmentFactory = const BuildEnvironmentFactory();
-  final envVars = buildEnvironmentFactory.createBuildEnvVars(input.config.code);
+  final CodeConfig(:targetTriple, :cCompiler) = input.config.code;
+
+  final envVars = buildEnvironmentFactory.createBuildEnvVars(
+    targetOS: input.config.code.targetOS,
+    targetTriple: targetTriple,
+    cCompilerConfig: cCompiler,
+  );
   print('envVars: ${_getPrettyJSONString(envVars)}');
   return envVars;
-}
-
-Future<String?> _setupAndroid(
-  Map<String, String> envVars,
-  BuildInput input,
-  Architecture effectiveArchitecture,
-  Map<String, String> systemEnv,
-) async {
-  // Modify Cargo.toml to change crate fingerprint
-  final cargoTomlUri = input.packageRoot.resolve('../third_party/rust-ffmpeg-sys/Cargo.toml');
-  final cargoToml = File.fromUri(cargoTomlUri);
-
-  if (cargoToml.existsSync()) {
-    try {
-      String content = cargoToml.readAsStringSync();
-      if (!content.contains('links = "ffmpeg_prebuilt"')) {
-        content = content.replaceFirst('links   = "ffmpeg"', 'links   = "ffmpeg_prebuilt"');
-        cargoToml.writeAsStringSync(content);
-        logger.info('Modified Cargo.toml to use links = "ffmpeg_prebuilt"');
-      }
-    } catch (e) {
-      logger.warning('Failed to modify Cargo.toml: $e');
-    }
-  }
-
-  String? androidNdkHome;
-
-  final compiler = input.config.code.cCompiler?.compiler;
-  if (compiler != null) {
-    androidNdkHome = compiler.path.split('/toolchains').first;
-    logger.info('Extracted Android NDK from build system config: $androidNdkHome');
-  } else {
-    logger.warning('C compiler not found in build system config');
-    return null;
-  }
-
-  final targetTriple = (effectiveArchitecture == Architecture.arm64 || effectiveArchitecture == Architecture.arm)
-      ? 'aarch64-linux-android'
-      : 'x86_64-linux-android';
-
-  // Find sysroot path (similar to what cargo-ndk does)
-  final sysrootPaths = [
-    '$androidNdkHome/toolchains/llvm/prebuilt/darwin-x86_64/sysroot',
-    '$androidNdkHome/sysroot',
-    '$androidNdkHome/toolchains/llvm/prebuilt/darwin-arm64/sysroot',
-    '$androidNdkHome/toolchains/llvm/prebuilt/linux-x86_64/sysroot',
-  ];
-
-  String? sysrootPath;
-  for (final path in sysrootPaths) {
-    if (Directory(path).existsSync()) {
-      sysrootPath = path;
-      break;
-    }
-  }
-
-  if (sysrootPath != null) {
-    // Set CARGO_NDK_SYSROOT_PATH (required by ffmpeg-sys-next build script)
-    envVars['CARGO_NDK_SYSROOT_PATH'] = sysrootPath;
-    logger.info('Set CARGO_NDK_SYSROOT_PATH to: $sysrootPath');
-
-    // Find toolchain directory
-    final toolchainPaths = [
-      '$androidNdkHome/toolchains/llvm/prebuilt/darwin-x86_64',
-      '$androidNdkHome/toolchains/llvm/prebuilt/darwin-arm64',
-      '$androidNdkHome/toolchains/llvm/prebuilt/linux-x86_64',
-    ];
-
-    String? toolchainPath;
-    for (final path in toolchainPaths) {
-      if (Directory(path).existsSync()) {
-        toolchainPath = path;
-        break;
-      }
-    }
-
-    if (toolchainPath != null) {
-      // Determine API level (default to 21 for compatibility)
-      final apiLevel = _getEnv(systemEnv, 'ANDROID_API_LEVEL') ?? '21';
-
-      // Set CC and CFLAGS for the target (required by ffmpeg-sys-next build script)
-      final ccPath = '$toolchainPath/bin/$targetTriple$apiLevel-clang';
-      if (File(ccPath).existsSync()) {
-        envVars['CC_$targetTriple'] = ccPath;
-
-        // Set CFLAGS for the target (build script adds -fPIC separately)
-        final cflags = '--sysroot=$sysrootPath';
-        envVars['CFLAGS_$targetTriple'] = cflags;
-
-        logger.info('Set CC_$targetTriple to: $ccPath');
-        logger.info('Set CFLAGS_$targetTriple to: $cflags');
-      } else {
-        logger.warning('Android CC path not found: $ccPath');
-      }
-    } else {
-      logger.warning('Android NDK toolchain not found');
-    }
-  } else {
-    logger.warning('Android NDK sysroot not found. ffmpeg-sys-next build may fail.');
-  }
-
-  // Clean target directory to force rebuild
-  _cleanAndroidTarget(input, effectiveArchitecture);
-  return androidNdkHome;
 }
 
 void _cleanAndroidTarget(BuildInput input, Architecture effectiveArchitecture) {

@@ -7,6 +7,16 @@ edition = "2021"
 name = "media"
 crate-type = ["cdylib", "rlib", "staticlib"]
 
+[profile.release]
+# Optimize for size
+opt-level = "s"     # "z" optimizes for size, "s" is more aggressive but slower
+lto = "fat"         # Full LTO for maximum size reduction
+codegen-units = 1   # Better optimization at cost of compile time
+strip = true        # Strip symbols (requires Rust 1.59+)
+panic = "abort"     # Reduces binary size by removing unwinding code
+debug = false       # No debug info
+incremental = false # Disable incremental compilation for release (saves space)
+
 [dependencies]
 flutter_rust_bridge = "=2.11.1"
 ffmpeg-next = { version = "8.0.0", default-features = false, features = [

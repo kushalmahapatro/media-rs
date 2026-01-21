@@ -4,10 +4,10 @@
 
 import 'dart:io';
 import 'package:path/path.dart' as path;
-import 'src/platforms/platform.dart';
-import 'src/builders/ffmpeg_builder.dart';
-import 'src/builders/openh264_builder.dart';
-import 'src/builders/libheif_builder.dart';
+import 'setup/platforms/platform.dart';
+import 'setup/builders/ffmpeg_builder.dart';
+import 'setup/builders/openh264_builder.dart';
+import 'setup/builders/libheif_builder.dart';
 
 void main(List<String> args) async {
   final projectRoot = path.absolute(path.current);

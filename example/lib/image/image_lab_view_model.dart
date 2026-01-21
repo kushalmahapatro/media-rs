@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:media/media.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -46,10 +47,7 @@ class ImageLabViewModel extends ChangeNotifier {
     const ThumbnailSizeType.medium(),
     const ThumbnailSizeType.large(),
     const ThumbnailSizeType.larger(),
-    const ThumbnailSizeType.custom((
-      0,
-      0,
-    )), // Placeholder for "Custom" option logic in UI
+    const ThumbnailSizeType.custom((0, 0)), // Placeholder for "Custom" option logic in UI
   ];
 
   List<OutputFormat> get availableFormats => OutputFormat.values;
@@ -82,17 +80,24 @@ class ImageLabViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> pickFile() async {
+  Future<void> pickImageFile() async {
+    String? path;
     try {
-      final result = await FilePicker.platform.pickFiles(
-        allowMultiple: false,
-        initialDirectory: _pickedFileDirectory?.path,
-        // type: FileType.image,
-      );
+      if (Platform.isIOS || Platform.isAndroid) {
+        final result = await ImagePicker().pickImage(source: ImageSource.gallery);
+        path = result?.path;
+      } else {
+        final result = await FilePicker.platform.pickFiles(
+          allowMultiple: false,
+          initialDirectory: _pickedFileDirectory?.path,
+          allowedExtensions: ['HEIC', 'HEIF', 'PNG', 'JPG', 'JPEG', 'GIF', 'BMP', 'TIFF', 'WEBP'],
+        );
+        path = result?.files.single.path;
+      }
 
-      if (result != null && result.files.single.path != null) {
-        _pickedFileDirectory = Directory(result.files.single.path!).parent;
-        _selectedPath = result.files.single.path;
+      if (path != null) {
+        _pickedFileDirectory = Directory(path).parent;
+        _selectedPath = path;
         // Reset all states
         _thumbnailPath = null;
         _thumbnailError = null;
@@ -116,10 +121,7 @@ class ImageLabViewModel extends ChangeNotifier {
     try {
       ThumbnailSizeType sizeToUse = _thumbnailSizeType;
       if (_thumbnailSizeType is ThumbnailSizeType_Custom) {
-        if (_customWidth == null ||
-            _customHeight == null ||
-            _customWidth! <= 0 ||
-            _customHeight! <= 0) {
+        if (_customWidth == null || _customHeight == null || _customWidth! <= 0 || _customHeight! <= 0) {
           _thumbnailError = "Please enter valid custom dimensions";
           _isThumbnailLoading = false;
           notifyListeners();
@@ -131,10 +133,7 @@ class ImageLabViewModel extends ChangeNotifier {
       final path = await generateImageThumbnail(
         path: _selectedPath!,
         outputPath: _thumbnailOutputPath!,
-        params: ImageThumbnailParams(
-          sizeType: sizeToUse,
-          format: _outputFormat,
-        ),
+        params: ImageThumbnailParams(sizeType: sizeToUse, format: _outputFormat),
         suffix: DateTime.now().millisecondsSinceEpoch.toString(),
       );
       _thumbnailPath = path;

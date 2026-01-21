@@ -1,0 +1,13 @@
+name: media_workspace
+description: A media processing library.
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+workspace:
+  - media
+  - example
+
+dependencies:
+  freezed_annotation: ^2.4.4
+  path: ^1.9.1

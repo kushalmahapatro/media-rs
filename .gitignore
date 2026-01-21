@@ -6,3 +6,10 @@ example/.dart_tool/
 example/build/
 media/.dart_tool/
 media/build/
+.dart_tool/
+media/.flutter-plugins-dependencies
+native/temp
+native/target/*
+
+# All generated third-party artifacts (sources, builds, installs)
+third_party/generated/**

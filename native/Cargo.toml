@@ -9,13 +9,44 @@ crate-type = ["cdylib", "rlib", "staticlib"]
 
 [dependencies]
 flutter_rust_bridge = "=2.11.1"
-ffmpeg-next = "8"
+ffmpeg-next = { version = "8.0.0", default-features = false, features = [
+    "codec",
+    "format",
+    "software-scaling",
+    "software-resampling",
+    "static",
+] }
 anyhow = "1"
 thiserror = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-image = { version = "0.25", default-features = false, features = ["png"] }
-libc = "0.2.178"
+image = { version = "0.25" }
+libheif-rs = { version = "2.5", features = ["image"] }
+logger = { path = "packages/logger" }
+tracing = { workspace = true }
+
 
 [build-dependencies]
-cbindgen = "0.29.0"
+cc = "1.0"
+
+[patch.crates-io]
+ffmpeg-sys-next = { path = "../third_party/rust-ffmpeg-sys" }
+ffmpeg-next = { path = "../third_party/rust-ffmpeg" }
+# Patch libheif-sys to use our version that supports LIBHEIF_DIR on Windows
+libheif-sys = { path = "../third_party/rust-libheif-sys" }
+
+[workspace.dependencies]
+async-compat = { git = "https://github.com/element-hq/async-compat", rev = "5a27c8b290f1f1dcfc0c4ec22c464e38528aa591" }
+tracing = { git = "https://github.com/element-hq/tracing.git", rev = "ca9431f74d37c9d3b5e6a9f35b2c706711dab7dd" }
+tracing-core = { git = "https://github.com/element-hq/tracing.git", rev = "ca9431f74d37c9d3b5e6a9f35b2c706711dab7dd" }
+tracing-subscriber = { git = "https://github.com/element-hq/tracing.git", rev = "ca9431f74d37c9d3b5e6a9f35b2c706711dab7dd", features = [
+    "env-filter",
+    "fmt",
+] }
+tracing-appender = { git = "https://github.com/element-hq/tracing.git", rev = "ca9431f74d37c9d3b5e6a9f35b2c706711dab7dd" }
+const_panic = { git = "https://github.com/jplatte/const_panic", rev = "9024a4cb3eac45c1d2d980f17aaee287b17be498" }
+paranoid-android = { git = "https://github.com/element-hq/paranoid-android.git", rev = "69388ac5b4afeed7be4401c70ce17f6d9a2cf19b" }
+tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros"] }
+log-panics = "2.1.0"
+once_cell = "1.19"
+anyhow = "1.0"

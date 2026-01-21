@@ -5,8 +5,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 THIRD_PARTY_DIR="$PROJECT_ROOT/third_party"
-SOURCE_DIR="$THIRD_PARTY_DIR/sources"
-IOS_INSTALL_DIR="$THIRD_PARTY_DIR/ffmpeg_install/ios"
+GENERATED_DIR="$THIRD_PARTY_DIR/generated"
+SOURCE_DIR="$GENERATED_DIR/sources"
+IOS_INSTALL_DIR="$GENERATED_DIR/ffmpeg_install/ios"
 
 mkdir -p "$IOS_INSTALL_DIR"
 mkdir -p "$SOURCE_DIR"
@@ -57,7 +58,7 @@ build_ios() {
         MIN_VERSION="-mios-simulator-version-min=16.0"
     fi
 
-    BUILD_DIR="$THIRD_PARTY_DIR/ffmpeg_build_ios_${PLATFORM}_${ARCH}"
+    BUILD_DIR="$GENERATED_DIR/ffmpeg_build_ios_${PLATFORM}_${ARCH}"
     mkdir -p "$BUILD_DIR"
     
     cd "$SOURCE_DIR/ffmpeg-8.0.1"

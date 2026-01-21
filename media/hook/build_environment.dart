@@ -11,12 +11,33 @@ interface class BuildEnvironmentFactory {
   const BuildEnvironmentFactory();
 
   Map<String, String> createBuildEnvVars(CodeConfig codeConfig) {
+    // Ensure Rust paths are in PATH
+    final homeDir = Platform.environment['HOME'] ?? '';
+    final cargoBin = path.join(homeDir, '.cargo', 'bin');
+    final homebrewBin = Platform.isMacOS ? '/opt/homebrew/bin' : null;
+    
+    String? pathValue = Platform.environment['PATH'];
+    if (pathValue == null) {
+      pathValue = '';
+    }
+    
+    // Filter out Xcode developer paths and ensure Rust paths are included
+    final pathParts = pathValue.split(':').where((e) => !e.contains('Contents/Developer/')).toList();
+    
+    // Add Rust paths if not already present
+    if (homebrewBin != null && !pathParts.contains(homebrewBin)) {
+      pathParts.insert(0, homebrewBin);
+    }
+    if (!pathParts.contains(cargoBin)) {
+      pathParts.insert(0, cargoBin);
+    }
+    
     return {
       // NOTE: XCode makes some injections into PATH that break host build
       // for crates with a build.rs
       // See also: https://github.com/irondash/native_toolchain_rust/issues/17
       if (Platform.isMacOS) ...{
-        'PATH': Platform.environment['PATH']!.split(':').where((e) => !e.contains('Contents/Developer/')).join(':'),
+        'PATH': pathParts.join(':'),
       },
 
       if (codeConfig.targetOS == OS.android)

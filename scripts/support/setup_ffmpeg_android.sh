@@ -12,8 +12,9 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 THIRD_PARTY_DIR="$PROJECT_ROOT/third_party"
-SOURCE_DIR="$THIRD_PARTY_DIR/sources"
-ANDROID_INSTALL_DIR="$THIRD_PARTY_DIR/ffmpeg_install/android"
+GENERATED_DIR="$THIRD_PARTY_DIR/generated"
+SOURCE_DIR="$GENERATED_DIR/sources"
+ANDROID_INSTALL_DIR="$GENERATED_DIR/ffmpeg_install/android"
 
 mkdir -p "$ANDROID_INSTALL_DIR"
 mkdir -p "$SOURCE_DIR"
@@ -84,7 +85,7 @@ build_android() {
     
     echo "Building FFmpeg for Android $ABI (API $API_LEVEL)..."
     
-    BUILD_DIR="$THIRD_PARTY_DIR/ffmpeg_build_android_$ABI"
+    BUILD_DIR="$GENERATED_DIR/ffmpeg_build_android_$ABI"
     mkdir -p "$BUILD_DIR"
     
     cd "$SOURCE_DIR/ffmpeg-8.0.1"
@@ -136,7 +137,7 @@ build_android() {
     esac
 
     # Check if OpenH264 is available for this ABI
-    OPENH264_DIR="$THIRD_PARTY_DIR/openh264_install/android/$ABI"
+    OPENH264_DIR="$GENERATED_DIR/openh264_install/android/$ABI"
     # Convert to absolute path to ensure pkg-config can find it
     OPENH264_DIR="$(cd "$OPENH264_DIR" 2>/dev/null && pwd || echo "$OPENH264_DIR")"
     OPENH264_ENABLED=""
@@ -396,7 +397,7 @@ echo "Location: $ANDROID_INSTALL_DIR"
 echo ""
 echo "License: LGPL (GPL features disabled)"
 echo "Compliance: --disable-gpl --disable-nonfree"
-if [ "$1" != "--skip-openh264" ] && [ -d "$THIRD_PARTY_DIR/openh264_install/android" ]; then
+if [ "$1" != "--skip-openh264" ] && [ -d "$GENERATED_DIR/openh264_install/android" ]; then
     echo "H.264 Encoding: OpenH264 (software, patent coverage from Cisco)"
 else
     echo "H.264 Encoding: Built-in encoder (OpenH264 not built - recommended to build OpenH264)"

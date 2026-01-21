@@ -11,3 +11,4 @@ workspace:
 dependencies:
   freezed_annotation: ^2.4.4
   path: ^1.9.1
+  http: ^1.2.0

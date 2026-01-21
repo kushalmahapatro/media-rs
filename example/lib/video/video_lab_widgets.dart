@@ -381,10 +381,6 @@ class ThumbnailSeekerWidget extends StatelessWidget {
             },
           ),
         ],
-        Visibility(
-          visible: viewModel.isThumbnailLoading,
-          child: const Center(child: CircularProgressIndicator()),
-        ),
 
         const SizedBox(height: 10),
         Container(
@@ -393,9 +389,14 @@ class ThumbnailSeekerWidget extends StatelessWidget {
             onTap: () => viewModel.thumbnailPath != null ? showInExplorer(viewModel.thumbnailPath!) : null,
             child: SizedBox(
               height: 200,
-              child: viewModel.thumbnailPath != null
-                  ? Image.file(File(viewModel.thumbnailPath!), height: 200, fit: BoxFit.contain)
-                  : const SizedBox.shrink(),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (viewModel.thumbnailPath != null)
+                    Image.file(File(viewModel.thumbnailPath!), height: 200, fit: BoxFit.contain),
+                  if (viewModel.isThumbnailLoading) const Center(child: CircularProgressIndicator()),
+                ],
+              ),
             ),
           ),
         ),

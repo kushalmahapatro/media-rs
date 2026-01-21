@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1229250637;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1535488819;
 
 // Section: executor
 
@@ -45,25 +45,194 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
-fn wire__crate__api__media__generate_thumbnail_impl(
+fn wire__crate__api__media__compress_video_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     path: impl CstDecode<String>,
-    params: impl CstDecode<crate::api::media::ThumbnailParams>,
+    output_path: impl CstDecode<String>,
+    params: impl CstDecode<crate::api::media::CompressParams>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "generate_thumbnail",
+            debug_name: "compress_video",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
             let api_path = path.cst_decode();
+            let api_output_path = output_path.cst_decode();
             let api_params = params.cst_decode();
             move |context| {
                 transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api::media::generate_thumbnail(api_path, api_params)?;
+                        let output_ok = crate::api::media::compress_video(
+                            api_path,
+                            api_output_path,
+                            api_params,
+                        )?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__logger__debug_threads_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "debug_threads",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::logger::debug_threads()?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__media__estimate_compression_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+    temp_output_path: impl CstDecode<String>,
+    params: impl CstDecode<crate::api::media::CompressParams>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "estimate_compression",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            let api_temp_output_path = temp_output_path.cst_decode();
+            let api_params = params.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::media::estimate_compression(
+                            api_path,
+                            api_temp_output_path,
+                            api_params,
+                        )?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__media__generate_image_thumbnail_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+    output_path: impl CstDecode<String>,
+    params: impl CstDecode<Option<crate::api::media::ImageThumbnailParams>>,
+    suffix: impl CstDecode<Option<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "generate_image_thumbnail",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            let api_output_path = output_path.cst_decode();
+            let api_params = params.cst_decode();
+            let api_suffix = suffix.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::media::generate_image_thumbnail(
+                            api_path,
+                            api_output_path,
+                            api_params,
+                            api_suffix,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__media__generate_video_thumbnail_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+    output_path: impl CstDecode<String>,
+    params: impl CstDecode<crate::api::media::VideoThumbnailParams>,
+    empty_image_fallback: impl CstDecode<Option<bool>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "generate_video_thumbnail",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            let api_output_path = output_path.cst_decode();
+            let api_params = params.cst_decode();
+            let api_empty_image_fallback = empty_image_fallback.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::media::generate_video_thumbnail(
+                            api_path,
+                            api_output_path,
+                            api_params,
+                            api_empty_image_fallback,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__media__generate_video_timeline_thumbnails_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+    output_path: impl CstDecode<String>,
+    params: impl CstDecode<Option<crate::api::media::ImageThumbnailParams>>,
+    num_thumbnails: impl CstDecode<u32>,
+    empty_image_fallback: impl CstDecode<Option<bool>>,
+    sink: impl CstDecode<StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "generate_video_timeline_thumbnails",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            let api_output_path = output_path.cst_decode();
+            let api_params = params.cst_decode();
+            let api_num_thumbnails = num_thumbnails.cst_decode();
+            let api_empty_image_fallback = empty_image_fallback.cst_decode();
+            let api_sink = sink.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::media::generate_video_timeline_thumbnails(
+                            api_path,
+                            api_output_path,
+                            api_params,
+                            api_num_thumbnails,
+                            api_empty_image_fallback,
+                            api_sink,
+                        )?;
                         Ok(output_ok)
                     })(),
                 )
@@ -94,9 +263,194 @@ fn wire__crate__api__media__get_video_info_impl(
         },
     )
 }
+fn wire__crate__api__logger__init_logger_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    log_level: impl CstDecode<crate::api::logger::LogLevel>,
+    write_to_stdout_or_system: impl CstDecode<bool>,
+    write_to_files: impl CstDecode<Option<crate::api::logger::WriteToFiles>>,
+    use_lightweight_tokio_runtime: impl CstDecode<bool>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "init_logger",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_log_level = log_level.cst_decode();
+            let api_write_to_stdout_or_system = write_to_stdout_or_system.cst_decode();
+            let api_write_to_files = write_to_files.cst_decode();
+            let api_use_lightweight_tokio_runtime = use_lightweight_tokio_runtime.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::logger::init_logger(
+                            api_log_level,
+                            api_write_to_stdout_or_system,
+                            api_write_to_files,
+                            api_use_lightweight_tokio_runtime,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__logger__log_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    file: impl CstDecode<String>,
+    line: impl CstDecode<Option<u32>>,
+    level: impl CstDecode<crate::api::logger::LogLevel>,
+    target: impl CstDecode<String>,
+    message: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "log",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_file = file.cst_decode();
+            let api_line = line.cst_decode();
+            let api_level = level.cst_decode();
+            let api_target = target.cst_decode();
+            let api_message = message.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok({
+                            crate::api::logger::log(
+                                api_file,
+                                api_line,
+                                api_level,
+                                api_target,
+                                api_message,
+                            )
+                            .await;
+                        })?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__media__output_format_extension_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::api::media::OutputFormat>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "output_format_extension",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok({
+                        crate::api::media::OutputFormat::extension(&api_that);
+                    })?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__logger__reload_tracing_file_writer_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    write_to_files: impl CstDecode<crate::api::logger::WriteToFiles>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "reload_tracing_file_writer",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_write_to_files = write_to_files.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok =
+                            crate::api::logger::reload_tracing_file_writer(api_write_to_files)
+                                .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__media__thumbnail_size_type_dimensions_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<crate::api::media::ThumbnailSizeType>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "thumbnail_size_type_dimensions",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::api::media::ThumbnailSizeType::dimensions(&api_that),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 
 // Section: dart2rust
 
+impl CstDecode<bool> for bool {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> bool {
+        self
+    }
+}
+impl CstDecode<i32> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> i32 {
+        self
+    }
+}
+impl CstDecode<crate::api::logger::LogLevel> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::api::logger::LogLevel {
+        match self {
+            0 => crate::api::logger::LogLevel::Error,
+            1 => crate::api::logger::LogLevel::Warn,
+            2 => crate::api::logger::LogLevel::Info,
+            3 => crate::api::logger::LogLevel::Debug,
+            4 => crate::api::logger::LogLevel::Trace,
+            _ => unreachable!("Invalid variant for LogLevel: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::api::media::OutputFormat> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::api::media::OutputFormat {
+        match self {
+            0 => crate::api::media::OutputFormat::WEBP,
+            1 => crate::api::media::OutputFormat::JPEG,
+            2 => crate::api::media::OutputFormat::PNG,
+            _ => unreachable!("Invalid variant for OutputFormat: {}", self),
+        }
+    }
+}
 impl CstDecode<u32> for u32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> u32 {
@@ -123,11 +477,78 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseDecode for StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <String>::sse_decode(deserializer);
+        return StreamSink::deserialize(inner);
+    }
+}
+
 impl SseDecode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <Vec<u8>>::sse_decode(deserializer);
         return String::from_utf8(inner).unwrap();
+    }
+}
+
+impl SseDecode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u8().unwrap() != 0
+    }
+}
+
+impl SseDecode for crate::api::media::CompressParams {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_targetBitrateKbps = <u32>::sse_decode(deserializer);
+        let mut var_preset = <Option<String>>::sse_decode(deserializer);
+        let mut var_crf = <Option<u8>>::sse_decode(deserializer);
+        let mut var_width = <Option<u32>>::sse_decode(deserializer);
+        let mut var_height = <Option<u32>>::sse_decode(deserializer);
+        let mut var_sampleDurationMs = <Option<u64>>::sse_decode(deserializer);
+        return crate::api::media::CompressParams {
+            target_bitrate_kbps: var_targetBitrateKbps,
+            preset: var_preset,
+            crf: var_crf,
+            width: var_width,
+            height: var_height,
+            sample_duration_ms: var_sampleDurationMs,
+        };
+    }
+}
+
+impl SseDecode for crate::api::media::CompressionEstimate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_estimatedSizeBytes = <u64>::sse_decode(deserializer);
+        let mut var_estimatedDurationMs = <u64>::sse_decode(deserializer);
+        return crate::api::media::CompressionEstimate {
+            estimated_size_bytes: var_estimatedSizeBytes,
+            estimated_duration_ms: var_estimatedDurationMs,
+        };
+    }
+}
+
+impl SseDecode for i32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_i32::<NativeEndian>().unwrap()
+    }
+}
+
+impl SseDecode for crate::api::media::ImageThumbnailParams {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_sizeType =
+            <Option<crate::api::media::ThumbnailSizeType>>::sse_decode(deserializer);
+        let mut var_format = <Option<crate::api::media::OutputFormat>>::sse_decode(deserializer);
+        return crate::api::media::ImageThumbnailParams {
+            size_type: var_sizeType,
+            format: var_format,
+        };
     }
 }
 
@@ -143,11 +564,99 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for Vec<crate::api::media::ResolutionPreset> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::media::ResolutionPreset>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for crate::api::logger::LogLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::logger::LogLevel::Error,
+            1 => crate::api::logger::LogLevel::Warn,
+            2 => crate::api::logger::LogLevel::Info,
+            3 => crate::api::logger::LogLevel::Debug,
+            4 => crate::api::logger::LogLevel::Trace,
+            _ => unreachable!("Invalid variant for LogLevel: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<bool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<bool>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::media::ImageThumbnailParams> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::media::ImageThumbnailParams>::sse_decode(
+                deserializer,
+            ));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::media::OutputFormat> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::media::OutputFormat>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::media::ThumbnailSizeType> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::media::ThumbnailSizeType>::sse_decode(
+                deserializer,
+            ));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<u32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u32>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -165,17 +674,96 @@ impl SseDecode for Option<u64> {
     }
 }
 
-impl SseDecode for crate::api::media::ThumbnailParams {
+impl SseDecode for Option<u8> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_timeMs = <u64>::sse_decode(deserializer);
-        let mut var_maxWidth = <u32>::sse_decode(deserializer);
-        let mut var_maxHeight = <u32>::sse_decode(deserializer);
-        return crate::api::media::ThumbnailParams {
-            time_ms: var_timeMs,
-            max_width: var_maxWidth,
-            max_height: var_maxHeight,
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u8>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::logger::WriteToFiles> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::logger::WriteToFiles>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for crate::api::media::OutputFormat {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::media::OutputFormat::WEBP,
+            1 => crate::api::media::OutputFormat::JPEG,
+            2 => crate::api::media::OutputFormat::PNG,
+            _ => unreachable!("Invalid variant for OutputFormat: {}", inner),
         };
+    }
+}
+
+impl SseDecode for (u32, u32) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_field0 = <u32>::sse_decode(deserializer);
+        let mut var_field1 = <u32>::sse_decode(deserializer);
+        return (var_field0, var_field1);
+    }
+}
+
+impl SseDecode for crate::api::media::ResolutionPreset {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_width = <u32>::sse_decode(deserializer);
+        let mut var_height = <u32>::sse_decode(deserializer);
+        let mut var_bitrate = <u64>::sse_decode(deserializer);
+        let mut var_crf = <u8>::sse_decode(deserializer);
+        return crate::api::media::ResolutionPreset {
+            name: var_name,
+            width: var_width,
+            height: var_height,
+            bitrate: var_bitrate,
+            crf: var_crf,
+        };
+    }
+}
+
+impl SseDecode for crate::api::media::ThumbnailSizeType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut tag_ = <i32>::sse_decode(deserializer);
+        match tag_ {
+            0 => {
+                return crate::api::media::ThumbnailSizeType::Icon;
+            }
+            1 => {
+                return crate::api::media::ThumbnailSizeType::Small;
+            }
+            2 => {
+                return crate::api::media::ThumbnailSizeType::Medium;
+            }
+            3 => {
+                return crate::api::media::ThumbnailSizeType::Large;
+            }
+            4 => {
+                return crate::api::media::ThumbnailSizeType::Larger;
+            }
+            5 => {
+                let mut var_field0 = <(u32, u32)>::sse_decode(deserializer);
+                return crate::api::media::ThumbnailSizeType::Custom(var_field0);
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
     }
 }
 
@@ -200,6 +788,11 @@ impl SseDecode for u8 {
     }
 }
 
+impl SseDecode for () {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {}
+}
+
 impl SseDecode for crate::api::media::VideoInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -210,6 +803,8 @@ impl SseDecode for crate::api::media::VideoInfo {
         let mut var_bitrate = <Option<u64>>::sse_decode(deserializer);
         let mut var_codecName = <Option<String>>::sse_decode(deserializer);
         let mut var_formatName = <Option<String>>::sse_decode(deserializer);
+        let mut var_suggestions =
+            <Vec<crate::api::media::ResolutionPreset>>::sse_decode(deserializer);
         return crate::api::media::VideoInfo {
             duration_ms: var_durationMs,
             width: var_width,
@@ -218,21 +813,39 @@ impl SseDecode for crate::api::media::VideoInfo {
             bitrate: var_bitrate,
             codec_name: var_codecName,
             format_name: var_formatName,
+            suggestions: var_suggestions,
         };
     }
 }
 
-impl SseDecode for i32 {
+impl SseDecode for crate::api::media::VideoThumbnailParams {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_i32::<NativeEndian>().unwrap()
+        let mut var_timeMs = <u64>::sse_decode(deserializer);
+        let mut var_sizeType =
+            <Option<crate::api::media::ThumbnailSizeType>>::sse_decode(deserializer);
+        let mut var_format = <Option<crate::api::media::OutputFormat>>::sse_decode(deserializer);
+        return crate::api::media::VideoThumbnailParams {
+            time_ms: var_timeMs,
+            size_type: var_sizeType,
+            format: var_format,
+        };
     }
 }
 
-impl SseDecode for bool {
+impl SseDecode for crate::api::logger::WriteToFiles {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_u8().unwrap() != 0
+        let mut var_path = <String>::sse_decode(deserializer);
+        let mut var_filePrefix = <String>::sse_decode(deserializer);
+        let mut var_fileSuffix = <Option<String>>::sse_decode(deserializer);
+        let mut var_maxFiles = <Option<u64>>::sse_decode(deserializer);
+        return crate::api::logger::WriteToFiles {
+            path: var_path,
+            file_prefix: var_filePrefix,
+            file_suffix: var_fileSuffix,
+            max_files: var_maxFiles,
+        };
     }
 }
 
@@ -264,24 +877,168 @@ fn pde_ffi_dispatcher_sync_impl(
 // Section: rust2dart
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::media::ThumbnailParams {
+impl flutter_rust_bridge::IntoDart for crate::api::media::CompressParams {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
-            self.time_ms.into_into_dart().into_dart(),
-            self.max_width.into_into_dart().into_dart(),
-            self.max_height.into_into_dart().into_dart(),
+            self.target_bitrate_kbps.into_into_dart().into_dart(),
+            self.preset.into_into_dart().into_dart(),
+            self.crf.into_into_dart().into_dart(),
+            self.width.into_into_dart().into_dart(),
+            self.height.into_into_dart().into_dart(),
+            self.sample_duration_ms.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::media::ThumbnailParams
+    for crate::api::media::CompressParams
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::media::ThumbnailParams>
-    for crate::api::media::ThumbnailParams
+impl flutter_rust_bridge::IntoIntoDart<crate::api::media::CompressParams>
+    for crate::api::media::CompressParams
 {
-    fn into_into_dart(self) -> crate::api::media::ThumbnailParams {
+    fn into_into_dart(self) -> crate::api::media::CompressParams {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::media::CompressionEstimate {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.estimated_size_bytes.into_into_dart().into_dart(),
+            self.estimated_duration_ms.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::media::CompressionEstimate
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::media::CompressionEstimate>
+    for crate::api::media::CompressionEstimate
+{
+    fn into_into_dart(self) -> crate::api::media::CompressionEstimate {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::media::ImageThumbnailParams {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.size_type.into_into_dart().into_dart(),
+            self.format.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::media::ImageThumbnailParams
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::media::ImageThumbnailParams>
+    for crate::api::media::ImageThumbnailParams
+{
+    fn into_into_dart(self) -> crate::api::media::ImageThumbnailParams {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::logger::LogLevel> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self.0 {
+            crate::api::logger::LogLevel::Error => 0.into_dart(),
+            crate::api::logger::LogLevel::Warn => 1.into_dart(),
+            crate::api::logger::LogLevel::Info => 2.into_dart(),
+            crate::api::logger::LogLevel::Debug => 3.into_dart(),
+            crate::api::logger::LogLevel::Trace => 4.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::logger::LogLevel>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::logger::LogLevel>>
+    for crate::api::logger::LogLevel
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::logger::LogLevel> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::media::OutputFormat {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::WEBP => 0.into_dart(),
+            Self::JPEG => 1.into_dart(),
+            Self::PNG => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::media::OutputFormat
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::media::OutputFormat>
+    for crate::api::media::OutputFormat
+{
+    fn into_into_dart(self) -> crate::api::media::OutputFormat {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::media::ResolutionPreset {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.width.into_into_dart().into_dart(),
+            self.height.into_into_dart().into_dart(),
+            self.bitrate.into_into_dart().into_dart(),
+            self.crf.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::media::ResolutionPreset
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::media::ResolutionPreset>
+    for crate::api::media::ResolutionPreset
+{
+    fn into_into_dart(self) -> crate::api::media::ResolutionPreset {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::media::ThumbnailSizeType {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            crate::api::media::ThumbnailSizeType::Icon => [0.into_dart()].into_dart(),
+            crate::api::media::ThumbnailSizeType::Small => [1.into_dart()].into_dart(),
+            crate::api::media::ThumbnailSizeType::Medium => [2.into_dart()].into_dart(),
+            crate::api::media::ThumbnailSizeType::Large => [3.into_dart()].into_dart(),
+            crate::api::media::ThumbnailSizeType::Larger => [4.into_dart()].into_dart(),
+            crate::api::media::ThumbnailSizeType::Custom(field0) => {
+                [5.into_dart(), field0.into_into_dart().into_dart()].into_dart()
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::media::ThumbnailSizeType
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::media::ThumbnailSizeType>
+    for crate::api::media::ThumbnailSizeType
+{
+    fn into_into_dart(self) -> crate::api::media::ThumbnailSizeType {
         self
     }
 }
@@ -296,6 +1053,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::media::VideoInfo {
             self.bitrate.into_into_dart().into_dart(),
             self.codec_name.into_into_dart().into_dart(),
             self.format_name.into_into_dart().into_dart(),
+            self.suggestions.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -308,6 +1066,51 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::media::VideoInfo>
         self
     }
 }
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::media::VideoThumbnailParams {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.time_ms.into_into_dart().into_dart(),
+            self.size_type.into_into_dart().into_dart(),
+            self.format.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::media::VideoThumbnailParams
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::media::VideoThumbnailParams>
+    for crate::api::media::VideoThumbnailParams
+{
+    fn into_into_dart(self) -> crate::api::media::VideoThumbnailParams {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::logger::WriteToFiles {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.path.into_into_dart().into_dart(),
+            self.file_prefix.into_into_dart().into_dart(),
+            self.file_suffix.into_into_dart().into_dart(),
+            self.max_files.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::logger::WriteToFiles
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::logger::WriteToFiles>
+    for crate::api::logger::WriteToFiles
+{
+    fn into_into_dart(self) -> crate::api::logger::WriteToFiles {
+        self
+    }
+}
 
 impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -316,10 +1119,59 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseEncode for StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        unimplemented!("")
+    }
+}
+
 impl SseEncode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <Vec<u8>>::sse_encode(self.into_bytes(), serializer);
+    }
+}
+
+impl SseEncode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
+impl SseEncode for crate::api::media::CompressParams {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u32>::sse_encode(self.target_bitrate_kbps, serializer);
+        <Option<String>>::sse_encode(self.preset, serializer);
+        <Option<u8>>::sse_encode(self.crf, serializer);
+        <Option<u32>>::sse_encode(self.width, serializer);
+        <Option<u32>>::sse_encode(self.height, serializer);
+        <Option<u64>>::sse_encode(self.sample_duration_ms, serializer);
+    }
+}
+
+impl SseEncode for crate::api::media::CompressionEstimate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.estimated_size_bytes, serializer);
+        <u64>::sse_encode(self.estimated_duration_ms, serializer);
+    }
+}
+
+impl SseEncode for i32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
+    }
+}
+
+impl SseEncode for crate::api::media::ImageThumbnailParams {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<crate::api::media::ThumbnailSizeType>>::sse_encode(self.size_type, serializer);
+        <Option<crate::api::media::OutputFormat>>::sse_encode(self.format, serializer);
     }
 }
 
@@ -333,12 +1185,91 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for Vec<crate::api::media::ResolutionPreset> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::media::ResolutionPreset>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for crate::api::logger::LogLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::logger::LogLevel::Error => 0,
+                crate::api::logger::LogLevel::Warn => 1,
+                crate::api::logger::LogLevel::Info => 2,
+                crate::api::logger::LogLevel::Debug => 3,
+                crate::api::logger::LogLevel::Trace => 4,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <String>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<bool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <bool>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::media::ImageThumbnailParams> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::media::ImageThumbnailParams>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::media::OutputFormat> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::media::OutputFormat>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::media::ThumbnailSizeType> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::media::ThumbnailSizeType>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<u32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u32>::sse_encode(value, serializer);
         }
     }
 }
@@ -353,12 +1284,89 @@ impl SseEncode for Option<u64> {
     }
 }
 
-impl SseEncode for crate::api::media::ThumbnailParams {
+impl SseEncode for Option<u8> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <u64>::sse_encode(self.time_ms, serializer);
-        <u32>::sse_encode(self.max_width, serializer);
-        <u32>::sse_encode(self.max_height, serializer);
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u8>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::logger::WriteToFiles> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::logger::WriteToFiles>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for crate::api::media::OutputFormat {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::media::OutputFormat::WEBP => 0,
+                crate::api::media::OutputFormat::JPEG => 1,
+                crate::api::media::OutputFormat::PNG => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for (u32, u32) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u32>::sse_encode(self.0, serializer);
+        <u32>::sse_encode(self.1, serializer);
+    }
+}
+
+impl SseEncode for crate::api::media::ResolutionPreset {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <u32>::sse_encode(self.width, serializer);
+        <u32>::sse_encode(self.height, serializer);
+        <u64>::sse_encode(self.bitrate, serializer);
+        <u8>::sse_encode(self.crf, serializer);
+    }
+}
+
+impl SseEncode for crate::api::media::ThumbnailSizeType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        match self {
+            crate::api::media::ThumbnailSizeType::Icon => {
+                <i32>::sse_encode(0, serializer);
+            }
+            crate::api::media::ThumbnailSizeType::Small => {
+                <i32>::sse_encode(1, serializer);
+            }
+            crate::api::media::ThumbnailSizeType::Medium => {
+                <i32>::sse_encode(2, serializer);
+            }
+            crate::api::media::ThumbnailSizeType::Large => {
+                <i32>::sse_encode(3, serializer);
+            }
+            crate::api::media::ThumbnailSizeType::Larger => {
+                <i32>::sse_encode(4, serializer);
+            }
+            crate::api::media::ThumbnailSizeType::Custom(field0) => {
+                <i32>::sse_encode(5, serializer);
+                <(u32, u32)>::sse_encode(field0, serializer);
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
     }
 }
 
@@ -383,6 +1391,11 @@ impl SseEncode for u8 {
     }
 }
 
+impl SseEncode for () {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {}
+}
+
 impl SseEncode for crate::api::media::VideoInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -393,20 +1406,26 @@ impl SseEncode for crate::api::media::VideoInfo {
         <Option<u64>>::sse_encode(self.bitrate, serializer);
         <Option<String>>::sse_encode(self.codec_name, serializer);
         <Option<String>>::sse_encode(self.format_name, serializer);
+        <Vec<crate::api::media::ResolutionPreset>>::sse_encode(self.suggestions, serializer);
     }
 }
 
-impl SseEncode for i32 {
+impl SseEncode for crate::api::media::VideoThumbnailParams {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
+        <u64>::sse_encode(self.time_ms, serializer);
+        <Option<crate::api::media::ThumbnailSizeType>>::sse_encode(self.size_type, serializer);
+        <Option<crate::api::media::OutputFormat>>::sse_encode(self.format, serializer);
     }
 }
 
-impl SseEncode for bool {
+impl SseEncode for crate::api::logger::WriteToFiles {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_u8(self as _).unwrap();
+        <String>::sse_encode(self.path, serializer);
+        <String>::sse_encode(self.file_prefix, serializer);
+        <Option<String>>::sse_encode(self.file_suffix, serializer);
+        <Option<u64>>::sse_encode(self.max_files, serializer);
     }
 }
 
@@ -438,6 +1457,15 @@ mod io {
             unimplemented!()
         }
     }
+    impl CstDecode<StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec>>
+        for *mut wire_cst_list_prim_u_8_strict
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec> {
+            let raw: String = self.cst_decode();
+            StreamSink::deserialize(raw)
+        }
+    }
     impl CstDecode<String> for *mut wire_cst_list_prim_u_8_strict {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> String {
@@ -445,17 +1473,108 @@ mod io {
             String::from_utf8(vec).unwrap()
         }
     }
-    impl CstDecode<crate::api::media::ThumbnailParams> for *mut wire_cst_thumbnail_params {
+    impl CstDecode<bool> for *mut bool {
         // Codec=Cst (C-struct based), see doc to use other codecs
-        fn cst_decode(self) -> crate::api::media::ThumbnailParams {
+        fn cst_decode(self) -> bool {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::api::media::CompressParams> for *mut wire_cst_compress_params {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::CompressParams {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
-            CstDecode::<crate::api::media::ThumbnailParams>::cst_decode(*wrap).into()
+            CstDecode::<crate::api::media::CompressParams>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::api::media::ImageThumbnailParams> for *mut wire_cst_image_thumbnail_params {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::ImageThumbnailParams {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::api::media::ImageThumbnailParams>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::api::media::OutputFormat> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::OutputFormat {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::api::media::OutputFormat>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<(u32, u32)> for *mut wire_cst_record_u_32_u_32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> (u32, u32) {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<(u32, u32)>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::api::media::ThumbnailSizeType> for *mut wire_cst_thumbnail_size_type {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::ThumbnailSizeType {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::api::media::ThumbnailSizeType>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<u32> for *mut u32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> u32 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
         }
     }
     impl CstDecode<u64> for *mut u64 {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> u64 {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<u8> for *mut u8 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> u8 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::api::media::VideoThumbnailParams> for *mut wire_cst_video_thumbnail_params {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::VideoThumbnailParams {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::api::media::VideoThumbnailParams>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::api::logger::WriteToFiles> for *mut wire_cst_write_to_files {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::logger::WriteToFiles {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::api::logger::WriteToFiles>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::api::media::CompressParams> for wire_cst_compress_params {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::CompressParams {
+            crate::api::media::CompressParams {
+                target_bitrate_kbps: self.target_bitrate_kbps.cst_decode(),
+                preset: self.preset.cst_decode(),
+                crf: self.crf.cst_decode(),
+                width: self.width.cst_decode(),
+                height: self.height.cst_decode(),
+                sample_duration_ms: self.sample_duration_ms.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::media::CompressionEstimate> for wire_cst_compression_estimate {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::CompressionEstimate {
+            crate::api::media::CompressionEstimate {
+                estimated_size_bytes: self.estimated_size_bytes.cst_decode(),
+                estimated_duration_ms: self.estimated_duration_ms.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::media::ImageThumbnailParams> for wire_cst_image_thumbnail_params {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::ImageThumbnailParams {
+            crate::api::media::ImageThumbnailParams {
+                size_type: self.size_type.cst_decode(),
+                format: self.format.cst_decode(),
+            }
         }
     }
     impl CstDecode<Vec<u8>> for *mut wire_cst_list_prim_u_8_strict {
@@ -467,13 +1586,48 @@ mod io {
             }
         }
     }
-    impl CstDecode<crate::api::media::ThumbnailParams> for wire_cst_thumbnail_params {
+    impl CstDecode<Vec<crate::api::media::ResolutionPreset>> for *mut wire_cst_list_resolution_preset {
         // Codec=Cst (C-struct based), see doc to use other codecs
-        fn cst_decode(self) -> crate::api::media::ThumbnailParams {
-            crate::api::media::ThumbnailParams {
-                time_ms: self.time_ms.cst_decode(),
-                max_width: self.max_width.cst_decode(),
-                max_height: self.max_height.cst_decode(),
+        fn cst_decode(self) -> Vec<crate::api::media::ResolutionPreset> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<(u32, u32)> for wire_cst_record_u_32_u_32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> (u32, u32) {
+            (self.field0.cst_decode(), self.field1.cst_decode())
+        }
+    }
+    impl CstDecode<crate::api::media::ResolutionPreset> for wire_cst_resolution_preset {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::ResolutionPreset {
+            crate::api::media::ResolutionPreset {
+                name: self.name.cst_decode(),
+                width: self.width.cst_decode(),
+                height: self.height.cst_decode(),
+                bitrate: self.bitrate.cst_decode(),
+                crf: self.crf.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::media::ThumbnailSizeType> for wire_cst_thumbnail_size_type {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::ThumbnailSizeType {
+            match self.tag {
+                0 => crate::api::media::ThumbnailSizeType::Icon,
+                1 => crate::api::media::ThumbnailSizeType::Small,
+                2 => crate::api::media::ThumbnailSizeType::Medium,
+                3 => crate::api::media::ThumbnailSizeType::Large,
+                4 => crate::api::media::ThumbnailSizeType::Larger,
+                5 => {
+                    let ans = unsafe { self.kind.Custom };
+                    crate::api::media::ThumbnailSizeType::Custom(ans.field0.cst_decode())
+                }
+                _ => unreachable!(),
             }
         }
     }
@@ -488,19 +1642,112 @@ mod io {
                 bitrate: self.bitrate.cst_decode(),
                 codec_name: self.codec_name.cst_decode(),
                 format_name: self.format_name.cst_decode(),
+                suggestions: self.suggestions.cst_decode(),
             }
         }
     }
-    impl NewWithNullPtr for wire_cst_thumbnail_params {
+    impl CstDecode<crate::api::media::VideoThumbnailParams> for wire_cst_video_thumbnail_params {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::VideoThumbnailParams {
+            crate::api::media::VideoThumbnailParams {
+                time_ms: self.time_ms.cst_decode(),
+                size_type: self.size_type.cst_decode(),
+                format: self.format.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::logger::WriteToFiles> for wire_cst_write_to_files {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::logger::WriteToFiles {
+            crate::api::logger::WriteToFiles {
+                path: self.path.cst_decode(),
+                file_prefix: self.file_prefix.cst_decode(),
+                file_suffix: self.file_suffix.cst_decode(),
+                max_files: self.max_files.cst_decode(),
+            }
+        }
+    }
+    impl NewWithNullPtr for wire_cst_compress_params {
         fn new_with_null_ptr() -> Self {
             Self {
-                time_ms: Default::default(),
-                max_width: Default::default(),
-                max_height: Default::default(),
+                target_bitrate_kbps: Default::default(),
+                preset: core::ptr::null_mut(),
+                crf: core::ptr::null_mut(),
+                width: core::ptr::null_mut(),
+                height: core::ptr::null_mut(),
+                sample_duration_ms: core::ptr::null_mut(),
             }
         }
     }
-    impl Default for wire_cst_thumbnail_params {
+    impl Default for wire_cst_compress_params {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_compression_estimate {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                estimated_size_bytes: Default::default(),
+                estimated_duration_ms: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_compression_estimate {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_image_thumbnail_params {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                size_type: core::ptr::null_mut(),
+                format: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_image_thumbnail_params {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_record_u_32_u_32 {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                field0: Default::default(),
+                field1: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_record_u_32_u_32 {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_resolution_preset {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                name: core::ptr::null_mut(),
+                width: Default::default(),
+                height: Default::default(),
+                bitrate: Default::default(),
+                crf: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_resolution_preset {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_thumbnail_size_type {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                tag: -1,
+                kind: ThumbnailSizeTypeKind { nil__: () },
+            }
+        }
+    }
+    impl Default for wire_cst_thumbnail_size_type {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -515,6 +1762,7 @@ mod io {
                 bitrate: core::ptr::null_mut(),
                 codec_name: core::ptr::null_mut(),
                 format_name: core::ptr::null_mut(),
+                suggestions: core::ptr::null_mut(),
             }
         }
     }
@@ -523,14 +1771,114 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_video_thumbnail_params {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                time_ms: Default::default(),
+                size_type: core::ptr::null_mut(),
+                format: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_video_thumbnail_params {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_write_to_files {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                path: core::ptr::null_mut(),
+                file_prefix: core::ptr::null_mut(),
+                file_suffix: core::ptr::null_mut(),
+                max_files: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_write_to_files {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_media_wire__crate__api__media__generate_thumbnail(
+    pub extern "C" fn frbgen_media_wire__crate__api__media__compress_video(
         port_: i64,
         path: *mut wire_cst_list_prim_u_8_strict,
-        params: *mut wire_cst_thumbnail_params,
+        output_path: *mut wire_cst_list_prim_u_8_strict,
+        params: *mut wire_cst_compress_params,
     ) {
-        wire__crate__api__media__generate_thumbnail_impl(port_, path, params)
+        wire__crate__api__media__compress_video_impl(port_, path, output_path, params)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__debug_threads(port_: i64) {
+        wire__crate__api__logger__debug_threads_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__media__estimate_compression(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        temp_output_path: *mut wire_cst_list_prim_u_8_strict,
+        params: *mut wire_cst_compress_params,
+    ) {
+        wire__crate__api__media__estimate_compression_impl(port_, path, temp_output_path, params)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__media__generate_image_thumbnail(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        output_path: *mut wire_cst_list_prim_u_8_strict,
+        params: *mut wire_cst_image_thumbnail_params,
+        suffix: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__media__generate_image_thumbnail_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            suffix,
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__media__generate_video_thumbnail(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        output_path: *mut wire_cst_list_prim_u_8_strict,
+        params: *mut wire_cst_video_thumbnail_params,
+        empty_image_fallback: *mut bool,
+    ) {
+        wire__crate__api__media__generate_video_thumbnail_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            empty_image_fallback,
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__media__generate_video_timeline_thumbnails(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        output_path: *mut wire_cst_list_prim_u_8_strict,
+        params: *mut wire_cst_image_thumbnail_params,
+        num_thumbnails: u32,
+        empty_image_fallback: *mut bool,
+        sink: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__media__generate_video_timeline_thumbnails_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            num_thumbnails,
+            empty_image_fallback,
+            sink,
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -542,16 +1890,129 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_media_cst_new_box_autoadd_thumbnail_params(
-    ) -> *mut wire_cst_thumbnail_params {
-        flutter_rust_bridge::for_generated::new_leak_box_ptr(
-            wire_cst_thumbnail_params::new_with_null_ptr(),
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__init_logger(
+        port_: i64,
+        log_level: i32,
+        write_to_stdout_or_system: bool,
+        write_to_files: *mut wire_cst_write_to_files,
+        use_lightweight_tokio_runtime: bool,
+    ) {
+        wire__crate__api__logger__init_logger_impl(
+            port_,
+            log_level,
+            write_to_stdout_or_system,
+            write_to_files,
+            use_lightweight_tokio_runtime,
         )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__log(
+        port_: i64,
+        file: *mut wire_cst_list_prim_u_8_strict,
+        line: *mut u32,
+        level: i32,
+        target: *mut wire_cst_list_prim_u_8_strict,
+        message: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__logger__log_impl(port_, file, line, level, target, message)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__media__output_format_extension(
+        port_: i64,
+        that: i32,
+    ) {
+        wire__crate__api__media__output_format_extension_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__reload_tracing_file_writer(
+        port_: i64,
+        write_to_files: *mut wire_cst_write_to_files,
+    ) {
+        wire__crate__api__logger__reload_tracing_file_writer_impl(port_, write_to_files)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__media__thumbnail_size_type_dimensions(
+        port_: i64,
+        that: *mut wire_cst_thumbnail_size_type,
+    ) {
+        wire__crate__api__media__thumbnail_size_type_dimensions_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_bool(value: bool) -> *mut bool {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_compress_params(
+    ) -> *mut wire_cst_compress_params {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_compress_params::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_image_thumbnail_params(
+    ) -> *mut wire_cst_image_thumbnail_params {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_image_thumbnail_params::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_output_format(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_record_u_32_u_32(
+    ) -> *mut wire_cst_record_u_32_u_32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_record_u_32_u_32::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_thumbnail_size_type(
+    ) -> *mut wire_cst_thumbnail_size_type {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_thumbnail_size_type::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_u_32(value: u32) -> *mut u32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
 
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_media_cst_new_box_autoadd_u_64(value: u64) -> *mut u64 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_u_8(value: u8) -> *mut u8 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_video_thumbnail_params(
+    ) -> *mut wire_cst_video_thumbnail_params {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_video_thumbnail_params::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_box_autoadd_write_to_files(
+    ) -> *mut wire_cst_write_to_files {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_write_to_files::new_with_null_ptr(),
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -565,6 +2026,42 @@ mod io {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(ans)
     }
 
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_cst_new_list_resolution_preset(
+        len: i32,
+    ) -> *mut wire_cst_list_resolution_preset {
+        let wrap = wire_cst_list_resolution_preset {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_resolution_preset>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_compress_params {
+        target_bitrate_kbps: u32,
+        preset: *mut wire_cst_list_prim_u_8_strict,
+        crf: *mut u8,
+        width: *mut u32,
+        height: *mut u32,
+        sample_duration_ms: *mut u64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_compression_estimate {
+        estimated_size_bytes: u64,
+        estimated_duration_ms: u64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_image_thumbnail_params {
+        size_type: *mut wire_cst_thumbnail_size_type,
+        format: *mut i32,
+    }
     #[repr(C)]
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_prim_u_8_strict {
@@ -573,10 +2070,41 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
-    pub struct wire_cst_thumbnail_params {
-        time_ms: u64,
-        max_width: u32,
-        max_height: u32,
+    pub struct wire_cst_list_resolution_preset {
+        ptr: *mut wire_cst_resolution_preset,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_record_u_32_u_32 {
+        field0: u32,
+        field1: u32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_resolution_preset {
+        name: *mut wire_cst_list_prim_u_8_strict,
+        width: u32,
+        height: u32,
+        bitrate: u64,
+        crf: u8,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_thumbnail_size_type {
+        tag: i32,
+        kind: ThumbnailSizeTypeKind,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub union ThumbnailSizeTypeKind {
+        Custom: wire_cst_ThumbnailSizeType_Custom,
+        nil__: (),
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_ThumbnailSizeType_Custom {
+        field0: *mut wire_cst_record_u_32_u_32,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -588,6 +2116,22 @@ mod io {
         bitrate: *mut u64,
         codec_name: *mut wire_cst_list_prim_u_8_strict,
         format_name: *mut wire_cst_list_prim_u_8_strict,
+        suggestions: *mut wire_cst_list_resolution_preset,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_video_thumbnail_params {
+        time_ms: u64,
+        size_type: *mut wire_cst_thumbnail_size_type,
+        format: *mut i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_write_to_files {
+        path: *mut wire_cst_list_prim_u_8_strict,
+        file_prefix: *mut wire_cst_list_prim_u_8_strict,
+        file_suffix: *mut wire_cst_list_prim_u_8_strict,
+        max_files: *mut u64,
     }
 }
 #[cfg(not(target_family = "wasm"))]
@@ -622,10 +2166,80 @@ mod web {
             unimplemented!()
         }
     }
+    impl CstDecode<StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec>> for String {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec> {
+            StreamSink::deserialize(self)
+        }
+    }
     impl CstDecode<String> for String {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> String {
             self
+        }
+    }
+    impl CstDecode<crate::api::media::CompressParams>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::CompressParams {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::api::media::CompressParams {
+                target_bitrate_kbps: self_.get(0).cst_decode(),
+                preset: self_.get(1).cst_decode(),
+                crf: self_.get(2).cst_decode(),
+                width: self_.get(3).cst_decode(),
+                height: self_.get(4).cst_decode(),
+                sample_duration_ms: self_.get(5).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::media::CompressionEstimate>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::CompressionEstimate {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::api::media::CompressionEstimate {
+                estimated_size_bytes: self_.get(0).cst_decode(),
+                estimated_duration_ms: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::media::ImageThumbnailParams>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::ImageThumbnailParams {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::api::media::ImageThumbnailParams {
+                size_type: self_.get(0).cst_decode(),
+                format: self_.get(1).cst_decode(),
+            }
         }
     }
     impl CstDecode<Vec<u8>> for Box<[u8]> {
@@ -634,30 +2248,76 @@ mod web {
             self.into_vec()
         }
     }
+    impl CstDecode<Vec<crate::api::media::ResolutionPreset>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::api::media::ResolutionPreset> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Option<String>> for Option<String> {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Option<String> {
             self.map(CstDecode::cst_decode)
         }
     }
-    impl CstDecode<crate::api::media::ThumbnailParams>
-        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
-    {
+    impl CstDecode<(u32, u32)> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
-        fn cst_decode(self) -> crate::api::media::ThumbnailParams {
+        fn cst_decode(self) -> (u32, u32) {
             let self_ = self
                 .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                3,
-                "Expected 3 elements, got {}",
+                2,
+                "Expected 2 elements, got {}",
                 self_.length()
             );
-            crate::api::media::ThumbnailParams {
-                time_ms: self_.get(0).cst_decode(),
-                max_width: self_.get(1).cst_decode(),
-                max_height: self_.get(2).cst_decode(),
+            (self_.get(0).cst_decode(), self_.get(1).cst_decode())
+        }
+    }
+    impl CstDecode<crate::api::media::ResolutionPreset>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::ResolutionPreset {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                5,
+                "Expected 5 elements, got {}",
+                self_.length()
+            );
+            crate::api::media::ResolutionPreset {
+                name: self_.get(0).cst_decode(),
+                width: self_.get(1).cst_decode(),
+                height: self_.get(2).cst_decode(),
+                bitrate: self_.get(3).cst_decode(),
+                crf: self_.get(4).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::media::ThumbnailSizeType>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::ThumbnailSizeType {
+            let self_ = self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Array>();
+            match self_.get(0).unchecked_into_f64() as _ {
+                0 => crate::api::media::ThumbnailSizeType::Icon,
+                1 => crate::api::media::ThumbnailSizeType::Small,
+                2 => crate::api::media::ThumbnailSizeType::Medium,
+                3 => crate::api::media::ThumbnailSizeType::Large,
+                4 => crate::api::media::ThumbnailSizeType::Larger,
+                5 => crate::api::media::ThumbnailSizeType::Custom(self_.get(1).cst_decode()),
+                _ => unreachable!(),
             }
         }
     }
@@ -671,8 +2331,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                7,
-                "Expected 7 elements, got {}",
+                8,
+                "Expected 8 elements, got {}",
                 self_.length()
             );
             crate::api::media::VideoInfo {
@@ -683,6 +2343,50 @@ mod web {
                 bitrate: self_.get(4).cst_decode(),
                 codec_name: self_.get(5).cst_decode(),
                 format_name: self_.get(6).cst_decode(),
+                suggestions: self_.get(7).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::media::VideoThumbnailParams>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::VideoThumbnailParams {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::api::media::VideoThumbnailParams {
+                time_ms: self_.get(0).cst_decode(),
+                size_type: self_.get(1).cst_decode(),
+                format: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::logger::WriteToFiles>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::logger::WriteToFiles {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::api::logger::WriteToFiles {
+                path: self_.get(0).cst_decode(),
+                file_prefix: self_.get(1).cst_decode(),
+                file_suffix: self_.get(2).cst_decode(),
+                max_files: self_.get(3).cst_decode(),
             }
         }
     }
@@ -694,10 +2398,30 @@ mod web {
             unimplemented!()
         }
     }
+    impl CstDecode<StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec> {
+            StreamSink::deserialize(self.as_string().expect("should be a string"))
+        }
+    }
     impl CstDecode<String> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> String {
             self.as_string().expect("non-UTF-8 string, or not a string")
+        }
+    }
+    impl CstDecode<bool> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> bool {
+            self.is_truthy()
+        }
+    }
+    impl CstDecode<i32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> i32 {
+            self.unchecked_into_f64() as _
         }
     }
     impl CstDecode<Vec<u8>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
@@ -706,6 +2430,22 @@ mod web {
             self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint8Array>()
                 .to_vec()
                 .into()
+        }
+    }
+    impl CstDecode<crate::api::logger::LogLevel>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::logger::LogLevel {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::api::media::OutputFormat>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::media::OutputFormat {
+            (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
     impl CstDecode<u32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
@@ -728,12 +2468,85 @@ mod web {
     }
 
     #[wasm_bindgen]
-    pub fn wire__crate__api__media__generate_thumbnail(
+    pub fn wire__crate__api__media__compress_video(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         path: String,
+        output_path: String,
         params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
-        wire__crate__api__media__generate_thumbnail_impl(port_, path, params)
+        wire__crate__api__media__compress_video_impl(port_, path, output_path, params)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__logger__debug_threads(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+    ) {
+        wire__crate__api__logger__debug_threads_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__media__estimate_compression(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+        temp_output_path: String,
+        params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__media__estimate_compression_impl(port_, path, temp_output_path, params)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__media__generate_image_thumbnail(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+        output_path: String,
+        params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        suffix: Option<String>,
+    ) {
+        wire__crate__api__media__generate_image_thumbnail_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            suffix,
+        )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__media__generate_video_thumbnail(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+        output_path: String,
+        params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        empty_image_fallback: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__media__generate_video_thumbnail_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            empty_image_fallback,
+        )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__media__generate_video_timeline_thumbnails(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+        output_path: String,
+        params: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        num_thumbnails: u32,
+        empty_image_fallback: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        sink: String,
+    ) {
+        wire__crate__api__media__generate_video_timeline_thumbnails_impl(
+            port_,
+            path,
+            output_path,
+            params,
+            num_thumbnails,
+            empty_image_fallback,
+            sink,
+        )
     }
 
     #[wasm_bindgen]
@@ -742,6 +2555,59 @@ mod web {
         path: String,
     ) {
         wire__crate__api__media__get_video_info_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__logger__init_logger(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        log_level: i32,
+        write_to_stdout_or_system: bool,
+        write_to_files: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        use_lightweight_tokio_runtime: bool,
+    ) {
+        wire__crate__api__logger__init_logger_impl(
+            port_,
+            log_level,
+            write_to_stdout_or_system,
+            write_to_files,
+            use_lightweight_tokio_runtime,
+        )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__logger__log(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        file: String,
+        line: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        level: i32,
+        target: String,
+        message: String,
+    ) {
+        wire__crate__api__logger__log_impl(port_, file, line, level, target, message)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__media__output_format_extension(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: i32,
+    ) {
+        wire__crate__api__media__output_format_extension_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__logger__reload_tracing_file_writer(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        write_to_files: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__logger__reload_tracing_file_writer_impl(port_, write_to_files)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__media__thumbnail_size_type_dimensions(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        that: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__media__thumbnail_size_type_dimensions_impl(port_, that)
     }
 }
 #[cfg(target_family = "wasm")]

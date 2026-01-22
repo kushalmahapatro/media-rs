@@ -10,15 +10,13 @@ import 'build/build_upload.dart';
 import 'build/utils/build_environment.dart';
 import 'build/utils/env_vars.dart';
 import 'build/utils/required_directories.dart';
+import 'build/windows/setup_windows.dart';
 
 final List<Architecture> androidArchitectures = [Architecture.arm64, Architecture.arm, Architecture.x64];
 final List<Architecture> iosArchitectures = [Architecture.arm64, Architecture.x64, Architecture.arm];
 final List<Architecture> macosArchitectures = [Architecture.arm64, Architecture.x64];
 final List<Architecture> linuxArchitectures = [Architecture.x64];
 final List<Architecture> windowsArchitectures = [Architecture.x64];
-// final List<String> iosArchitectures = ['aarch64-apple-ios', 'aarch64-apple-ios-sim', 'x86_64-apple-ios'];
-// final List<String> macosArchitectures = ['aarch64-apple-darwin', 'x86_64-apple-darwin'];
-// final List<String> linuxArchitectures = ['x86_64-unknown-linux-gnu' /* 'aarch64-unknown-linux-gnu' */];
 // final List<String> windowsArchitectures = ['x86_64-pc-windows-msvc' /* 'aarch64-pc-windows-msvc' */];
 Logger logger = Logger('upload_library');
 
@@ -112,6 +110,8 @@ Targets: $target
         compiler: Uri.parse('$ndkHomePath/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang'),
         linker: Uri.parse('$ndkHomePath/toolchains/llvm/prebuilt/darwin-x86_64/bin/ld.lld'),
       );
+    } else if (os == OS.windows) {
+      setupWindows(envVars, systemEnv, logger);
     }
 
     final buildEnvironmentFactory = BuildEnvironmentFactory();

@@ -43,7 +43,10 @@ class CMakeBuildSystem implements BuildSystem {
     print('  Build: $buildDir');
     print('  Args: ${args.join(' ')}');
 
-    final result = await runProcessStreaming('cmake', args, workingDirectory: buildDir, environment: env);
+    // Find cmake executable on Windows (in MSYS2)
+    final cmakeExe = Platform.isWindows ? await PlatformDetector.findCmake() : 'cmake';
+
+    final result = await runProcessStreaming(cmakeExe, args, workingDirectory: buildDir, environment: env);
 
     if (result.exitCode != 0) {
       print('CMake configure failed:');
@@ -57,7 +60,8 @@ class CMakeBuildSystem implements BuildSystem {
   Future<void> build({required String buildDir, required int cores}) async {
     print('Building with CMake (using $cores cores)...');
 
-    final result = await runProcessStreaming('cmake', [
+    final cmakeExe = Platform.isWindows ? await PlatformDetector.findCmake() : 'cmake';
+    final result = await runProcessStreaming(cmakeExe, [
       '--build',
       '.',
       '--parallel',
@@ -76,7 +80,8 @@ class CMakeBuildSystem implements BuildSystem {
   Future<void> install({required String buildDir, required String installDir}) async {
     await FileOps.ensureDirectory(installDir);
 
-    final result = await runProcessStreaming('cmake', [
+    final cmakeExe = Platform.isWindows ? await PlatformDetector.findCmake() : 'cmake';
+    final result = await runProcessStreaming(cmakeExe, [
       '--install',
       '.',
       '--prefix',
@@ -94,6 +99,8 @@ class CMakeBuildSystem implements BuildSystem {
 
 class AutotoolsBuildSystem implements BuildSystem {
   final List<String> configureArgs;
+  Map<String, String>? _environment;
+  String? _makeExe;
 
   AutotoolsBuildSystem({List<String>? configureArgs}) : configureArgs = configureArgs ?? [];
 
@@ -120,6 +127,19 @@ class AutotoolsBuildSystem implements BuildSystem {
     final args = <String>[...configureArgs, if (extraArgs != null) ...extraArgs];
 
     final env = <String, String>{...Platform.environment, if (environment != null) ...environment};
+    _environment = env;
+
+    // Find make executable on Windows
+    if (Platform.isWindows) {
+      try {
+        _makeExe = await PlatformDetector.findMake();
+      } catch (e) {
+        // If findMake fails, try to use 'make' and let it fail with a better error
+        _makeExe = 'make';
+      }
+    } else {
+      _makeExe = 'make';
+    }
 
     print('Configuring with autotools...');
     print('  Source: $sourceDir');
@@ -140,10 +160,21 @@ class AutotoolsBuildSystem implements BuildSystem {
       }
     }
 
-    // For Linux, we need to ensure environment variables are properly passed to FFmpeg's configure script
-    // The configure script is a bash script that calls pkg-config, so the environment must be available
-    // We pass the environment directly to Process.start, which should work correctly
-    final result = await runProcessStreaming(configureScript, args, workingDirectory: buildDir, environment: env);
+    // On Windows, configure scripts must be run through sh/bash from MSYS2
+    final ProcessResult result;
+    if (Platform.isWindows) {
+      final shExe = await PlatformDetector.findSh();
+      // Use ./configure (relative path) since we're running from buildDir
+      // This matches how the bash script does it: ./configure
+      result = await runProcessStreaming(
+        shExe,
+        ['./configure', ...args],
+        workingDirectory: buildDir,
+        environment: env,
+      );
+    } else {
+      result = await runProcessStreaming(configureScript, args, workingDirectory: buildDir, environment: env);
+    }
 
     if (result.exitCode != 0) {
       print('Configure failed:');
@@ -157,7 +188,13 @@ class AutotoolsBuildSystem implements BuildSystem {
   Future<void> build({required String buildDir, required int cores}) async {
     print('Building with make (using $cores cores)...');
 
-    final result = await runProcessStreaming('make', ['-j', cores.toString()], workingDirectory: buildDir);
+    final makeCmd = _makeExe ?? 'make';
+    final result = await runProcessStreaming(
+      makeCmd,
+      ['-j', cores.toString()],
+      workingDirectory: buildDir,
+      environment: _environment,
+    );
 
     if (result.exitCode != 0) {
       print('Make build failed:');
@@ -171,7 +208,13 @@ class AutotoolsBuildSystem implements BuildSystem {
   Future<void> install({required String buildDir, required String installDir}) async {
     await FileOps.ensureDirectory(installDir);
 
-    final result = await runProcessStreaming('make', ['install'], workingDirectory: buildDir);
+    final makeCmd = _makeExe ?? 'make';
+    final result = await runProcessStreaming(
+      makeCmd,
+      ['install'],
+      workingDirectory: buildDir,
+      environment: _environment,
+    );
 
     if (result.exitCode != 0) {
       print('Make install failed:');

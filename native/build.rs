@@ -15,6 +15,46 @@ fn main() {
     }
 
     let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
+    
+    // Helper function to attempt converting .a files to .lib format on Windows MSVC
+    #[cfg(target_os = "windows")]
+    fn try_convert_a_to_lib(a_path: &std::path::Path, lib_path: &std::path::Path) -> bool {
+        use std::process::Command;
+        
+        // Try to find lib.exe from MSVC
+        // Common locations for lib.exe
+        let possible_lib_paths = [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.*\\bin\\Hostx64\\x64\\lib.exe",
+            "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.*\\bin\\Hostx64\\x64\\lib.exe",
+        ];
+        
+        // Try to find lib.exe via vswhere or common paths
+        let lib_exe = if let Ok(vs_path) = std::env::var("VCINSTALLDIR") {
+            format!("{}\\Tools\\MSVC\\*\\bin\\Hostx64\\x64\\lib.exe", vs_path)
+        } else {
+            // Try to find via where command
+            if let Ok(output) = Command::new("where").arg("lib.exe").output() {
+                if let Ok(path_str) = String::from_utf8(output.stdout) {
+                    let path = path_str.lines().next().unwrap_or("").trim();
+                    if !path.is_empty() && std::path::Path::new(path).exists() {
+                        path.to_string()
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        };
+        
+        // Extract object files from .a archive using ar (from MinGW)
+        // Then use lib.exe to create .lib file
+        // This is complex and may not work for C++ libraries due to ABI differences
+        // For now, return false to indicate conversion is not straightforward
+        false
+    }
 
     // Link libheif statically if built from source
     // Note: When LIBHEIF_DIR is set, we're using our pre-built libheif
@@ -55,14 +95,45 @@ fn main() {
                 println!("cargo:rustc-link-lib=static=heif");
                 println!("cargo:rustc-link-lib=static=libheif");
             } else {
-                // .lib files not found, try to convert or use .a with /FORCE:MULTIPLE
-                println!("cargo:warning=MSVC .lib files not found. Run: scripts/support/convert_to_msvc_lib.bat");
-                println!("cargo:rustc-link-arg=/FORCE:MULTIPLE");
-                // Link dependencies first
-                println!("cargo:rustc-link-lib=static=de265");
-                println!("cargo:rustc-link-lib=static=libde265");
-                println!("cargo:rustc-link-lib=static=heif");
-                println!("cargo:rustc-link-lib=static=libheif");
+                // .lib files not found - MSVC linker cannot use MinGW .a files directly for C++ libraries
+                // The COMDAT error (LNK1143) occurs because MinGW and MSVC use different C++ ABIs
+                eprintln!("\n================================================");
+                eprintln!("ERROR: MSVC .lib files not found for libheif/libde265");
+                eprintln!("================================================");
+                eprintln!();
+                eprintln!("MSVC linker cannot use MinGW .a files for C++ libraries due to COMDAT incompatibility.");
+                eprintln!("The build will fail with: LNK1143: invalid or corrupt file: no symbol for COMDAT section");
+                eprintln!();
+                eprintln!("SOLUTION: You need .lib files (MSVC format), not .a files (MinGW format).");
+                eprintln!();
+                eprintln!("Option 1: Rebuild libheif/libde265 with MSVC toolchain");
+                eprintln!("  - Modify tool/setup/builders/libheif_builder.dart to use MSVC");
+                eprintln!("  - Configure CMake with: -G \"Visual Studio 17 2022\" -A x64");
+                eprintln!();
+                eprintln!("Option 2: Convert existing .a files to .lib format");
+                eprintln!("  - Use lib.exe from MSVC to extract objects from .a files");
+                eprintln!("  - Then use lib.exe to create .lib files from the objects");
+                eprintln!("  - Note: This may not work perfectly due to ABI differences");
+                eprintln!();
+                eprintln!("Option 3: Use a conversion script");
+                eprintln!("  - Create scripts/support/convert_to_msvc_lib.bat");
+                eprintln!("  - Or use a tool like llvm-dlltool (for DLLs) or lib.exe (for static libs)");
+                eprintln!();
+                eprintln!("Current library directory: {}", lib_dir);
+                eprintln!("Expected files: de265.lib, libde265.lib, heif.lib, libheif.lib");
+                eprintln!("Found files: .a files (MinGW format, incompatible with MSVC)");
+                eprintln!();
+                eprintln!("================================================");
+                eprintln!();
+                
+                // Print cargo error messages (these show up in cargo output)
+                println!("cargo:error=MSVC .lib files not found for libheif/libde265");
+                println!("cargo:error=MSVC linker cannot use MinGW .a files for C++ libraries");
+                println!("cargo:error=Please rebuild libheif/libde265 with MSVC or convert .a files to .lib format");
+                
+                // Don't try to link .a files - it will definitely fail
+                // Instead, fail the build early with a clear error
+                std::process::exit(1);
             }
         } else {
             // Use .a files (MinGW/Unix format)

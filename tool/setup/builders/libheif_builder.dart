@@ -510,7 +510,427 @@ Requires:
   }
 
   Future<void> _buildWindows(PlatformInfo platform) async {
-    throw UnimplementedError('Windows build not yet fully implemented in Dart');
+    final abiDir = 'x86_64';
+
+    print('Building libheif for Windows $abiDir...');
+
+    final buildDir = path.join(generatedDir, 'libheif_build_windows_$abiDir');
+    final installDir = getInstallDir(platform, subdir: abiDir);
+    final de265Install = path.join(buildDir, 'libde265_install');
+
+    await FileOps.ensureDirectory(buildDir);
+    await FileOps.ensureDirectory(installDir);
+
+    // Find MinGW compilers (match bash script - uses x86_64-w64-mingw32-gcc)
+    final compilerInfo = await PlatformDetector.findMinGWCompiler();
+    // Use x86_64-w64-mingw32-gcc/g++ like the bash script does
+    final cc = compilerInfo.cc;
+    final cxx = compilerInfo.cc.replaceAll('gcc', 'g++');
+
+    // Set up environment with MSYS2 paths
+    final msys2Root = PlatformDetector.getMsys2Root();
+    final usrBin = path.join(msys2Root, 'usr', 'bin'); // Contains make, cmake
+    final mingwBin = path.join(msys2Root, 'mingw64', 'bin'); // Contains gcc, etc.
+    final env = Map<String, String>.from(Platform.environment);
+    // Add MSYS2 paths to PATH
+    env['PATH'] = '$usrBin;$mingwBin;${env['PATH'] ?? ''}';
+
+    // Find cmake executable
+    final cmakeExe = await PlatformDetector.findCmake();
+
+    // Build libde265 first
+    final de265Dir = getSourceDir('libde265');
+    final de265BuildDir = path.join(de265Dir, 'build_windows');
+
+    await FileOps.ensureDirectory(de265BuildDir);
+    await FileOps.removeIfExists(de265BuildDir);
+    await FileOps.ensureDirectory(de265BuildDir);
+
+    final de265CmakeArgs = <String>[
+      '-DCMAKE_BUILD_TYPE=Release',
+      '-DCMAKE_INSTALL_PREFIX=$de265Install',
+      '-DCMAKE_SYSTEM_NAME=Windows',
+      '-DCMAKE_C_COMPILER=$cc',
+      '-DCMAKE_CXX_COMPILER=$cxx',
+      '-DCMAKE_POSITION_INDEPENDENT_CODE=ON',
+      '-DCMAKE_POLICY_VERSION_MINIMUM=3.5',
+      '-DBUILD_SHARED_LIBS=OFF',
+      '-DENABLE_SDL=OFF',
+      '-DENABLE_DEC265=OFF',
+      '-DENABLE_ENCODER=OFF',
+    ];
+
+    final de265BuildSystem = CMakeBuildSystem(cmakeArgs: de265CmakeArgs);
+    await de265BuildSystem.configure(
+      sourceDir: de265Dir,
+      buildDir: de265BuildDir,
+      platform: PlatformInfo(platform: BuildPlatform.windows, architecture: Architecture.x86_64),
+      environment: env,
+    );
+
+    // Build de265 target
+    final de265BuildResult = await runProcessStreaming(
+      cmakeExe,
+      ['--build', '.', '--target', 'de265', '--parallel', PlatformDetector.getCpuCores().toString()],
+      workingDirectory: de265BuildDir,
+      environment: env,
+    );
+
+    if (de265BuildResult.exitCode != 0) {
+      throw Exception('libde265 build failed: ${de265BuildResult.stderr}');
+    }
+
+    // Manual install of libde265
+    await FileOps.ensureDirectory(path.join(de265Install, 'lib'));
+    await FileOps.ensureDirectory(path.join(de265Install, 'include', 'libde265'));
+    await FileOps.ensureDirectory(path.join(de265Install, 'lib', 'pkgconfig'));
+
+    // Find and copy library
+    final de265Lib = await _findFile(de265BuildDir, 'libde265.a');
+    if (de265Lib == null) {
+      throw Exception('libde265.a not found after build');
+    }
+    await File(de265Lib).copy(path.join(de265Install, 'lib', 'libde265.a'));
+
+    // Copy headers from source directory (match bash script: cp -r ../libde265/libde265/*.h)
+    // From build_windows, ../libde265/libde265/ means source_dir/libde265/libde265/
+    // Since de265Dir is already source_dir/libde265, headers are in libde265/ subdirectory
+    final de265HeaderDir = Directory(path.join(de265Dir, 'libde265'));
+    if (await de265HeaderDir.exists()) {
+      // Copy all .h files from libde265/libde265/ (match bash script: cp -r ../libde265/libde265/*.h)
+      await FileOps.copyRecursive(
+        de265HeaderDir.path,
+        path.join(de265Install, 'include', 'libde265'),
+      );
+    }
+    
+    // Also check build directory for generated headers (match bash script)
+    final buildHeaderDir = Directory(path.join(de265BuildDir, 'libde265'));
+    if (await buildHeaderDir.exists()) {
+      // Copy any .h files from build directory
+      try {
+        await for (final entity in buildHeaderDir.list()) {
+          if (entity is File && entity.path.endsWith('.h')) {
+            await entity.copy(path.join(de265Install, 'include', 'libde265', path.basename(entity.path)));
+          }
+        }
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+
+    // Check for de265-version.h in build directory
+    final versionHeader = await _findFile(de265BuildDir, 'de265-version.h');
+    if (versionHeader != null) {
+      await File(versionHeader).copy(path.join(de265Install, 'include', 'libde265', 'de265-version.h'));
+    }
+
+    // Verify at least one header was copied
+    if (!await FileOps.exists(path.join(de265Install, 'include', 'libde265', 'de265.h'))) {
+      // Try cmake install as fallback
+      try {
+        await runProcessStreaming(cmakeExe, ['--install', '.', '--component', 'de265'], workingDirectory: de265BuildDir, environment: env);
+      } catch (e) {
+        // Ignore
+      }
+      if (!await FileOps.exists(path.join(de265Install, 'include', 'libde265', 'de265.h'))) {
+        throw Exception('Failed to install libde265 headers');
+      }
+    }
+
+    // Build libheif
+    final heifDir = getSourceDir(sourceName);
+    final heifBuildDir = path.join(heifDir, 'build_windows');
+
+    await FileOps.ensureDirectory(heifBuildDir);
+    await FileOps.removeIfExists(heifBuildDir);
+    await FileOps.ensureDirectory(heifBuildDir);
+
+    final heifCmakeArgs = <String>[
+      '-DCMAKE_BUILD_TYPE=Release',
+      '-DCMAKE_INSTALL_PREFIX=$buildDir',
+      '-DCMAKE_SYSTEM_NAME=Windows',
+      '-DCMAKE_C_COMPILER=$cc',
+      '-DCMAKE_CXX_COMPILER=$cxx',
+      '-DCMAKE_POSITION_INDEPENDENT_CODE=ON',
+      '-DBUILD_SHARED_LIBS=OFF',
+      '-DENABLE_PLUGIN_LOADING=OFF',
+      '-DWITH_AOM=OFF',
+      '-DWITH_DAV1D=OFF',
+      '-DWITH_RAV1E=OFF',
+      '-DWITH_X265=OFF',
+      '-DWITH_LIBDE265=ON',
+      '-DLIBDE265_INCLUDE_DIR=${path.join(de265Install, 'include')}',
+      '-DLIBDE265_LIBRARY=${path.join(de265Install, 'lib', 'libde265.a')}',
+      '-DWITH_EXAMPLES=OFF',
+      '-DWITH_TESTS=OFF',
+      '-DWITH_UNCOMPRESSED_CODEC=OFF',
+      '-DCMAKE_DISABLE_FIND_PACKAGE_AOM=ON',
+      '-DCMAKE_DISABLE_FIND_PACKAGE_libsharpyuv=ON',
+      '-DCMAKE_C_FLAGS=-fPIC',
+      '-DCMAKE_CXX_FLAGS=-fPIC',
+    ];
+
+    final heifBuildSystem = CMakeBuildSystem(cmakeArgs: heifCmakeArgs);
+    await heifBuildSystem.configure(
+      sourceDir: heifDir,
+      buildDir: heifBuildDir,
+      platform: PlatformInfo(platform: BuildPlatform.windows, architecture: Architecture.x86_64),
+      environment: env,
+    );
+
+    // Build heif target (reuse cmakeExe from above)
+    final heifBuildResult = await runProcessStreaming(
+      cmakeExe,
+      ['--build', '.', '--target', 'heif', '--parallel', PlatformDetector.getCpuCores().toString()],
+      workingDirectory: heifBuildDir,
+      environment: env,
+    );
+
+    if (heifBuildResult.exitCode != 0) {
+      throw Exception('libheif build failed: ${heifBuildResult.stderr}');
+    }
+
+    // Try cmake install first
+    try {
+      await runProcessStreaming(cmakeExe, ['--install', '.', '--component', 'libheif'], workingDirectory: heifBuildDir, environment: env);
+      print('✓ Installed via cmake component');
+    } catch (e) {
+      print('⚠ cmake --install failed, trying manual install');
+    }
+
+    // Find libheif.a
+    String? heifLib;
+    if (await FileOps.exists(path.join(buildDir, 'lib', 'libheif.a'))) {
+      heifLib = path.join(buildDir, 'lib', 'libheif.a');
+    } else {
+      heifLib = await _findFile(heifBuildDir, 'libheif.a');
+      if (heifLib == null) {
+        // Search for any heif library
+        final found = await _findFile(heifBuildDir, '*heif*.a');
+        if (found != null && !found.contains('libde265')) {
+          heifLib = found;
+        }
+      }
+    }
+
+    if (heifLib == null) {
+      throw Exception('libheif.a not found after build');
+    }
+
+    print('Found libheif.a at: $heifLib');
+
+    // Install layout + pkg-config
+    await FileOps.ensureDirectory(path.join(installDir, 'lib'));
+    await FileOps.ensureDirectory(path.join(installDir, 'include'));
+    await FileOps.ensureDirectory(path.join(installDir, 'lib', 'pkgconfig'));
+
+    await File(heifLib).copy(path.join(installDir, 'lib', 'libheif.a'));
+    if (await FileOps.exists(path.join(de265Install, 'lib', 'libde265.a'))) {
+      await File(path.join(de265Install, 'lib', 'libde265.a')).copy(path.join(installDir, 'lib', 'libde265.a'));
+    }
+
+    // Copy headers
+    if (await Directory(path.join(buildDir, 'include', 'libheif')).exists()) {
+      await FileOps.copyRecursive(path.join(buildDir, 'include', 'libheif'), path.join(installDir, 'include', 'libheif'));
+    } else if (await Directory(path.join(heifDir, 'libheif', 'api', 'libheif')).exists()) {
+      await FileOps.copyRecursive(
+        path.join(heifDir, 'libheif', 'api', 'libheif'),
+        path.join(installDir, 'include', 'libheif'),
+      );
+    }
+
+    // Verify libheif.a was copied
+    if (!await FileOps.exists(path.join(installDir, 'lib', 'libheif.a'))) {
+      throw Exception('Failed to copy libheif.a to ${path.join(installDir, 'lib')}');
+    }
+    print('✓ Copied libheif.a to ${path.join(installDir, 'lib')}');
+
+    // Create pkg-config file (Windows paths need special handling)
+    final installDirUnix = PlatformDetector.windowsToMsys2Path(installDir);
+    final pcContent = '''
+prefix=$installDirUnix
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: libheif
+Description: HEIF image codec library
+Version: $version
+Libs: -L\${libdir} -lheif -lde265
+Cflags: -I\${includedir}
+Requires:
+''';
+    await FileOps.writeTextFile(path.join(installDir, 'lib', 'pkgconfig', 'libheif.pc'), pcContent);
+
+    print('libheif installed: $installDir');
+  }
+
+  /// Build libheif/libde265 with MSVC to generate .lib files (Windows only)
+  /// This is needed because MinGW-built .a files have COMDAT incompatibility with MSVC linker
+  Future<void> buildMSVC(PlatformInfo platform) async {
+    if (platform.platform != BuildPlatform.windows) {
+      throw Exception('buildMSVC is only supported on Windows');
+    }
+
+    final abiDir = 'x86_64';
+    print('Building libheif/libde265 with MSVC for Windows $abiDir...');
+
+    // Check if Visual Studio is available
+    final cmakeExe = await PlatformDetector.findCmake();
+    final env = Map<String, String>.from(Platform.environment);
+
+    // Try to detect Visual Studio generator
+    // CMake can detect Visual Studio automatically - try common generators in order
+    final generators = ['Visual Studio 17 2022', 'Visual Studio 16 2019', 'Visual Studio 15 2017'];
+    String selectedGenerator = generators.first; // Default to VS 2022
+    
+    print('Using CMake generator: $selectedGenerator');
+    print('(If this fails, ensure Visual Studio is installed with C++ development tools)');
+
+    final buildDir = path.join(generatedDir, 'libheif_build_windows_msvc_$abiDir');
+    final installDir = getInstallDir(platform, subdir: abiDir);
+    final de265Dir = getSourceDir('libde265');
+    final heifDir = getSourceDir(sourceName);
+
+    await FileOps.ensureDirectory(buildDir);
+    await FileOps.removeIfExists(buildDir);
+    await FileOps.ensureDirectory(buildDir);
+
+    // Build libde265 with MSVC first
+    final de265BuildDir = path.join(buildDir, 'libde265');
+    await FileOps.ensureDirectory(de265BuildDir);
+
+    print('Configuring libde265 with MSVC...');
+    final de265CmakeArgs = <String>[
+      '-G', selectedGenerator,
+      '-A', 'x64',
+      '-DCMAKE_BUILD_TYPE=Release',
+      '-DCMAKE_INSTALL_PREFIX=$buildDir/libde265_install',
+      '-DCMAKE_POLICY_VERSION_MINIMUM=3.5', // Required for newer CMake versions
+      '-DBUILD_SHARED_LIBS=OFF',
+      '-DENABLE_SDL=OFF',
+      '-DENABLE_DEC265=OFF',
+      '-DENABLE_ENCODER=OFF',
+      de265Dir,
+    ];
+
+    final de265ConfigureResult = await runProcessStreaming(
+      cmakeExe,
+      de265CmakeArgs,
+      workingDirectory: de265BuildDir,
+      environment: env,
+    );
+
+    if (de265ConfigureResult.exitCode != 0) {
+      throw Exception('Failed to configure libde265 with MSVC: ${de265ConfigureResult.stderr}');
+    }
+
+    print('Building libde265 with MSVC...');
+    final de265BuildResult = await runProcessStreaming(
+      cmakeExe,
+      ['--build', '.', '--config', 'Release', '--target', 'de265', '--parallel', PlatformDetector.getCpuCores().toString()],
+      workingDirectory: de265BuildDir,
+      environment: env,
+    );
+
+    if (de265BuildResult.exitCode != 0) {
+      throw Exception('Failed to build libde265 with MSVC: ${de265BuildResult.stderr}');
+    }
+
+    // Install libde265
+    await runProcessStreaming(
+      cmakeExe,
+      ['--install', '.', '--config', 'Release'],
+      workingDirectory: de265BuildDir,
+      environment: env,
+    );
+
+    final de265Install = path.join(buildDir, 'libde265_install');
+
+    // Build libheif with MSVC
+    final heifBuildDir = path.join(buildDir, 'libheif');
+    await FileOps.ensureDirectory(heifBuildDir);
+
+    print('Configuring libheif with MSVC...');
+    final heifCmakeArgs = <String>[
+      '-G', selectedGenerator,
+      '-A', 'x64',
+      '-DCMAKE_BUILD_TYPE=Release',
+      '-DCMAKE_INSTALL_PREFIX=$installDir',
+      '-DCMAKE_POLICY_VERSION_MINIMUM=3.5', // Required for newer CMake versions
+      '-DBUILD_SHARED_LIBS=OFF',
+      '-DENABLE_PLUGIN_LOADING=OFF',
+      '-DWITH_AOM=OFF',
+      '-DWITH_DAV1D=OFF',
+      '-DWITH_RAV1E=OFF',
+      '-DWITH_X265=OFF',
+      '-DWITH_LIBDE265=ON',
+      '-DLIBDE265_INCLUDE_DIR=${path.join(de265Install, 'include')}',
+      '-DLIBDE265_LIBRARY=${path.join(de265Install, 'lib', 'de265.lib')}',
+      '-DWITH_EXAMPLES=OFF',
+      '-DWITH_TESTS=OFF',
+      '-DWITH_UNCOMPRESSED_CODEC=OFF',
+      '-DCMAKE_DISABLE_FIND_PACKAGE_AOM=ON',
+      '-DCMAKE_DISABLE_FIND_PACKAGE_libsharpyuv=ON',
+      heifDir,
+    ];
+
+    final heifConfigureResult = await runProcessStreaming(
+      cmakeExe,
+      heifCmakeArgs,
+      workingDirectory: heifBuildDir,
+      environment: env,
+    );
+
+    if (heifConfigureResult.exitCode != 0) {
+      throw Exception('Failed to configure libheif with MSVC: ${heifConfigureResult.stderr}');
+    }
+
+    print('Building libheif with MSVC...');
+    final heifBuildResult = await runProcessStreaming(
+      cmakeExe,
+      ['--build', '.', '--config', 'Release', '--target', 'heif', '--parallel', PlatformDetector.getCpuCores().toString()],
+      workingDirectory: heifBuildDir,
+      environment: env,
+    );
+
+    if (heifBuildResult.exitCode != 0) {
+      throw Exception('Failed to build libheif with MSVC: ${heifBuildResult.stderr}');
+    }
+
+    // Install libheif
+    await runProcessStreaming(
+      cmakeExe,
+      ['--install', '.', '--config', 'Release', '--component', 'libheif'],
+      workingDirectory: heifBuildDir,
+      environment: env,
+    );
+
+    // Copy .lib files to install directory (MSVC produces .lib, not .a)
+    await FileOps.ensureDirectory(path.join(installDir, 'lib'));
+
+    // Find and copy libde265.lib
+    final de265LibPath = path.join(de265Install, 'lib', 'de265.lib');
+    if (await FileOps.exists(de265LibPath)) {
+      await File(de265LibPath).copy(path.join(installDir, 'lib', 'de265.lib'));
+      await File(de265LibPath).copy(path.join(installDir, 'lib', 'libde265.lib'));
+    }
+
+    // Find and copy libheif.lib
+    final heifLibPath = path.join(installDir, 'lib', 'heif.lib');
+    if (await FileOps.exists(heifLibPath)) {
+      await File(heifLibPath).copy(path.join(installDir, 'lib', 'libheif.lib'));
+    } else {
+      // Try to find it in the build directory
+      final heifLibInBuild = await _findFile(heifBuildDir, 'heif.lib');
+      if (heifLibInBuild != null) {
+        await File(heifLibInBuild).copy(path.join(installDir, 'lib', 'heif.lib'));
+        await File(heifLibInBuild).copy(path.join(installDir, 'lib', 'libheif.lib'));
+      }
+    }
+
+    print('✓ MSVC-built libheif/libde265 installed with .lib files');
   }
 
   // Helper methods for building libde265 and libheif

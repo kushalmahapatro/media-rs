@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::api::media::{CompressParams, CompressionEstimate, OutputFormat, ThumbnailSizeType};
 use anyhow::{Context, Error, Result};

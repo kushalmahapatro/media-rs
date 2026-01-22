@@ -401,7 +401,88 @@ Cflags: -I\${includedir}
   }
 
   Future<void> _buildWindows(PlatformInfo platform) async {
-    throw UnimplementedError('Windows build not yet fully implemented in Dart');
+    final abiDir = 'x86_64';
+    final openh264Arch = 'x86_64';
+
+    print('Building OpenH264 for Windows $abiDir...');
+
+    final buildDir = path.join(generatedDir, 'openh264_build_windows_$abiDir');
+    final installDir = path.join(generatedDir, 'openh264_install', 'windows', abiDir);
+    final sourceDir = getSourceDir('openh264');
+
+    await FileOps.ensureDirectory(buildDir);
+    await FileOps.ensureDirectory(installDir);
+
+    // Set up environment with MSYS2 paths
+    final msys2Root = PlatformDetector.getMsys2Root();
+    final usrBin = path.join(msys2Root, 'usr', 'bin');
+    final mingwBin = path.join(msys2Root, 'mingw64', 'bin');
+    final env = Map<String, String>.from(Platform.environment);
+    // Add MSYS2 paths to PATH (usr/bin has make, mingw64/bin has gcc)
+    env['PATH'] = '$usrBin;$mingwBin;${env['PATH'] ?? ''}';
+
+    // Find make executable
+    final makeExe = await PlatformDetector.findMake();
+
+    // Clean previous build
+    try {
+      await runProcessStreaming(makeExe, ['clean'], workingDirectory: sourceDir, environment: env);
+    } catch (e) {
+      // Ignore
+    }
+
+    // Build static library for Windows
+    // OpenH264 uses OS=mingw_nt for MinGW-w64 builds on Windows
+    print('Building OpenH264...');
+    final buildResult = await runProcessStreaming(
+      makeExe,
+      ['-j', PlatformDetector.getCpuCores().toString(), 'OS=mingw_nt', 'ARCH=$openh264Arch', 'libopenh264.a'],
+      workingDirectory: sourceDir,
+      environment: env,
+    );
+
+    if (buildResult.exitCode != 0) {
+      throw Exception('OpenH264 build failed: ${buildResult.stderr}');
+    }
+
+    // Install
+    await FileOps.ensureDirectory(path.join(installDir, 'lib'));
+    await FileOps.ensureDirectory(path.join(installDir, 'include', 'wels'));
+    await FileOps.ensureDirectory(path.join(installDir, 'lib', 'pkgconfig'));
+
+    // Copy library
+    final libFile = File(path.join(sourceDir, 'libopenh264.a'));
+    if (await libFile.exists()) {
+      await libFile.copy(path.join(installDir, 'lib', 'libopenh264.a'));
+    } else {
+      throw Exception('libopenh264.a not found after build');
+    }
+
+    // Copy headers
+    final headerDir = Directory(path.join(sourceDir, 'codec', 'api', 'wels'));
+    if (await headerDir.exists()) {
+      await FileOps.copyRecursive(headerDir.path, path.join(installDir, 'include', 'wels'));
+    }
+
+    // Create pkg-config file
+    // Convert Windows path to MSYS2 Unix-style path for pkg-config
+    // This is needed because pkg-config runs through MSYS2's sh on Windows
+    final installDirMsys2 = PlatformDetector.windowsToMsys2Path(installDir);
+    final pcContent = '''
+prefix=$installDirMsys2
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: openh264
+Description: OpenH264 is a codec library which supports H.264 encoding and decoding
+Version: 2.6.0
+Libs: -L\${libdir} -lopenh264 -lstdc++
+Cflags: -I\${includedir}
+''';
+    await FileOps.writeTextFile(path.join(installDir, 'lib', 'pkgconfig', 'openh264.pc'), pcContent);
+
+    print('OpenH264 installed: $installDir');
   }
 }
 

@@ -931,6 +931,267 @@ exec /usr/bin/pkg-config "${args[@]}"
   }
 
   Future<void> _buildWindows(PlatformInfo platform, {bool skipOpenH264 = false}) async {
-    throw UnimplementedError('Windows build not yet fully implemented in Dart');
+    final abiDir = 'x86_64';
+    final ffmpegArch = 'x86_64';
+
+    print('Building FFmpeg for Windows $abiDir...');
+
+    final buildDir = path.join(generatedDir, 'ffmpeg_build_windows_$abiDir');
+    final installDir = getInstallDir(platform, subdir: abiDir);
+    final sourceDir = getSourceDir(sourceName);
+
+    // Check for OpenH264
+    final openh264Dir = path.join(generatedDir, 'openh264_install', 'windows', abiDir);
+    if (!skipOpenH264 && !await FileOps.exists(path.join(openh264Dir, 'lib', 'libopenh264.a'))) {
+      throw Exception('OpenH264 not found at $openh264Dir. Run: dart tool/setup.dart --windows');
+    }
+
+    // Set up environment with MSYS2 paths
+    final msys2Root = PlatformDetector.getMsys2Root();
+    final usrBin = path.join(msys2Root, 'usr', 'bin');
+    final mingwBin = path.join(msys2Root, 'mingw64', 'bin');
+    final env = Map<String, String>.from(Platform.environment);
+    
+    // Convert PATH to Unix format (colon-separated) with MSYS2 paths
+    // This is needed because make runs through sh, which expects Unix PATH format
+    final usrBinMsys2 = PlatformDetector.windowsToMsys2Path(usrBin);
+    final mingwBinMsys2 = PlatformDetector.windowsToMsys2Path(mingwBin);
+    // Only include MSYS2 paths in PATH for sh (don't convert Windows system paths)
+    // Set PATH in Unix format for sh (colon-separated, MSYS2 paths)
+    // Put mingw64/bin first so cross-compiler tools are found before system tools
+    env['PATH'] = '$mingwBinMsys2:$usrBinMsys2';
+    
+    print('PATH (Unix format for sh): ${env['PATH']}');
+    print('Expected tool location: $mingwBinMsys2/x86_64-w64-mingw32-ar');
+
+    // Find MinGW compiler
+    final compilerInfo = await PlatformDetector.findMinGWCompiler();
+    final cc = compilerInfo.cc;
+    final crossPrefix = compilerInfo.crossPrefix;
+
+    // Clean build artifacts
+    print('Cleaning previous build artifacts...');
+    try {
+      await runProcessStreaming('make', ['distclean'], workingDirectory: sourceDir, environment: env);
+      // Remove config cache to force reconfiguration
+      await FileOps.removeIfExists(path.join(sourceDir, 'ffbuild', 'config.mak'));
+      await FileOps.removeIfExists(path.join(sourceDir, 'ffbuild', 'config.log'));
+    } catch (e) {
+      // Ignore
+    }
+
+    // Set up pkg-config environment
+    env['PKG_CONFIG_ALLOW_CROSS'] = '1';
+    env['PKG_CONFIG_LIBDIR'] = '';
+    env['PKG_CONFIG'] = 'pkg-config';
+
+    // Set up PKG_CONFIG_PATH for OpenH264
+    if (!skipOpenH264) {
+      // Convert Windows path to MSYS2 Unix-style path for PKG_CONFIG_PATH
+      // This is needed because pkg-config runs through MSYS2's sh
+      final openh264PkgConfigPath = PlatformDetector.windowsToMsys2Path(
+        path.join(openh264Dir, 'lib', 'pkgconfig'),
+      );
+      final existingPkgConfigPath = env['PKG_CONFIG_PATH'] ?? '';
+      env['PKG_CONFIG_PATH'] = existingPkgConfigPath.isNotEmpty
+          ? '$openh264PkgConfigPath:$existingPkgConfigPath'
+          : openh264PkgConfigPath;
+
+      // Verify OpenH264 installation
+      if (!await FileOps.exists(path.join(openh264Dir, 'lib', 'libopenh264.a'))) {
+        throw Exception('OpenH264 library not found at ${path.join(openh264Dir, 'lib', 'libopenh264.a')}');
+      }
+      if (!await FileOps.exists(path.join(openh264Dir, 'lib', 'pkgconfig', 'openh264.pc'))) {
+        throw Exception('OpenH264 pkg-config file not found at ${path.join(openh264Dir, 'lib', 'pkgconfig', 'openh264.pc')}');
+      }
+
+      // Verify pkg-config can find OpenH264
+      print('Verifying pkg-config setup...');
+      print('PKG_CONFIG_PATH: ${env['PKG_CONFIG_PATH']}');
+      print('OpenH264 library: ${path.join(openh264Dir, 'lib', 'libopenh264.a')}');
+      print('OpenH264 pkg-config: ${path.join(openh264Dir, 'lib', 'pkgconfig', 'openh264.pc')}');
+      
+      final testEnv = <String, String>{...env};
+      final pkgConfigTest = await runProcessStreaming(
+        'pkg-config',
+        ['--exists', 'openh264'],
+        environment: testEnv,
+        runInShell: true,
+      );
+      if (pkgConfigTest.exitCode == 0) {
+        final versionTest = await runProcessStreaming(
+          'pkg-config',
+          ['--modversion', 'openh264'],
+          environment: testEnv,
+          runInShell: true,
+        );
+        final version = versionTest.stdout.toString().trim();
+        print('✓ pkg-config found OpenH264: $version');
+        
+        // Test the version requirement that FFmpeg uses
+        final versionCheck = await runProcessStreaming(
+          'pkg-config',
+          ['--exists', '--atleast-version=1.3.0', 'openh264'],
+          environment: testEnv,
+          runInShell: true,
+        );
+        if (versionCheck.exitCode == 0) {
+          print('✓ Version check passed (>= 1.3.0)');
+        } else {
+          print('⚠ WARNING: Version check failed, but continuing...');
+        }
+      } else {
+        print('⚠ WARNING: pkg-config --exists failed, but library exists. Continuing...');
+      }
+    }
+
+    await FileOps.ensureDirectory(buildDir);
+
+    // Build configure command
+    // Convert Windows path to MSYS2 Unix-style path for prefix
+    final buildDirMsys2 = PlatformDetector.windowsToMsys2Path(buildDir);
+    final configureArgs = <String>[
+      '--prefix=$buildDirMsys2',
+      '--pkg-config-flags=--static',
+      '--pkg-config=pkg-config',
+      '--enable-static',
+      '--disable-shared',
+      '--disable-programs',
+      '--disable-doc',
+      '--enable-avcodec',
+      '--enable-avformat',
+      '--enable-avutil',
+      '--enable-swscale',
+      '--enable-swresample',
+      '--enable-zlib',
+      '--disable-avdevice',
+      '--disable-avfilter',
+      '--disable-debug',
+      '--disable-ffplay',
+      '--disable-ffprobe',
+      '--disable-gpl',
+      '--disable-nonfree',
+      '--arch=$ffmpegArch',
+      '--target-os=mingw32',
+      '--cc=$cc',
+    ];
+
+    // Check if cross-prefix tools actually exist before using --cross-prefix
+    bool useCrossPrefix = false;
+    if (crossPrefix != null) {
+      // Check if at least one cross-prefix tool exists
+      final testTool = path.join(mingwBin, '${crossPrefix}ar.exe');
+      if (await File(testTool).exists()) {
+        useCrossPrefix = true;
+        configureArgs.add('--cross-prefix=$crossPrefix');
+        print('Using cross-prefix: $crossPrefix');
+      } else {
+        print('Cross-prefix tools not found, using regular MinGW tools');
+      }
+    }
+
+    // Set tool paths in environment
+    final toolNames = ['nm', 'ar', 'ranlib', 'strip'];
+    for (final toolName in toolNames) {
+      String? toolPath;
+      if (useCrossPrefix && crossPrefix != null) {
+        // Try cross-prefix tool first
+        toolPath = path.join(mingwBin, '${crossPrefix}$toolName.exe');
+        if (!await File(toolPath).exists()) {
+          toolPath = null;
+        }
+      }
+      
+      // Fall back to regular tool if cross-prefix not found or not using cross-prefix
+      if (toolPath == null) {
+        toolPath = path.join(mingwBin, '$toolName.exe');
+      }
+      
+      if (await File(toolPath).exists()) {
+        // Use MSYS2 Unix-style path (without .exe, sh handles it)
+        final toolPathMsys2 = PlatformDetector.windowsToMsys2Path(toolPath).replaceAll('.exe', '');
+        env[toolName.toUpperCase()] = toolPathMsys2;
+        print('Set ${toolName.toUpperCase()}=$toolPathMsys2');
+      } else {
+        // Last resort: use command name
+        final cmdName = useCrossPrefix && crossPrefix != null ? '${crossPrefix}$toolName' : toolName;
+        env[toolName.toUpperCase()] = cmdName;
+        print('Set ${toolName.toUpperCase()}=$cmdName (using command name, tool not found at $toolPath)');
+      }
+    }
+
+    if (!skipOpenH264) {
+      // Convert Windows paths to MSYS2 Unix-style paths
+      final openh264IncludeMsys2 = PlatformDetector.windowsToMsys2Path(path.join(openh264Dir, 'include'));
+      final openh264LibMsys2 = PlatformDetector.windowsToMsys2Path(path.join(openh264Dir, 'lib'));
+      configureArgs.addAll([
+        '--enable-libopenh264',
+        '--enable-encoder=libopenh264',
+        '--enable-decoder=libopenh264',
+        '--extra-cflags=-I$openh264IncludeMsys2',
+        '--extra-ldflags=-L$openh264LibMsys2 -static-libgcc -static-libstdc++',
+        '--extra-libs=-lopenh264 -lstdc++',
+      ]);
+    }
+
+    print('Configuring FFmpeg for windows/$abiDir...');
+    print('Using compiler: $cc');
+    print('PKG_CONFIG_PATH: ${env['PKG_CONFIG_PATH']}');
+
+    final buildSystem = AutotoolsBuildSystem(configureArgs: configureArgs);
+    // FFmpeg builds in-tree (in source directory)
+    await buildSystem.configure(
+      sourceDir: sourceDir,
+      buildDir: sourceDir,
+      platform: PlatformInfo(platform: BuildPlatform.windows, architecture: Architecture.x86_64),
+      environment: env,
+    );
+
+    await buildSystem.build(buildDir: sourceDir, cores: PlatformDetector.getCpuCores());
+    await buildSystem.install(buildDir: sourceDir, installDir: buildDir);
+
+    // Copy into install dir with normalized pkg-config
+    await FileOps.ensureDirectory(path.join(installDir, 'lib'));
+    await FileOps.ensureDirectory(path.join(installDir, 'include'));
+    await FileOps.ensureDirectory(path.join(installDir, 'lib', 'pkgconfig'));
+
+    await FileOps.copyRecursive(path.join(buildDir, 'include'), path.join(installDir, 'include'));
+
+    // Copy libraries
+    final libDir = Directory(path.join(buildDir, 'lib'));
+    if (await libDir.exists()) {
+      await for (final entity in libDir.list()) {
+        if (entity is File && entity.path.endsWith('.a')) {
+          await entity.copy(path.join(installDir, 'lib', path.basename(entity.path)));
+        }
+      }
+    }
+
+    // Copy pkg-config files if they exist
+    if (await Directory(path.join(buildDir, 'lib', 'pkgconfig')).exists()) {
+      await FileOps.copyRecursive(
+        path.join(buildDir, 'lib', 'pkgconfig'),
+        path.join(installDir, 'lib', 'pkgconfig'),
+      );
+    }
+
+    // Normalize pkg-config files (Windows paths need special handling)
+    final pcDir = Directory(path.join(installDir, 'lib', 'pkgconfig'));
+    if (await pcDir.exists()) {
+      await for (final entity in pcDir.list()) {
+        if (entity is File && entity.path.endsWith('.pc')) {
+          var content = await FileOps.readTextFile(entity.path);
+          // Convert Windows-style paths to Unix-style for pkg-config
+          final installDirUnix = PlatformDetector.windowsToMsys2Path(installDir);
+          content = content.replaceAll(RegExp(r'^prefix=.*', multiLine: true), 'prefix=$installDirUnix');
+          content = content.replaceAll(RegExp(r'^exec_prefix=.*', multiLine: true), 'exec_prefix=\${prefix}');
+          content = content.replaceAll(RegExp(r'^libdir=.*', multiLine: true), 'libdir=\${prefix}/lib');
+          content = content.replaceAll(RegExp(r'^includedir=.*', multiLine: true), 'includedir=\${prefix}/include');
+          await FileOps.writeTextFile(entity.path, content);
+        }
+      }
+    }
+
+    print('FFmpeg installed: $installDir');
   }
 }

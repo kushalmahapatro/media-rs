@@ -241,30 +241,54 @@ class SetupScript {
   }
 
   Future<void> _buildWindows(bool skipOpenH264) async {
-    print('=== Windows: dependencies via setup_all.bat ===');
-
-    final script = path.join(projectRoot, 'setup_all.bat');
-    if (!File(script).existsSync()) {
-      print('ERROR: setup_all.bat not found at $script');
-      exit(2);
+    if (!skipOpenH264) {
+      print('=== Windows: OpenH264 ===');
+      final openh264Builder = OpenH264Builder(projectRoot);
+      await openh264Builder.build(PlatformInfo(platform: BuildPlatform.windows));
     }
 
-    final args = <String>['--windows'];
-    if (skipOpenH264) {
-      args.add('--skip-openh264');
-    }
+    print('=== Windows: FFmpeg ===');
+    final builder = FFmpegBuilder(projectRoot);
+    await builder.build(PlatformInfo(platform: BuildPlatform.windows), skipOpenH264: skipOpenH264);
 
-    print('Running setup_all.bat ${args.join(' ')}');
-    final process = await Process.start(
-      'cmd',
-      ['/c', script, ...args],
-      mode: ProcessStartMode.inheritStdio,
-      workingDirectory: projectRoot,
-    );
-    final exitCode = await process.exitCode;
-    if (exitCode != 0) {
-      print('ERROR: Windows dependency build failed with exit code $exitCode');
-      exit(exitCode);
+    print('=== Windows: libheif (MinGW) ===');
+    final libheifBuilder = LibHeifBuilder(projectRoot);
+    await libheifBuilder.build(PlatformInfo(platform: BuildPlatform.windows));
+
+    // After MinGW build, rebuild with MSVC to generate .lib files
+    // This matches the old setup_all.bat behavior which called build_libheif_msvc.bat
+    print('');
+    print('=== Windows: Converting libheif to MSVC format ===');
+    print('');
+    print('NOTE: MinGW-built libheif has COMDAT incompatibility with MSVC linker.');
+    print('Rebuilding libheif with MSVC to generate .lib files...');
+    print('This will take 10-15 minutes.');
+    print('');
+    
+    try {
+      await libheifBuilder.buildMSVC(PlatformInfo(platform: BuildPlatform.windows));
+      print('');
+      print('========================================');
+      print('SUCCESS: MSVC-built libheif installed!');
+      print('========================================');
+      print('');
+      print('The MSVC-compatible libraries (.lib files) are now ready.');
+      print('You can now run: flutter build windows');
+      print('');
+    } catch (e) {
+      print('');
+      print('WARNING: MSVC build failed or Visual Studio not found.');
+      print('');
+      print('The MinGW-built libraries are installed, but they may have COMDAT issues.');
+      print('To fix this, you can:');
+      print('  1. Install Visual Studio 2022 with C++ development tools');
+      print('  2. Ensure CMake can find Visual Studio');
+      print('  3. Run the setup again');
+      print('');
+      print('Error: $e');
+      print('');
+      print('Continuing with MinGW-built libraries (may cause linker errors)...');
+      print('');
     }
   }
 }

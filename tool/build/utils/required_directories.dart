@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:code_assets/code_assets.dart';
+import 'package:path/path.dart';
 
 String? getEnv(Map<String, String> systemEnv, String key) {
   return Platform.environment[key] ?? systemEnv[key];
@@ -18,8 +19,7 @@ String resolveFfmpegDir(
 
   final subDir = _getFfmpegSubDir(targetOS, effectiveArchitecture, iOSSdk);
 
-  final uri = packageRoot.resolve('${Directory.current.path}/../third_party/generated/ffmpeg_install/$subDir');
-  final dir = File.fromUri(uri).path;
+  final dir = absolute(join(Directory.current.path, '..', 'third_party', 'generated', 'ffmpeg_install', subDir));
 
   if (!Directory(dir).existsSync()) {
     throw Exception("FFmpeg install not found at $dir for $targetOS/$effectiveArchitecture");
@@ -44,7 +44,7 @@ String _getFfmpegSubDir(OS targetOS, Architecture arch, dynamic iOSSdk) {
     case OS.linux:
       return arch == Architecture.arm64 ? 'linux/arm64' : 'linux/x86_64';
     case OS.windows:
-      return 'windows/x86_64';
+      return join('windows', 'x86_64');
     default:
       throw Exception('Unsupported OS: $targetOS');
   }
@@ -60,45 +60,45 @@ String? resolveLibheifDir(
   final envDir = getEnv(systemEnv, 'MEDIA_RS_LIBHEIF_DIR');
   if (envDir != null && Directory(envDir).existsSync()) return envDir;
 
-  String? path;
+  String? dirPath;
 
   switch (targetOS) {
     case OS.macOS:
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/libheif_install/macos/universal'),
-      ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'libheif_install', 'macos', 'universal'),
+      );
       break;
     case OS.iOS:
       final platform = isSimulator ? 'iphonesimulator' : 'iphoneos';
       final arch = effectiveArchitecture == Architecture.arm64 ? 'arm64' : 'x86_64';
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/libheif_install/ios/$platform/$arch'),
-      ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'libheif_install', 'ios', platform, arch),
+      );
       break;
     case OS.android:
       final abi = (effectiveArchitecture == Architecture.arm64 || effectiveArchitecture == Architecture.arm)
           ? 'arm64-v8a'
           : 'x86_64';
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/libheif_install/android/$abi'),
-      ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'libheif_install', 'android', abi),
+      );
       break;
     case OS.linux:
       final arch = effectiveArchitecture == Architecture.arm64 ? 'arm64' : 'x86_64';
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/libheif_install/linux/$arch'),
-      ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'libheif_install', 'linux', arch),
+      );
       break;
     case OS.windows:
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/libheif_install/windows/x86_64'),
-      ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'libheif_install', 'windows', 'x86_64'),
+      );
       break;
     default:
       return null;
   }
 
-  return Directory(path).existsSync() ? path : null;
+  return dirPath != null && Directory(dirPath).existsSync() ? dirPath : null;
 }
 
 String? resolveOpenh264Dir(
@@ -110,41 +110,41 @@ String? resolveOpenh264Dir(
   final envDir = getEnv(systemEnv, 'MEDIA_RS_OPENH264_DIR');
   if (envDir != null && Directory(envDir).existsSync()) return envDir;
 
-  String? path;
+  String? dirPath;
 
   switch (targetOS) {
     case OS.macOS:
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/openh264_build_arm64'),
-      ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'openh264_build_arm64'),
+      );
       break;
     case OS.android:
       final abi = (effectiveArchitecture == Architecture.arm64 || effectiveArchitecture == Architecture.arm)
           ? 'arm64-v8a'
           : 'x86_64';
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/openh264_install/android/$abi'),
-      ).path;
-      if (!Directory(path).existsSync()) {
-        path = File.fromUri(
-          packageRoot.resolve('${Directory.current.path}/../third_party/generated/openh264_build_android_$abi'),
-        ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'openh264_install', 'android', abi),
+      );
+      if (!Directory(dirPath).existsSync()) {
+        dirPath = absolute(
+          join(Directory.current.path, '..', 'third_party', 'generated', 'openh264_build_android_$abi'),
+        );
       }
       break;
     case OS.linux:
       final arch = effectiveArchitecture == Architecture.arm64 ? 'arm64' : 'x86_64';
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/openh264_install/linux/$arch'),
-      ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'openh264_install', 'linux', arch),
+      );
       break;
     case OS.windows:
-      path = File.fromUri(
-        packageRoot.resolve('${Directory.current.path}/../third_party/generated/openh264_install/windows/x86_64'),
-      ).path;
+      dirPath = absolute(
+        join(Directory.current.path, '..', 'third_party', 'generated', 'openh264_install', 'windows', 'x86_64'),
+      );
       break;
     default:
       return null;
   }
 
-  return Directory(path).existsSync() ? path : null;
+  return dirPath != null && Directory(dirPath).existsSync() ? dirPath : null;
 }

@@ -25,6 +25,19 @@ Logger logger = Logger('upload_library');
 void main(List<String> args) async {
   logger.onRecord.listen((e) => stdout.writeln(e.toString()));
 
+  // Verify we're running from the tool directory
+  final currentDir = Directory.current.path;
+  final currentDirName = path.basename(currentDir);
+
+  if (currentDirName != 'tool') {
+    logger.severe('ERROR: This script must be run from the tool directory.');
+    logger.severe('Current directory: $currentDir');
+    logger.severe('Expected: <project_root>/tool');
+    logger.severe('');
+    logger.severe('Please run: cd tool && dart build.dart <target>');
+    exit(1);
+  }
+
   if (args.isEmpty) {
     logger.info('Usage: dart tool/build.dart <target>');
     logger.info('Targets: ${OS.values.map((e) => e.name).join(', ')}');

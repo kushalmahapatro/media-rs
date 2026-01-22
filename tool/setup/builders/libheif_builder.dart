@@ -117,6 +117,7 @@ class LibHeifBuilder extends BaseBuilder {
       await _buildLibDe265(
         arch: arch,
         platform: 'macOS',
+        buildPlatform: BuildPlatform.macos,
         installDir: de265Install,
         cmakeFlags: [
           if (arch == Architecture.arm64) '-DCMAKE_OSX_ARCHITECTURES=arm64' else '-DCMAKE_OSX_ARCHITECTURES=x86_64',
@@ -128,6 +129,7 @@ class LibHeifBuilder extends BaseBuilder {
       await _buildLibHeif(
         arch: arch,
         platform: 'macOS',
+        buildPlatform: BuildPlatform.macos,
         buildDir: buildDir,
         de265Install: de265Install,
         cmakeFlags: [
@@ -249,6 +251,7 @@ Requires:
       await _buildLibDe265(
         arch: arch,
         platform: 'iOS-$iosPlatform',
+        buildPlatform: BuildPlatform.ios,
         installDir: de265Install,
         cmakeFlags: [
           '-DCMAKE_SYSTEM_NAME=iOS',
@@ -268,6 +271,7 @@ Requires:
       await _buildLibHeif(
         arch: arch,
         platform: 'iOS-$iosPlatform',
+        buildPlatform: BuildPlatform.ios,
         buildDir: buildDir,
         de265Install: de265Install,
         cmakeFlags: [
@@ -457,10 +461,23 @@ Requires:
 
     // Build libde265 first
     final de265Install = path.join(buildDir, 'libde265_install');
-    await _buildLibDe265(arch: arch, platform: 'Linux', installDir: de265Install, cmakeFlags: []);
+    await _buildLibDe265(
+      arch: arch,
+      platform: 'Linux',
+      buildPlatform: BuildPlatform.linux,
+      installDir: de265Install,
+      cmakeFlags: [],
+    );
 
     // Build libheif
-    await _buildLibHeif(arch: arch, platform: 'Linux', buildDir: buildDir, de265Install: de265Install, cmakeFlags: []);
+    await _buildLibHeif(
+      arch: arch,
+      platform: 'Linux',
+      buildPlatform: BuildPlatform.linux,
+      buildDir: buildDir,
+      de265Install: de265Install,
+      cmakeFlags: [],
+    );
 
     // Copy to install dir
     await FileOps.ensureDirectory(path.join(installDir, 'lib'));
@@ -500,6 +517,7 @@ Requires:
   Future<void> _buildLibDe265({
     required Architecture? arch,
     required String platform,
+    required BuildPlatform buildPlatform,
     required String installDir,
     required List<String> cmakeFlags,
     bool sanitizeEnv = false,
@@ -540,7 +558,7 @@ Requires:
     await buildSystem.configure(
       sourceDir: de265Dir,
       buildDir: buildDir,
-      platform: PlatformInfo(platform: BuildPlatform.macos, architecture: arch),
+      platform: PlatformInfo(platform: buildPlatform, architecture: arch),
       environment: env,
     );
 
@@ -711,6 +729,7 @@ Cflags: -I\${includedir}
   Future<void> _buildLibHeif({
     required Architecture? arch,
     required String platform,
+    required BuildPlatform buildPlatform,
     required String buildDir,
     required String de265Install,
     required List<String> cmakeFlags,
@@ -761,7 +780,7 @@ Cflags: -I\${includedir}
     await buildSystem.configure(
       sourceDir: heifDir,
       buildDir: heifBuildDir,
-      platform: PlatformInfo(platform: BuildPlatform.macos, architecture: arch),
+      platform: PlatformInfo(platform: buildPlatform, architecture: arch),
       environment: env,
     );
 

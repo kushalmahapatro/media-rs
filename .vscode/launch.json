@@ -59,6 +59,16 @@
             "args": [
                 "macos"
             ]
+        },
+        {
+            "name": "build (linux)",
+            "cwd": "tool",
+            "request": "launch",
+            "type": "dart",
+            "program": "build.dart",
+            "args": [
+                "linux"
+            ]
         }
     ]
 }

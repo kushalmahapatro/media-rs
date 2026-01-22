@@ -125,7 +125,24 @@ class AutotoolsBuildSystem implements BuildSystem {
     print('  Source: $sourceDir');
     print('  Build: $buildDir');
     print('  Args: ${args.join(' ')}');
+    
+    // Debug: Print PKG_CONFIG environment variables if they exist
+    if (env.containsKey('PKG_CONFIG_PATH') || env.containsKey('PKG_CONFIG_LIBDIR') || env.containsKey('PKG_CONFIG_ALLOW_CROSS')) {
+      print('  PKG_CONFIG environment:');
+      if (env.containsKey('PKG_CONFIG_PATH')) {
+        print('    PKG_CONFIG_PATH: ${env['PKG_CONFIG_PATH']}');
+      }
+      if (env.containsKey('PKG_CONFIG_LIBDIR')) {
+        print('    PKG_CONFIG_LIBDIR: ${env['PKG_CONFIG_LIBDIR']}');
+      }
+      if (env.containsKey('PKG_CONFIG_ALLOW_CROSS')) {
+        print('    PKG_CONFIG_ALLOW_CROSS: ${env['PKG_CONFIG_ALLOW_CROSS']}');
+      }
+    }
 
+    // For Linux, we need to ensure environment variables are properly passed to FFmpeg's configure script
+    // The configure script is a bash script that calls pkg-config, so the environment must be available
+    // We pass the environment directly to Process.start, which should work correctly
     final result = await runProcessStreaming(configureScript, args, workingDirectory: buildDir, environment: env);
 
     if (result.exitCode != 0) {

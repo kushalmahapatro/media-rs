@@ -4,7 +4,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 @internal
 extension CodeConfigMapping on CodeConfig {
   String get targetTriple {
-    return getTargetTriple(targetOS, targetArchitecture, iOS.targetSdk);
+    return switch (targetOS) {
+      OS.iOS => getTargetTriple(targetOS, targetArchitecture, iOS.targetSdk),
+      _ => getTargetTriple(targetOS, targetArchitecture, null),
+    };
   }
 
   LinkMode get linkMode {

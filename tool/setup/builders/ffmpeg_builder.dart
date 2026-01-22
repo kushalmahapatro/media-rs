@@ -684,7 +684,9 @@ class FFmpegBuilder extends BaseBuilder {
 
     // Check for OpenH264
     final openh264Dir = path.join(generatedDir, 'openh264_install', 'linux', abiDir);
-    if (!skipOpenH264 && !await FileOps.exists(path.join(openh264Dir, 'lib', 'libopenh264.a'))) {
+    // Convert to absolute path for pkg-config (required for proper resolution)
+    final openh264DirAbsolute = path.absolute(openh264Dir);
+    if (!skipOpenH264 && !await FileOps.exists(path.join(openh264DirAbsolute, 'lib', 'libopenh264.a'))) {
       throw Exception('OpenH264 not found. Build it first with: dart tool/setup.dart --linux');
     }
 
@@ -713,10 +715,151 @@ class FFmpegBuilder extends BaseBuilder {
       // Ignore
     }
 
+    // Start with a clean environment map (don't inherit Platform.environment here)
+    // We'll merge it in build_system, but we want to control PKG_CONFIG vars explicitly
+    final env = <String, String>{
+      'PKG_CONFIG_ALLOW_CROSS': '1',
+    };
+
+    // Explicitly clear PKG_CONFIG_LIBDIR if it exists in system env (like Windows script does)
+    // PKG_CONFIG_LIBDIR restricts search to only that directory, which can break other dependencies
+    if (Platform.environment.containsKey('PKG_CONFIG_LIBDIR')) {
+      env['PKG_CONFIG_LIBDIR'] = '';
+    }
+
+    // Determine pkg-config command to use (wrapper if needed, system otherwise)
+    String pkgConfigCmd = 'pkg-config';
+
+    // Set up pkg-config paths for OpenH264 (match bash script: only set PKG_CONFIG_PATH)
+    if (!skipOpenH264 && await FileOps.exists(path.join(openh264DirAbsolute, 'lib', 'pkgconfig'))) {
+      final pkgConfigPath = path.absolute(path.join(openh264DirAbsolute, 'lib', 'pkgconfig'));
+      final existingPkgConfigPath = Platform.environment['PKG_CONFIG_PATH'] ?? '';
+      // Match bash script: prepend our path, append existing if present
+      env['PKG_CONFIG_PATH'] = existingPkgConfigPath.isNotEmpty 
+          ? '$pkgConfigPath:$existingPkgConfigPath'
+          : pkgConfigPath;
+      
+      // Create a pkg-config wrapper to handle FFmpeg's old "package >= version" syntax
+      // FFmpeg's configure uses "openh264 >= 1.3.0" which modern pkg-config doesn't support
+      // The wrapper converts it to "--atleast-version=1.3.0 openh264"
+      final wrapperDir = path.join(generatedDir, 'pkg-config-wrapper');
+      await FileOps.ensureDirectory(wrapperDir);
+      final wrapperScript = path.join(wrapperDir, 'pkg-config');
+      final wrapperContent = r'''#!/bin/bash
+# pkg-config wrapper to handle FFmpeg's old "package >= version" syntax
+# Converts "package >= version" to "--atleast-version=version package"
+# Handles both cases: single quoted argument "package >= version" and separate arguments package >= version
+# Also handles the case where shell interprets >= as redirection, leaving only package and version
+
+args=()
+i=0
+package_arg=""
+while [ $i -lt $# ]; do
+  i=$((i + 1))
+  arg="${!i}"
+  
+  # Check if this argument is a package name and the next two are ">=" and a version
+  # This handles the case where shell splits "package >= version" into three arguments
+  if [ $i -lt $# ]; then
+    next_i=$((i + 1))
+    next_arg="${!next_i}"
+    if [ "$next_arg" = ">=" ] && [ $next_i -lt $# ]; then
+      version_i=$((next_i + 1))
+      version_arg="${!version_i}"
+      # Check if version_arg looks like a version number
+      if echo "$version_arg" | grep -qE '^[0-9.]+$'; then
+        # This is "package >= version" pattern - convert it
+        args+=("--atleast-version=$version_arg" "$arg")
+        i=$version_i  # Skip the ">=" and version arguments by setting i to version position
+        # The while loop will increment i at the start of next iteration, effectively skipping processed args
+        continue
+      fi
+    fi
+  fi
+  
+  # Check if argument matches "package >= version" pattern (single quoted string)
+  if echo "$arg" | grep -qE '^[a-zA-Z0-9_-]+\s+>=\s+[0-9.]+$'; then
+    # Extract package and version
+    package=$(echo "$arg" | sed -E 's/^([a-zA-Z0-9_-]+)\s+>=\s+[0-9.]+$/\1/')
+    version=$(echo "$arg" | sed -E 's/^[a-zA-Z0-9_-]+\s+>=\s+([0-9.]+)$/\1/')
+    args+=("--atleast-version=$version" "$package")
+  # Check if this looks like a package name (alphanumeric with dashes/underscores, not starting with -)
+  elif echo "$arg" | grep -qE '^[a-zA-Z0-9_-]+$' && [ "${arg#-}" = "$arg" ]; then
+    # This might be a package name - check if next argument is a version number
+    # This handles the case where shell consumed >= as redirection
+    if [ $i -lt $# ]; then
+      next_i=$((i + 1))
+      next_arg="${!next_i}"
+      if echo "$next_arg" | grep -qE '^[0-9.]+$'; then
+        # This looks like "package version" pattern (where >= was consumed by shell)
+        # Check if we're in a context where this makes sense (after --exists or similar)
+        # Look for --exists, --atleast-version, or similar flags in previous args
+        found_check_flag=false
+        for j in $(seq 1 $((i-1))); do
+          prev_arg="${!j}"
+          if [ "$prev_arg" = "--exists" ] || [ "$prev_arg" = "--print-errors" ] || [ "$prev_arg" = "--atleast-version" ]; then
+            found_check_flag=true
+            break
+          fi
+        done
+        if [ "$found_check_flag" = "true" ]; then
+          # This is likely "package >= version" where >= was consumed
+          args+=("--atleast-version=$next_arg" "$arg")
+          i=$next_i
+          continue
+        fi
+      fi
+    fi
+    args+=("$arg")
+  else
+    args+=("$arg")
+  fi
+done
+
+exec /usr/bin/pkg-config "${args[@]}"
+''';
+      await FileOps.writeTextFile(wrapperScript, wrapperContent);
+      // Make wrapper executable
+      await runProcessStreaming('chmod', ['+x', wrapperScript]);
+      
+      // Use the wrapper instead of system pkg-config
+      pkgConfigCmd = wrapperScript;
+      env['PKG_CONFIG'] = wrapperScript;
+      
+      // Debug: verify pkg-config can find it before configure
+      print('Verifying pkg-config setup...');
+      print('  PKG_CONFIG_PATH: ${env['PKG_CONFIG_PATH']}');
+      print('  PKG_CONFIG_ALLOW_CROSS: ${env['PKG_CONFIG_ALLOW_CROSS']}');
+      print('  PKG_CONFIG: ${env['PKG_CONFIG']}');
+      final testEnv = <String, String>{...Platform.environment, ...env};
+      final testResult = await runProcessStreaming(
+        wrapperScript,
+        ['--exists', '--atleast-version=1.3.0', 'openh264'],
+        environment: testEnv,
+      );
+      if (testResult.exitCode == 0) {
+        final version = await runProcessStreaming(
+          wrapperScript,
+          ['--modversion', 'openh264'],
+          environment: testEnv,
+        );
+        print('  ✓ pkg-config test passed: openh264 version ${version.stdout.trim()}');
+      } else {
+        print('  ⚠ Warning: pkg-config test failed, but continuing anyway');
+        print('  stderr: ${testResult.stderr}');
+      }
+    } else {
+      // If no OpenH264, still preserve existing PKG_CONFIG_PATH
+      final existingPkgConfigPath = Platform.environment['PKG_CONFIG_PATH'];
+      if (existingPkgConfigPath != null && existingPkgConfigPath.isNotEmpty) {
+        env['PKG_CONFIG_PATH'] = existingPkgConfigPath;
+      }
+    }
+
     final configureArgs = <String>[
       '--prefix=$buildDir',
       '--pkg-config-flags=--static',
-      '--pkg-config=pkg-config',
+      '--pkg-config=$pkgConfigCmd',
       '--enable-static',
       '--disable-shared',
       '--disable-programs',
@@ -737,23 +880,19 @@ class FFmpegBuilder extends BaseBuilder {
       '--arch=$ffmpegArch',
     ];
 
-    if (!skipOpenH264 && await FileOps.exists(path.join(openh264Dir, 'lib', 'libopenh264.a'))) {
+    if (!skipOpenH264 && await FileOps.exists(path.join(openh264DirAbsolute, 'lib', 'libopenh264.a'))) {
       configureArgs.addAll([
         '--enable-libopenh264',
         '--enable-encoder=libopenh264',
         '--enable-decoder=libopenh264',
-        '--extra-cflags=-I${path.join(openh264Dir, 'include')}',
-        '--extra-ldflags=-L${path.join(openh264Dir, 'lib')}',
+        '--extra-cflags=-I${path.join(openh264DirAbsolute, 'include')}',
+        '--extra-ldflags=-L${path.join(openh264DirAbsolute, 'lib')}',
       ]);
+      // OpenH264 is a C++ library, so we need to link against libstdc++
+      configureArgs.add('--extra-libs=-lm -lpthread -lstdc++');
+    } else {
+      configureArgs.add('--extra-libs=-lm -lpthread');
     }
-
-    configureArgs.add('--extra-libs=-lm -lpthread');
-
-    final env = <String, String>{
-      'PKG_CONFIG_ALLOW_CROSS': '1',
-      'PKG_CONFIG_PATH':
-          '${path.join(openh264Dir, 'lib', 'pkgconfig')}:${Platform.environment['PKG_CONFIG_PATH'] ?? ''}',
-    };
 
     final buildSystem = AutotoolsBuildSystem(configureArgs: configureArgs);
     // FFmpeg builds in-tree (in source directory)

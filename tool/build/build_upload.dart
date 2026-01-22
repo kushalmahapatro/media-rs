@@ -150,22 +150,22 @@ Future<void> _buildLibrary(
   }
 
   final osTargetDir = Directory(path.join(targetDir.path, targetTriple));
-  osTargetDir.create();
+  await osTargetDir.create();
   final dylibFile = File(path.join(targetBuildDir.path, targetTriple, 'release', libraryName));
-  if (!dylibFile.existsSync()) {
+  if (!await dylibFile.exists()) {
     logger.severe('Failed to build $targetTriple: $libraryName not found');
     exit(1);
   }
 
   // Copy the library
-  dylibFile.copySync(path.join(osTargetDir.path, libraryName));
+  await dylibFile.copy(path.join(osTargetDir.path, libraryName));
   final libFile = File(path.join(osTargetDir.path, libraryName));
-  if (!libFile.existsSync()) {
+  if (!await libFile.exists()) {
     logger.severe('Failed to build $targetTriple: $libraryName not found');
     exit(1);
   }
 
-  targetBuildDir.deleteSync(recursive: true);
+  await targetBuildDir.delete(recursive: true);
 
   logger.info('$targetTriple built successfully');
 }

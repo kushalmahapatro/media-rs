@@ -85,12 +85,7 @@ class OpenH264Builder extends BaseBuilder {
         // Toolchain target triple prefix used by NDK clang.
         'toolchainArch': 'aarch64',
       },
-      {
-        'abi': 'x86_64',
-        'api': 21,
-        'cpu': 'x86_64',
-        'toolchainArch': 'x86_64',
-      },
+      {'abi': 'x86_64', 'api': 21, 'cpu': 'x86_64', 'toolchainArch': 'x86_64'},
     ];
 
     for (final abiInfo in abis) {
@@ -144,7 +139,7 @@ class OpenH264Builder extends BaseBuilder {
             isValid = false;
           }
         }
-        
+
         if (isValid) {
           print('OpenH264 already built for Android $abi, skipping...');
           continue;
@@ -219,8 +214,8 @@ class OpenH264Builder extends BaseBuilder {
             if (entity is File) {
               final fileName = path.basename(entity.path);
               // Remove object files, dependency files, and specifically cpu-features files
-              if (entity.path.endsWith('.o') || 
-                  entity.path.endsWith('.d') || 
+              if (entity.path.endsWith('.o') ||
+                  entity.path.endsWith('.d') ||
                   fileName == '.depend' ||
                   fileName.startsWith('cpu-features.')) {
                 try {
@@ -247,20 +242,15 @@ class OpenH264Builder extends BaseBuilder {
         "ARCH=$cpu",
         "TARGET=android-$apiLevel",
       ];
-      
+
       // Pass USE_ASM=No if we're disabling assembly
       if (disableAsm) {
         makeArgs.add('USE_ASM=No');
       }
-      
+
       makeArgs.add('libopenh264.a'); // Build only the static library target
-      
-      final buildResult = await runProcessStreaming(
-        'make',
-        makeArgs,
-        workingDirectory: sourceDir,
-        environment: env,
-      );
+
+      final buildResult = await runProcessStreaming('make', makeArgs, workingDirectory: sourceDir, environment: env);
 
       if (buildResult.exitCode != 0) {
         throw Exception('OpenH264 build failed: ${buildResult.stderr}');
@@ -293,14 +283,12 @@ class OpenH264Builder extends BaseBuilder {
       // Copy headers
       final headerDir = Directory(path.join(sourceDir, 'codec', 'api', 'wels'));
       if (await headerDir.exists()) {
-        await FileOps.copyRecursive(
-          headerDir.path,
-          path.join(installDir, 'include', 'wels'),
-        );
+        await FileOps.copyRecursive(headerDir.path, path.join(installDir, 'include', 'wels'));
       }
 
       // Create pkg-config file
-      final pcContent = '''
+      final pcContent =
+          '''
 prefix=$installDir
 exec_prefix=\${prefix}
 libdir=\${exec_prefix}/lib
@@ -312,10 +300,7 @@ Version: 2.3.1
 Libs: -L\${libdir} -lopenh264
 Cflags: -I\${includedir}
 ''';
-      await FileOps.writeTextFile(
-        path.join(installDir, 'lib', 'pkgconfig', 'openh264.pc'),
-        pcContent,
-      );
+      await FileOps.writeTextFile(path.join(installDir, 'lib', 'pkgconfig', 'openh264.pc'), pcContent);
 
       print('OpenH264 installed: $installDir');
     }
@@ -335,11 +320,7 @@ Cflags: -I\${includedir}
     await FileOps.ensureDirectory(buildDir);
     await FileOps.ensureDirectory(installDir);
 
-    final env = <String, String>{
-      'PREFIX': installDir,
-      'OS': 'linux',
-      'ARCH': cpu,
-    };
+    final env = <String, String>{'PREFIX': installDir, 'OS': 'linux', 'ARCH': cpu};
 
     // Clean previous build
     await runProcessStreaming('make', ['clean'], workingDirectory: sourceDir);
@@ -373,14 +354,12 @@ Cflags: -I\${includedir}
     // Copy headers
     final headerDir = Directory(path.join(sourceDir, 'codec', 'api', 'wels'));
     if (await headerDir.exists()) {
-      await FileOps.copyRecursive(
-        headerDir.path,
-        path.join(installDir, 'include', 'wels'),
-      );
+      await FileOps.copyRecursive(headerDir.path, path.join(installDir, 'include', 'wels'));
     }
 
     // Create pkg-config file
-    final pcContent = '''
+    final pcContent =
+        '''
 prefix=$installDir
 exec_prefix=\${prefix}
 libdir=\${exec_prefix}/lib
@@ -392,19 +371,14 @@ Version: 2.3.1
 Libs: -L\${libdir} -lopenh264
 Cflags: -I\${includedir}
 ''';
-    await FileOps.writeTextFile(
-      path.join(installDir, 'lib', 'pkgconfig', 'openh264.pc'),
-      pcContent,
-    );
+    await FileOps.writeTextFile(path.join(installDir, 'lib', 'pkgconfig', 'openh264.pc'), pcContent);
 
     print('OpenH264 installed: $installDir');
   }
 
   Future<void> _buildWindows(PlatformInfo platform) async {
     final abiDir = 'x86_64';
-    final openh264Arch = 'x86_64';
-
-    print('Building OpenH264 for Windows $abiDir...');
+    print('Building OpenH264 for Windows $abiDir (MSVC)...');
 
     final buildDir = path.join(generatedDir, 'openh264_build_windows_$abiDir');
     final installDir = path.join(generatedDir, 'openh264_install', 'windows', abiDir);
@@ -413,36 +387,53 @@ Cflags: -I\${includedir}
     await FileOps.ensureDirectory(buildDir);
     await FileOps.ensureDirectory(installDir);
 
-    // Set up environment with MSYS2 paths
+    // Find Visual Studio
+    final vsInstallDir = await _findVisualStudio();
+    if (vsInstallDir == null) {
+      throw Exception('Visual Studio not found. Please install Visual Studio 2022/2019 with C++ tools.');
+    }
+    print('Found Visual Studio at: $vsInstallDir');
+
+    // Find MSYS2 for make
     final msys2Root = PlatformDetector.getMsys2Root();
     final usrBin = path.join(msys2Root, 'usr', 'bin');
-    final mingwBin = path.join(msys2Root, 'mingw64', 'bin');
-    final env = Map<String, String>.from(Platform.environment);
-    // Add MSYS2 paths to PATH (usr/bin has make, mingw64/bin has gcc)
-    env['PATH'] = '$usrBin;$mingwBin;${env['PATH'] ?? ''}';
-
-    // Find make executable
-    final makeExe = await PlatformDetector.findMake();
-
-    // Clean previous build
-    try {
-      await runProcessStreaming(makeExe, ['clean'], workingDirectory: sourceDir, environment: env);
-    } catch (e) {
-      // Ignore
+    if (!await Directory(usrBin).exists()) {
+      throw Exception('MSYS2 not found at $msys2Root. Please install MSYS2.');
     }
 
-    // Build static library for Windows
-    // OpenH264 uses OS=mingw_nt for MinGW-w64 builds on Windows
-    print('Building OpenH264...');
-    final buildResult = await runProcessStreaming(
-      makeExe,
-      ['-j', PlatformDetector.getCpuCores().toString(), 'OS=mingw_nt', 'ARCH=$openh264Arch', 'libopenh264.a'],
-      workingDirectory: sourceDir,
-      environment: env,
-    );
+    // Create a build script that initializes MSVC environment and runs make
+    final buildScript = path.join(buildDir, 'build_msvc.bat');
+    final vcvars64 = path.join(vsInstallDir, 'VC', 'Auxiliary', 'Build', 'vcvars64.bat');
 
-    if (buildResult.exitCode != 0) {
-      throw Exception('OpenH264 build failed: ${buildResult.stderr}');
+    if (!await File(vcvars64).exists()) {
+      throw Exception('vcvars64.bat not found at $vcvars64');
+    }
+
+    // Note: We prepend MSYS2 bin to PATH so make is found, but after vcvars so CL is found first
+    // We disable ASM (USE_ASM=No) to avoid NASM dependency issues
+    final scriptContent =
+        '''
+@echo off
+call "$vcvars64"
+set "PATH=$usrBin;%PATH%"
+cd /d "$sourceDir"
+echo Cleaning...
+make OS=msvc ARCH=x86_64 clean
+echo Building...
+make -j${PlatformDetector.getCpuCores()} OS=msvc ARCH=x86_64 USE_ASM=No
+''';
+
+    await FileOps.writeTextFile(buildScript, scriptContent);
+
+    print('Running MSVC build...');
+    final result = await Process.run(buildScript, [], runInShell: true);
+
+    // Stream output helpful for debugging
+    if (result.stdout.toString().isNotEmpty) stdout.write(result.stdout);
+    if (result.stderr.toString().isNotEmpty) stderr.write(result.stderr);
+
+    if (result.exitCode != 0) {
+      throw Exception('OpenH264 MSVC build failed. Exit code: ${result.exitCode}');
     }
 
     // Install
@@ -450,12 +441,16 @@ Cflags: -I\${includedir}
     await FileOps.ensureDirectory(path.join(installDir, 'include', 'wels'));
     await FileOps.ensureDirectory(path.join(installDir, 'lib', 'pkgconfig'));
 
-    // Copy library
-    final libFile = File(path.join(sourceDir, 'libopenh264.a'));
+    // Copy library (make OS=msvc produces openh264.lib)
+    final libFile = File(path.join(sourceDir, 'openh264.lib'));
     if (await libFile.exists()) {
-      await libFile.copy(path.join(installDir, 'lib', 'libopenh264.a'));
+      // Copy as openh264.lib (standard MSVC name)
+      await libFile.copy(path.join(installDir, 'lib', 'openh264.lib'));
+      // Copy as libopenh264.lib (Rust build.rs might look for this too)
+      await libFile.copy(path.join(installDir, 'lib', 'libopenh264.lib'));
+      print('✓ Copied .lib files to ${path.join(installDir, 'lib')}');
     } else {
-      throw Exception('libopenh264.a not found after build');
+      throw Exception('openh264.lib not found after build in $sourceDir');
     }
 
     // Copy headers
@@ -465,10 +460,10 @@ Cflags: -I\${includedir}
     }
 
     // Create pkg-config file
-    // Convert Windows path to MSYS2 Unix-style path for pkg-config
-    // This is needed because pkg-config runs through MSYS2's sh on Windows
+    // MSVC build doesn't use pkg-config typically, but we generate it for consistency
     final installDirMsys2 = PlatformDetector.windowsToMsys2Path(installDir);
-    final pcContent = '''
+    final pcContent =
+        '''
 prefix=$installDirMsys2
 exec_prefix=\${prefix}
 libdir=\${exec_prefix}/lib
@@ -477,12 +472,38 @@ includedir=\${prefix}/include
 Name: openh264
 Description: OpenH264 is a codec library which supports H.264 encoding and decoding
 Version: 2.6.0
-Libs: -L\${libdir} -lopenh264 -lstdc++
+Libs: -L\${libdir} -lopenh264
 Cflags: -I\${includedir}
 ''';
     await FileOps.writeTextFile(path.join(installDir, 'lib', 'pkgconfig', 'openh264.pc'), pcContent);
 
     print('OpenH264 installed: $installDir');
   }
-}
 
+  Future<String?> _findVisualStudio() async {
+    final programFiles = Platform.environment['ProgramFiles(x86)'] ?? r'C:\Program Files (x86)';
+    final vswhere = path.join(programFiles, 'Microsoft Visual Studio', 'Installer', 'vswhere.exe');
+
+    if (await File(vswhere).exists()) {
+      try {
+        final result = await Process.run(vswhere, [
+          '-latest',
+          '-products',
+          '*',
+          '-requires',
+          'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+          '-property',
+          'installationPath',
+        ]);
+
+        if (result.exitCode == 0) {
+          final path = result.stdout.toString().trim();
+          if (path.isNotEmpty) return path;
+        }
+      } catch (e) {
+        print('Error running vswhere: $e');
+      }
+    }
+    return null;
+  }
+}

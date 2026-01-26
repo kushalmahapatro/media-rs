@@ -1,0 +1,39 @@
+display_name: Media Labs
+package_name: medialabs
+
+maintainer:
+  name: Kushal Mahapatro
+  email: kushalmahapatro@gmail.com
+
+priority: optional
+
+section: x11
+
+installed_size: 15700
+
+dependencies:
+  - libapp
+  - libfile_selector_linux_plugin
+  - libflutter_linux_gtk
+  - libmedia_kit_libs_linux_plugin
+  - libmedia_kit_video_plugin
+  - libmeida
+
+essential: false
+
+# icon: linux/assets/apidash.png
+
+postuninstall_scripts:
+  - echo "Sorry to see you go."
+
+keywords:
+  - Video Compression
+  - Video Thumbnail Generation
+
+generic_name: Media Labs
+
+categories:
+  - Development
+  - Utility
+
+startup_notify: true

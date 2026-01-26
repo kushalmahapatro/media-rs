@@ -1,0 +1,13 @@
+variables:
+output: ../dist/
+releases:
+  - name: dev
+    jobs:
+      - name: release-dev-linux-deb
+        package:
+          platform: linux
+          target: deb
+      - name: release-dev-windows-exe
+        package:
+          platform: windows
+          target: exe

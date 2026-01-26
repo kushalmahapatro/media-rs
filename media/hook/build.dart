@@ -241,24 +241,10 @@ void _copyWindowsDlls(BuildInput input, BuildOutputBuilder output, Map<String, S
   final mingwBin = '$msys2Root\\mingw64\\bin';
   final mingwDlls = ['libgcc_s_seh-1.dll', 'libwinpthread-1.dll'];
 
-  final nativeAssetsDir = Directory.fromUri(input.outputDirectory);
-  if (!nativeAssetsDir.existsSync()) return;
-
-  final buildDirs = nativeAssetsDir.listSync().whereType<Directory>().toList()
-    ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-
-  if (buildDirs.isEmpty) return;
-
-  final buildDir = buildDirs.first;
-  final libDir = Directory('${buildDir.path}/target/x86_64-pc-windows-msvc/release');
-  if (!libDir.existsSync()) return;
-
-  final mediaDll = File('${libDir.path}/media.dll');
-  if (!mediaDll.existsSync()) return;
-
   for (final dllName in mingwDlls) {
-    final dllFile = File('$mingwBin\\$dllName');
+    final dllFile = File(join(mingwBin, dllName));
     if (dllFile.existsSync()) {
+      logger.info('Found DLL $dllName');
       output.assets.code.add(
         CodeAsset(
           package: input.packageName,
@@ -268,6 +254,8 @@ void _copyWindowsDlls(BuildInput input, BuildOutputBuilder output, Map<String, S
         ),
         routing: ToAppBundle(),
       );
+    } else {
+      logger.warning('DLL $dllName not found');
     }
   }
 }

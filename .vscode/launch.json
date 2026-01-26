@@ -69,6 +69,16 @@
             "args": [
                 "linux"
             ]
+        },
+        {
+            "name": "build (windows)",
+            "cwd": "tool",
+            "request": "launch",
+            "type": "dart",
+            "program": "build.dart",
+            "args": [
+                "windows"
+            ]
         }
     ]
 }

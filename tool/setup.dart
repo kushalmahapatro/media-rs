@@ -82,6 +82,9 @@ Map<String, dynamic> parseArgs(List<String> args) {
       case '--skip-openh264':
         options['skip_openh264'] = true;
         break;
+      case '--skip-ffmpeg':
+        options['skip_ffmpeg'] = true;
+        break;
       case '-h':
       case '--help':
         options['help'] = true;
@@ -180,7 +183,7 @@ class SetupScript {
       if (hostOS != 'windows') {
         print('Skipping Windows deps: host is not Windows.');
       } else {
-        await _buildWindows(skipOpenH264);
+        await _buildWindows(skipOpenH264, options);
       }
     }
 
@@ -240,16 +243,25 @@ class SetupScript {
     await builder.build(PlatformInfo(platform: BuildPlatform.linux), skipOpenH264: skipOpenH264);
   }
 
-  Future<void> _buildWindows(bool skipOpenH264) async {
+  Future<void> _buildWindows(bool skipOpenH264, Map<String, dynamic> options) async {
     if (!skipOpenH264) {
       print('=== Windows: OpenH264 ===');
       final openh264Builder = OpenH264Builder(projectRoot);
       await openh264Builder.build(PlatformInfo(platform: BuildPlatform.windows));
     }
 
-    print('=== Windows: FFmpeg ===');
-    final builder = FFmpegBuilder(projectRoot);
-    await builder.build(PlatformInfo(platform: BuildPlatform.windows), skipOpenH264: skipOpenH264);
+    if (options['skip_ffmpeg'] != true) {
+      print('=== Windows: FFmpeg ===');
+      final builder = FFmpegBuilder(projectRoot);
+      try {
+        await builder.build(PlatformInfo(platform: BuildPlatform.windows), skipOpenH264: skipOpenH264);
+      } catch (e) {
+        print('WARNING: FFmpeg build failed: $e');
+        print('Continuing to build libheif...');
+      }
+    } else {
+      print('Skipping FFmpeg build (--skip-ffmpeg)...');
+    }
 
     print('=== Windows: libheif (MinGW) ===');
     final libheifBuilder = LibHeifBuilder(projectRoot);
@@ -264,7 +276,7 @@ class SetupScript {
     print('Rebuilding libheif with MSVC to generate .lib files...');
     print('This will take 10-15 minutes.');
     print('');
-    
+
     try {
       await libheifBuilder.buildMSVC(PlatformInfo(platform: BuildPlatform.windows));
       print('');

@@ -1,7 +1,7 @@
 name: example
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.0+1
+version: 0.0.1+1
 
 environment:
   sdk: ^3.10.0
@@ -31,9 +31,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-
-inno_bundle:
-  id: 3928571b-18e9-5163-8e72-5b80626a8ca5
-  publisher: Kushal
-  name: Media Labs

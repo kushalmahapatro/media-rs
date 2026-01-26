@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 use tracing::{debug, error, info, warn};
 
 use crate::api::media::CompressParams;
@@ -28,7 +30,34 @@ impl FFmpegProcess {
 
     /// Locate the FFmpeg binary on the system
     fn locate_ffmpeg_binary() -> Result<PathBuf> {
-        // Try platform-specific paths first (from our build)
+        // 1. Priority: FFMPEG_DIR environment variable (User override or setup script)
+        if let Ok(dir) = std::env::var("FFMPEG_DIR") {
+            let dir_path = PathBuf::from(&dir);
+            debug!("Checking FFMPEG_DIR: {}", dir);
+            
+            #[cfg(target_os = "windows")]
+            let candidates = [
+                dir_path.join("bin").join("ffmpeg.exe"),
+                dir_path.join("ffmpeg.exe"),
+                dir_path.clone(), // If user pointed directly to executable
+            ];
+            
+            #[cfg(not(target_os = "windows"))]
+            let candidates = [
+                dir_path.join("bin").join("ffmpeg"),
+                dir_path.join("ffmpeg"),
+                dir_path.clone(),
+            ];
+            
+            for path in &candidates {
+                if path.exists() && path.is_file() {
+                    info!("Found FFmpeg from FFMPEG_DIR: {}", path.display());
+                    return Ok(path.clone());
+                }
+            }
+        }
+
+        // 2. Try platform-specific paths first (from our build)
         let platform_paths = Self::get_platform_ffmpeg_paths();
         
         for path in &platform_paths {
@@ -61,7 +90,11 @@ impl FFmpegProcess {
         // On Windows, also try 'where' command
         #[cfg(target_os = "windows")]
         {
-            if let Ok(output) = Command::new("where").arg(binary_name).output() {
+            let mut cmd = Command::new("where");
+            cmd.arg(binary_name);
+            cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+            
+            if let Ok(output) = cmd.output() {
                 if output.status.success() {
                     let path_str = String::from_utf8_lossy(&output.stdout)
                         .lines()
@@ -180,8 +213,13 @@ impl FFmpegProcess {
         
         let start_time = std::time::Instant::now();
         
-        let output = Command::new(&self.ffmpeg_path)
-            .args(&args)
+        let mut cmd = Command::new(&self.ffmpeg_path);
+        cmd.args(&args);
+        
+        #[cfg(target_os = "windows")]
+        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+        
+        let output = cmd
             .output()
             .context("Failed to execute FFmpeg process")?;
         
@@ -325,8 +363,13 @@ impl FFmpegProcess {
         
         debug!("FFmpeg thumbnail command: {} {}", self.ffmpeg_path.display(), args.join(" "));
         
-        let output = Command::new(&self.ffmpeg_path)
-            .args(&args)
+        let mut cmd = Command::new(&self.ffmpeg_path);
+        cmd.args(&args);
+        
+        #[cfg(target_os = "windows")]
+        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+        
+        let output = cmd
             .output()
             .context("Failed to execute FFmpeg process for thumbnail")?;
             

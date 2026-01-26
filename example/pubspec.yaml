@@ -27,6 +27,13 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^6.0.0
+  inno_bundle: ^0.11.2
 
 flutter:
   uses-material-design: true
+
+
+inno_bundle:
+  id: 3928571b-18e9-5163-8e72-5b80626a8ca5
+  publisher: Kushal
+  name: Media Labs

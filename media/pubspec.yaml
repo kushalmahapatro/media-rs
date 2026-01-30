@@ -26,3 +26,8 @@ dependencies:
   hooks: ^1.0.0
   native_toolchain_rust: ^1.0.3
   native_assets_cli: ^0.18.0
+
+hooks:
+  user_defines:
+    media:
+      localBuild: false

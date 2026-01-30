@@ -12,16 +12,10 @@ section: x11
 installed_size: 15700
 
 dependencies:
-  - libapp
-  - libfile_selector_linux_plugin
-  - libflutter_linux_gtk
-  - libmedia_kit_libs_linux_plugin
-  - libmedia_kit_video_plugin
-  - libmeida
 
 essential: false
 
-# icon: linux/assets/apidash.png
+# icon: 
 
 postuninstall_scripts:
   - echo "Sorry to see you go."

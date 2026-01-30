@@ -12,6 +12,7 @@ import '../../tool/build/android/setup_android.dart';
 import '../../tool/build/utils/build_environment.dart';
 import '../../tool/build/utils/target_mapping.dart';
 import '../../tool/build/windows/setup_windows.dart';
+import '../../tool/build.dart';
 
 final logger = Logger.detached('MediaBuilder')
   ..level = Level.ALL
@@ -30,10 +31,44 @@ final logger = Logger.detached('MediaBuilder')
 
 void main(List<String> args) async {
   await build(args, (BuildInput input, BuildOutputBuilder output) async {
+    final localBuild = input.userDefines['localBuild'] == 'true';
     final String sourcePath = 'src/bindings/frb_generated.io.dart';
-    final systemEnv = await _getShellEnvironment(input);
-    await runLocalBuild(input, output, sourcePath, args, systemEnv);
+    if (localBuild) {
+      final systemEnv = await _getShellEnvironment(input);
+      await runLocalBuild(input, output, sourcePath, args, systemEnv);
+    } else {
+      await downloadAssets(input, output, sourcePath);
+    }
   });
+}
+
+Future<void> downloadAssets(BuildInput input, BuildOutputBuilder output, String sourcePath) async {
+  final targetOS = input.config.code.targetOS;
+  final targetArchitecture = input.config.code.targetArchitecture;
+  final iOSSdk = targetOS == OS.iOS ? input.config.code.iOS.targetSdk : null;
+  final outputDirectory = Directory.fromUri(input.outputDirectory);
+  final linkMode = DynamicLoadingBundled();
+  final crateName = await getCrateName();
+  final libraryName = targetOS.libraryFileName(crateName, linkMode);
+
+  final targetTriple = getTargetTriple(targetOS, targetArchitecture, iOSSdk);
+
+  final ({String name, String ext}) lib = (name: libraryName.split(".").first, ext: libraryName.split(".").last);
+
+  final fileName = lib.name + '_' + targetOS.name + '_' + targetTriple + '.' + lib.ext;
+  final file = File(join(Directory.current.path, '..', 'platform-builds', targetOS.name, targetTriple, fileName));
+  logger.info('Looking for $fileName in ${file.path}');
+  if (!file.existsSync()) {
+    logger.shout('File $file does not exist');
+    return;
+  }
+
+  final finalFile = await file.copy(join(outputDirectory.path, libraryName));
+  logger.info('Copied $file to $finalFile');
+
+  output.assets.code.add(
+    CodeAsset(package: input.packageName, name: sourcePath, linkMode: linkMode, file: finalFile.uri),
+  );
 }
 
 Future<void> runLocalBuild(

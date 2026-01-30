@@ -55,13 +55,11 @@ Targets: $target
 -----------------------------------------------
     ''');
 
-  final cargoTomlPath = path.join(Directory.current.path, '..', 'native', 'Cargo.toml');
   final rustToolchainPath = path.join(Directory.current.path, '..', 'native', 'rust-toolchain.toml');
 
-  final cargoToml = await TomlDocument.load(cargoTomlPath);
   final rustToolchain = await TomlDocument.load(rustToolchainPath);
 
-  final crateName = cargoToml.toMap()['package']['name'];
+  final crateName = await getCrateName();
   final toolchainChannel = rustToolchain.toMap()['toolchain']['channel'];
 
   final systemEnv = Platform.environment;
@@ -123,6 +121,12 @@ Targets: $target
 
     return {...envFactory, ...envVars};
   });
+}
+
+Future<String> getCrateName() async {
+  final cargoTomlPath = path.join(Directory.current.path, '..', 'native', 'Cargo.toml');
+  final cargoToml = await TomlDocument.load(cargoTomlPath);
+  return cargoToml.toMap()['package']['name'];
 }
 
 String libraryVersion() {

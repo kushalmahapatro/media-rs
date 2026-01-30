@@ -91,6 +91,7 @@ class ImageLabViewModel extends ChangeNotifier {
           allowMultiple: false,
           initialDirectory: _pickedFileDirectory?.path,
           allowedExtensions: ['HEIC', 'HEIF', 'PNG', 'JPG', 'JPEG', 'GIF', 'BMP', 'TIFF', 'WEBP'],
+          type: FileType.custom,
         );
         path = result?.files.single.path;
       }

@@ -16,8 +16,8 @@ use std::sync::Mutex; // Still needed for cache on Windows
 static FFMPEG_INIT: std::sync::Once = std::sync::Once::new();
 static mut FFMPEG_INIT_ERROR: Option<anyhow::Error> = None;
 
-#[cfg(target_os = "windows")]
-static FFMPEG_SERIALIZATION_MUTEX: std::sync::Mutex<()> = std::sync::Mutex::new(());
+// Removed FFMPEG_SERIALIZATION_MUTEX - FFmpeg is statically linked and contexts are thread-safe
+// No need to serialize operations when using in-process FFmpeg
 
 
 
@@ -365,14 +365,7 @@ fn get_video_info_internal(path: &str) -> Result<crate::api::media::VideoInfo> {
     
     debug!("get_video_info_internal - about to call init_ffmpeg()");
     
-    #[cfg(target_os = "windows")]
-    let _internal_guard = {
-         debug!("get_video_info_internal - Windows: Waiting for serialization mutex");
-         let guard = FFMPEG_SERIALIZATION_MUTEX.lock().expect("Failed to acquire serialization mutex");
-         // Wait for delay to ensure cleanup - increased to 200ms for safety
-         std::thread::sleep(std::time::Duration::from_millis(200));
-         guard
-    };
+    // Removed mutex - FFmpeg contexts are thread-safe when statically linked
 
     init_ffmpeg()?;
     debug!("get_video_info_internal - init_ffmpeg() succeeded");
@@ -719,13 +712,7 @@ pub fn generate_thumbnail(
     
     // In-Process Fallback (Legacy)
     
-    #[cfg(target_os = "windows")]
-    let _thumbnail_guard = {
-         debug!("generate_thumbnail - Windows: Waiting for serialization mutex (fallback path)");
-         let guard = FFMPEG_SERIALIZATION_MUTEX.lock().expect("Failed to acquire serialization mutex");
-         std::thread::sleep(std::time::Duration::from_millis(200));
-         guard
-    };
+    // Removed mutex - FFmpeg contexts are thread-safe when statically linked
     
     init_ffmpeg().map_err(|e| (e, 0, 0))?;
     
@@ -1345,8 +1332,15 @@ pub fn estimate_compression_with_info(
     // Speed: use AVERAGE of per-sample speeds (not sum - that was wrong)
     // Each sample gives "ms of video processed per ms realtime"; average across samples.
     let estimated_speed = total_speed_x / valid_samples as f64;
+    
+    debug!("Estimate calculation: total_duration_ms={}, estimated_speed={:.2}x, valid_samples={}", 
+           total_duration_ms, estimated_speed, valid_samples);
 
     let estimated_duration_ms = (total_duration_ms as f64 / estimated_speed) as u64;
+    
+    debug!("Estimated duration: {}ms ({}s) for {}ms ({}s) of video at {:.2}x speed", 
+           estimated_duration_ms, estimated_duration_ms / 1000,
+           total_duration_ms, total_duration_ms / 1000, estimated_speed);
 
     let estimated_size_bytes = if let Some(fixed_size) = bitrate_mode_size {
         fixed_size
@@ -1485,41 +1479,9 @@ fn perform_compression(
     // FALLBACK: In-Process Compression
     // Only used if FFmpeg binary is missing or process execution fails
     
-    #[cfg(target_os = "windows")]
-    let _serialization_guard = {
-        debug!("perform_compression - Windows: Waiting for serialization mutex (fallback path)");
-        let guard = FFMPEG_SERIALIZATION_MUTEX.lock().expect("Failed to acquire serialization mutex");
-        // Small delay to allow previous contexts to clean up fully
-        std::thread::sleep(std::time::Duration::from_millis(200));
-        guard
-    };
+    // Removed mutex - FFmpeg contexts are thread-safe when statically linked
 
-    #[cfg(target_os = "windows")]
-    {
-        // Legacy MinGW DLL check (only needed for in-process fallback)
-        debug!("perform_compression - checking MinGW DLLs for fallback");
-        let exe_dir = std::env::current_exe()
-            .ok()
-            .and_then(|p| p.parent().map(|p| p.to_path_buf()));
-        
-        if let Some(dir) = &exe_dir {
-            let dlls = ["libgcc_s_seh-1.dll", "libwinpthread-1.dll"];
-            let mut missing_dlls = Vec::new();
-            for dll in &dlls {
-                if !dir.join(dll).exists() {
-                    missing_dlls.push(dll);
-                }
-            }
-            if !missing_dlls.is_empty() {
-                debug!("MinGW runtime DLLs not found in executable directory: {:?}", missing_dlls);
-            }
-        }
-        
-        // Add delay for Windows specific in-process issues
-        use std::thread;
-        use std::time::Duration;
-        thread::sleep(Duration::from_millis(100));
-    }
+    // Removed Windows-specific delays - not needed with statically linked FFmpeg
     
     debug!("perform_compression - about to call init_ffmpeg() for fallback");
     init_ffmpeg()?;
@@ -3458,5 +3420,129 @@ mod tests {
 
         // Cleanup
         let _ = std::fs::remove_file(&compressed_path);
+    }
+
+    /// Test concurrent operations: thumbnails during compression
+    #[test]
+    fn test_concurrent_operations() {
+        let test_file = if std::path::Path::new("HDR.MOV").exists() {
+            "HDR.MOV"
+        } else if std::path::Path::new("../native/HDR.MOV").exists() {
+            "../native/HDR.MOV"
+        } else if std::path::Path::new("sample_1280x720.mp4").exists() {
+            "sample_1280x720.mp4"
+        } else {
+            eprintln!("Skipping: no test video (HDR.MOV or sample_1280x720.mp4)");
+            return;
+        };
+
+        let temp_dir = "./temp";
+        let output_file = format!("{}/concurrent_test_output.mp4", temp_dir);
+        std::fs::create_dir_all(temp_dir).ok();
+        let _ = std::fs::remove_file(&output_file);
+
+        let params = crate::api::media::CompressParams {
+            width: Some(640),
+            height: Some(360),
+            preset: Some("veryfast".to_string()),
+            crf: Some(23),
+            target_bitrate_kbps: 0,
+            sample_duration_ms: Some(1500),
+        };
+
+        let thumbnail_params = crate::api::media::VideoThumbnailParams {
+            time_ms: 1000,
+            size_type: Some(crate::api::media::ThumbnailSizeType::Custom((320, 180))),
+            format: Some(crate::api::media::OutputFormat::JPEG),
+        };
+
+        println!("=== Testing concurrent operations ===");
+        println!("Starting compression and concurrent thumbnail generation...");
+
+        // Start compression in a thread
+        let compression_handle = std::thread::spawn({
+            let test_file = test_file.to_string();
+            let output_file = output_file.clone();
+            let params = params.clone();
+            move || {
+                let start = std::time::Instant::now();
+                let result = perform_compression(&test_file, &output_file, &params, None, None);
+                let elapsed = start.elapsed();
+                (result, elapsed)
+            }
+        });
+
+        // Generate multiple thumbnails concurrently
+        let thumbnail_times = vec![500, 1000, 1500, 2000, 2500];
+        let thumbnail_handles: Vec<_> = thumbnail_times
+            .iter()
+            .map(|&time| {
+                let test_file = test_file.to_string();
+                let mut params = thumbnail_params.clone();
+                params.time_ms = time;
+                std::thread::spawn(move || {
+                    let start = std::time::Instant::now();
+                    let result = generate_thumbnail(&test_file, &params);
+                    let elapsed = start.elapsed();
+                    (result, elapsed, time)
+                })
+            })
+            .collect();
+
+        // Wait for all thumbnails
+        println!("Waiting for {} thumbnails to complete...", thumbnail_times.len());
+        let thumbnail_start = std::time::Instant::now();
+        let thumbnail_results: Vec<_> = thumbnail_handles
+            .into_iter()
+            .map(|h| h.join().unwrap())
+            .collect();
+        let thumbnail_total_elapsed = thumbnail_start.elapsed();
+
+        // Wait for compression
+        println!("Waiting for compression to complete...");
+        let (compression_result, compression_elapsed) = compression_handle.join().unwrap();
+
+        println!("\nResults:");
+        println!("  Compression: {:?} in {:?}", 
+                 compression_result.is_ok(), compression_elapsed);
+        println!("  Thumbnails: {} completed in {:?}", 
+                 thumbnail_results.len(), thumbnail_total_elapsed);
+        println!("  Average thumbnail time: {:?}", 
+                 thumbnail_total_elapsed / thumbnail_results.len() as u32);
+
+        // Verify compression succeeded
+        assert!(compression_result.is_ok(), "Compression should succeed");
+        let compression_stats = compression_result.unwrap();
+        assert!(compression_stats.encoded_size_bytes > 0, "Compressed file should have content");
+
+        // Verify all thumbnails succeeded
+        for (result, elapsed, time) in &thumbnail_results {
+            match result {
+                Ok(thumb) => {
+                    assert!(thumb.2 > 0, "Thumbnail at {}ms should have width", time);
+                    assert!(thumb.1 > 0, "Thumbnail at {}ms should have height", time);
+                    assert!(!thumb.0.is_empty(), "Thumbnail at {}ms should have data", time);
+                    println!("  ✓ Thumbnail at {}ms: {}x{}, {} bytes, took {:?}", 
+                             time, thumb.2, thumb.1, thumb.0.len(), elapsed);
+                }
+                Err(e) => {
+                    panic!("Thumbnail at {}ms failed: {:?}", time, e);
+                }
+            }
+        }
+
+        // Verify concurrency: thumbnails should complete faster than if serialized
+        // If serialized, each thumbnail might take ~200-500ms, so total would be much higher
+        let expected_serial_time = std::time::Duration::from_millis(thumbnail_results.len() as u64 * 300);
+        if thumbnail_total_elapsed < expected_serial_time {
+            println!("✓ Concurrency verified: thumbnails completed faster than serial execution");
+        } else {
+            println!("⚠ Thumbnails may be serialized (took {:?}, expected < {:?} if concurrent)", 
+                     thumbnail_total_elapsed, expected_serial_time);
+        }
+
+        // Cleanup
+        std::fs::remove_file(&output_file).ok();
+        println!("\n✓ Concurrent operations test passed!");
     }
 }

@@ -5,7 +5,7 @@ use std::process::Command;
 use std::os::windows::process::CommandExt;
 #[cfg(target_os = "windows")]
 use std::sync::{Condvar, Mutex};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info};
 
 use crate::api::media::CompressParams;
 
@@ -343,7 +343,7 @@ impl FFmpegProcess {
         time_ms: u64,
         params: &crate::api::media::VideoThumbnailParams,
     ) -> Result<(Vec<u8>, u32, u32)> {
-        use crate::api::media::{OutputFormat, ThumbnailSizeType};
+        use crate::api::media::OutputFormat;
         
         debug!("generate_thumbnail: input={}, time={}ms", input_path, time_ms);
         

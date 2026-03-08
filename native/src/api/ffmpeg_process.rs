@@ -4,16 +4,38 @@ use std::process::Command;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 #[cfg(target_os = "windows")]
-use std::sync::Mutex;
+use std::sync::{Condvar, Mutex};
 use tracing::{debug, error, info, warn};
 
 use crate::api::media::CompressParams;
 
-/// On Windows, spawning multiple FFmpeg processes simultaneously causes crashes
-/// due to DLL loading conflicts and resource contention. We serialize all
-/// FFmpeg process invocations with a global mutex.
+/// On Windows, spawning too many FFmpeg processes at once causes DLL loading
+/// conflicts. Use a semaphore to allow up to 3 concurrent processes for
+/// parallel estimation while avoiding full concurrent spawn storms.
 #[cfg(target_os = "windows")]
-static FFMPEG_PROCESS_MUTEX: Mutex<()> = Mutex::new(());
+static FFMPEG_SEM: (Mutex<usize>, Condvar) = (Mutex::new(3), Condvar::new());
+
+#[cfg(target_os = "windows")]
+struct FfmpegPermitGuard;
+
+#[cfg(target_os = "windows")]
+impl Drop for FfmpegPermitGuard {
+    fn drop(&mut self) {
+        let mut g = FFMPEG_SEM.0.lock().expect("ffmpeg semaphore poisoned");
+        *g += 1;
+        FFMPEG_SEM.1.notify_one();
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn acquire_ffmpeg_permit() -> FfmpegPermitGuard {
+    let mut g = FFMPEG_SEM.0.lock().expect("ffmpeg semaphore poisoned");
+    while *g == 0 {
+        g = FFMPEG_SEM.1.wait(g).expect("ffmpeg semaphore poisoned");
+    }
+    *g -= 1;
+    FfmpegPermitGuard
+}
 
 /// Statistics from a compression operation
 #[derive(Debug, Clone)]
@@ -224,8 +246,8 @@ impl FFmpegProcess {
         let output = {
             #[cfg(target_os = "windows")]
             let _guard = {
-                debug!("Windows: Acquiring FFmpeg process mutex for compress_segment");
-                FFMPEG_PROCESS_MUTEX.lock().expect("FFmpeg process mutex poisoned")
+                debug!("Windows: Acquiring FFmpeg permit for compress_segment (up to 3 parallel)");
+                acquire_ffmpeg_permit()
             };
             
             let mut cmd = Command::new(&self.ffmpeg_path);
@@ -381,8 +403,8 @@ impl FFmpegProcess {
         let output = {
             #[cfg(target_os = "windows")]
             let _guard = {
-                debug!("Windows: Acquiring FFmpeg process mutex for generate_thumbnail");
-                FFMPEG_PROCESS_MUTEX.lock().expect("FFmpeg process mutex poisoned")
+                debug!("Windows: Acquiring FFmpeg permit for generate_thumbnail");
+                acquire_ffmpeg_permit()
             };
             
             let mut cmd = Command::new(&self.ffmpeg_path);

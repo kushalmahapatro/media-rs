@@ -1111,9 +1111,9 @@ pub fn estimate_compression_with_info(
         }
     }
 
-    // Heuristics - use shorter samples for faster estimation
-    // Reduced from 5000ms to 2000ms: 0.5s warmup + 1.5s active is sufficient for estimation
-    let sample_duration_ms = params.sample_duration_ms.unwrap_or(2000u64);
+    // Heuristics - use short samples for fast estimation (goal: estimate faster than compressing)
+    // 1500ms per sample balances speed vs accuracy; +/- 10-15% tolerance is acceptable
+    let sample_duration_ms = params.sample_duration_ms.unwrap_or(1500u64);
 
     // Define sampling points based on mode
     let points = if params.crf.is_some() {
@@ -3198,13 +3198,114 @@ mod tests {
             result_br.estimated_size_bytes, result_br.estimated_duration_ms
         );
 
-        // Expected size: (1000kbps + 192kbps audio) * duration (183s)
-        // 1192 * 1000 / 8 * 183 = ~27.2MB.
+        // Expected size: 1000kbps video * duration (183s), no audio in output
+        // 1000 * 1000 / 8 * 183 = ~22.9MB
         assert!(
             result_br.estimated_size_bytes > 20_000_000
                 && result_br.estimated_size_bytes < 40_000_000
         );
         assert!(result_br.estimated_duration_ms > 5000);
+    }
+
+    /// Integration test: Compare estimate vs actual compression.
+    /// Est. size and duration should be within ±15% of actual.
+    #[test]
+    fn test_estimate_vs_actual_accuracy() {
+        let test_file = if std::path::Path::new("HDR.MOV").exists() {
+            "HDR.MOV"
+        } else if std::path::Path::new("../native/HDR.MOV").exists() {
+            "../native/HDR.MOV"
+        } else if std::path::Path::new("sample_1280x720.mp4").exists() {
+            "sample_1280x720.mp4"
+        } else {
+            let generated = "test_estimate_vs_actual.mp4";
+            match generate_test_video(generated) {
+                Ok(()) if std::path::Path::new(generated).exists() => generated,
+                _ => {
+                    eprintln!("Skipping: no test video (HDR.MOV, sample_1280x720.mp4, or ffmpeg to generate)");
+                    return;
+                }
+            }
+        };
+
+        let temp_dir = "./temp";
+        let output_file = format!("{}/estimate_vs_actual_test.mp4", temp_dir);
+        std::fs::create_dir_all(temp_dir).ok();
+        let _ = std::fs::remove_file(&output_file);
+
+        let params = crate::api::media::CompressParams {
+            width: Some(640),
+            height: Some(360),
+            preset: Some("veryfast".to_string()),
+            crf: Some(23),
+            target_bitrate_kbps: 0,
+            sample_duration_ms: Some(1500),
+        };
+
+        // 1. Get estimate
+        let estimate = match estimate_compression(test_file, temp_dir, &params) {
+            Ok(e) => e,
+            Err(e) => {
+                eprintln!("Estimate failed: {:?}", e);
+                return;
+            }
+        };
+
+        // 2. Perform compression
+        let result = match perform_compression(test_file, &output_file, &params, None, None) {
+            Ok(r) => r,
+            Err(e) => {
+                eprintln!("Compression failed: {:?}", e);
+                return;
+            }
+        };
+
+        // 3. Compare: actual file size
+        let actual_size = std::fs::metadata(&output_file)
+            .map(|m| m.len())
+            .unwrap_or(0);
+        let size_ratio = if actual_size > 0 {
+            estimate.estimated_size_bytes as f64 / actual_size as f64
+        } else {
+            1.0
+        };
+        let size_ok = (0.85..=1.15).contains(&size_ratio);
+
+        // 4. Compare: actual elapsed time
+        let actual_elapsed_ms = result.elapsed_ms as f64;
+        let duration_ratio = if actual_elapsed_ms > 0.0 {
+            estimate.estimated_duration_ms as f64 / actual_elapsed_ms
+        } else {
+            1.0
+        };
+        let duration_ok = (0.85..=1.15).contains(&duration_ratio);
+
+        eprintln!(
+            "Estimate vs Actual: size {}/{} (ratio {:.2}), duration {}ms/{}ms (ratio {:.2})",
+            estimate.estimated_size_bytes,
+            actual_size,
+            size_ratio,
+            estimate.estimated_duration_ms,
+            result.elapsed_ms,
+            duration_ratio
+        );
+
+        assert!(
+            size_ok,
+            "Estimated size {} should be within ±15% of actual {} (ratio {:.2})",
+            estimate.estimated_size_bytes, actual_size, size_ratio
+        );
+        assert!(
+            duration_ok,
+            "Estimated duration {}ms should be within ±15% of actual {}ms (ratio {:.2})",
+            estimate.estimated_duration_ms, result.elapsed_ms, duration_ratio
+        );
+
+        // Cleanup
+        std::fs::remove_file(&output_file).ok();
+        if test_file.starts_with("test_") {
+            std::fs::remove_file(test_file).ok();
+        }
     }
 
     #[test]

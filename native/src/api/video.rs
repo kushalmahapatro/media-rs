@@ -1135,13 +1135,11 @@ pub fn estimate_compression_with_info(
     }
 
     // For Bitrate Mode Size Calculation
+    // FFmpeg process uses -an (no audio), so size is video-only.
     let mut bitrate_mode_size: Option<u64> = None;
     if params.crf.is_none() {
-        // ... Logic using estimated_target_bitrate ...
-        let audio_bitrate_bps = 192_000u64; // Est audio
         let video_bitrate_bps = (estimated_target_bitrate * 1000) as u64;
-        let total_bps = video_bitrate_bps + audio_bitrate_bps;
-        bitrate_mode_size = Some((total_bps * total_duration_ms) / 8000);
+        bitrate_mode_size = Some((video_bitrate_bps * total_duration_ms) / 8000);
     }
 
     // Use parallel execution on all platforms for best performance
@@ -1327,12 +1325,9 @@ pub fn estimate_compression_with_info(
         let estimated_size_bytes = if let Some(fixed_size) = bitrate_mode_size {
             fixed_size
         } else {
-            // CRF mode or no bitrate hint: approximate using a modest video bitrate
-            // plus 192kbps audio, based on the source duration.
+            // CRF mode or no bitrate hint: approximate using modest video bitrate (video-only).
             let video_bitrate_bps = info.bitrate.unwrap_or(2_000_000u64);
-            let audio_bitrate_bps = 192_000u64;
-            let total_bps = video_bitrate_bps + audio_bitrate_bps;
-            (total_bps * total_duration_ms) / 8000
+            (video_bitrate_bps * total_duration_ms) / 8000
         };
 
         // Duration estimate: assume 1x realtime as a safe default if we have no samples.
@@ -1347,21 +1342,19 @@ pub fn estimate_compression_with_info(
     // Size: use average video rate from samples
     let avg_video_rate_per_ms = total_size_per_ms / valid_samples as f64;
 
-    // Speed: use sum of per-sample speeds
-    let estimated_speed = total_speed_x;
+    // Speed: use AVERAGE of per-sample speeds (not sum - that was wrong)
+    // Each sample gives "ms of video processed per ms realtime"; average across samples.
+    let estimated_speed = total_speed_x / valid_samples as f64;
 
     let estimated_duration_ms = (total_duration_ms as f64 / estimated_speed) as u64;
 
     let estimated_size_bytes = if let Some(fixed_size) = bitrate_mode_size {
         fixed_size
     } else {
-        // Video estimate from sampled rate
+        // Video estimate from sampled rate. Sampling uses FFmpeg process with -an (no audio),
+        // so we do NOT add audio - the actual output is video-only.
         let video_est = avg_video_rate_per_ms * total_duration_ms as f64;
-
-        // Audio estimate (constant 192kbps = 24 bytes/ms), skipped in sampling
-        let audio_est = (192.0 / 8.0) * total_duration_ms as f64;
-
-        (video_est + audio_est) as u64
+        (video_est as u64)
     };
 
     let estimate_elapsed = estimate_start.elapsed();

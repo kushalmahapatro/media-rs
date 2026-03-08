@@ -3,9 +3,17 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
+#[cfg(target_os = "windows")]
+use std::sync::Mutex;
 use tracing::{debug, error, info, warn};
 
 use crate::api::media::CompressParams;
+
+/// On Windows, spawning multiple FFmpeg processes simultaneously causes crashes
+/// due to DLL loading conflicts and resource contention. We serialize all
+/// FFmpeg process invocations with a global mutex.
+#[cfg(target_os = "windows")]
+static FFMPEG_PROCESS_MUTEX: Mutex<()> = Mutex::new(());
 
 /// Statistics from a compression operation
 #[derive(Debug, Clone)]
@@ -213,15 +221,22 @@ impl FFmpegProcess {
         
         let start_time = std::time::Instant::now();
         
-        let mut cmd = Command::new(&self.ffmpeg_path);
-        cmd.args(&args);
-        
-        #[cfg(target_os = "windows")]
-        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
-        
-        let output = cmd
-            .output()
-            .context("Failed to execute FFmpeg process")?;
+        let output = {
+            #[cfg(target_os = "windows")]
+            let _guard = {
+                debug!("Windows: Acquiring FFmpeg process mutex for compress_segment");
+                FFMPEG_PROCESS_MUTEX.lock().expect("FFmpeg process mutex poisoned")
+            };
+            
+            let mut cmd = Command::new(&self.ffmpeg_path);
+            cmd.args(&args);
+            
+            #[cfg(target_os = "windows")]
+            cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+            
+            cmd.output()
+                .context("Failed to execute FFmpeg process")?
+        };
         
         let elapsed_ms = start_time.elapsed().as_millis() as u64;
         
@@ -231,8 +246,8 @@ impl FFmpegProcess {
             return Err(anyhow::anyhow!("FFmpeg process failed: {}", stderr));
         }
         
-        // Parse output to get statistics
-        let stats = self.parse_output(&output.stderr, elapsed_ms, duration_ms)?;
+        // Parse output to get statistics (pass output_path for fallback file-size when stderr parsing fails)
+        let stats = self.parse_output(&output.stderr, elapsed_ms, duration_ms, Some(output_path))?;
         
         debug!("compress_segment completed: {:?}", stats);
         Ok(stats)
@@ -363,15 +378,22 @@ impl FFmpegProcess {
         
         debug!("FFmpeg thumbnail command: {} {}", self.ffmpeg_path.display(), args.join(" "));
         
-        let mut cmd = Command::new(&self.ffmpeg_path);
-        cmd.args(&args);
-        
-        #[cfg(target_os = "windows")]
-        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
-        
-        let output = cmd
-            .output()
-            .context("Failed to execute FFmpeg process for thumbnail")?;
+        let output = {
+            #[cfg(target_os = "windows")]
+            let _guard = {
+                debug!("Windows: Acquiring FFmpeg process mutex for generate_thumbnail");
+                FFMPEG_PROCESS_MUTEX.lock().expect("FFmpeg process mutex poisoned")
+            };
+            
+            let mut cmd = Command::new(&self.ffmpeg_path);
+            cmd.args(&args);
+            
+            #[cfg(target_os = "windows")]
+            cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+            
+            cmd.output()
+                .context("Failed to execute FFmpeg process for thumbnail")?
+        };
             
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
@@ -419,6 +441,7 @@ impl FFmpegProcess {
         stderr: &[u8],
         elapsed_ms: u64,
         expected_duration_ms: Option<u64>,
+        output_path: Option<&str>,
     ) -> Result<CompressionStats> {
         let output_str = String::from_utf8_lossy(stderr);
         
@@ -445,10 +468,12 @@ impl FFmpegProcess {
             }
         }
         
-        // If we couldn't parse from progress, try to get file size
-        if encoded_size_bytes == 0 {
-            // The output file should exist, try to get its size
-            // This is a fallback - we'll use the expected duration
+        if encoded_size_bytes == 0 && output_path.is_some() {
+            if let Ok(meta) = std::fs::metadata(output_path.unwrap()) {
+                encoded_size_bytes = meta.len();
+            }
+        }
+        if processed_duration_ms == 0 {
             processed_duration_ms = expected_duration_ms.unwrap_or(0);
         }
         

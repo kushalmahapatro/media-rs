@@ -936,6 +936,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kamadak-exif"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1130d80c7374efad55a117d715a3af9368f0fa7a2c54573afc15a188cd984837"
+dependencies = [
+ "mutate_once",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1029,14 +1038,17 @@ dependencies = [
  "anyhow",
  "async-compat",
  "const_panic",
+ "lazy_static",
  "log-panics",
+ "ndk-sys",
  "once_cell",
- "paranoid-android",
+ "sharded-slab",
+ "smallvec",
  "tokio",
  "tracing",
  "tracing-appender",
- "tracing-core 0.1.34",
- "tracing-subscriber 0.3.20",
+ "tracing-core",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -1086,6 +1098,7 @@ dependencies = [
  "ffmpeg-next",
  "flutter_rust_bridge",
  "image",
+ "kamadak-exif",
  "libheif-rs",
  "logger",
  "serde",
@@ -1125,6 +1138,12 @@ dependencies = [
  "num-traits",
  "pxfm",
 ]
+
+[[package]]
+name = "mutate_once"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13d2233c9842d08cfe13f9eac96e207ca6a2ea10b80259ebe8ad0268be27d2af"
 
 [[package]]
 name = "ndk-sys"
@@ -1265,19 +1284,6 @@ dependencies = [
  "cc",
  "dashmap",
  "log",
-]
-
-[[package]]
-name = "paranoid-android"
-version = "0.2.2"
-source = "git+https://github.com/element-hq/paranoid-android.git?rev=69388ac5b4afeed7be4401c70ce17f6d9a2cf19b#69388ac5b4afeed7be4401c70ce17f6d9a2cf19b"
-dependencies = [
- "lazy_static",
- "ndk-sys",
- "sharded-slab",
- "smallvec",
- "tracing-core 0.1.32",
- "tracing-subscriber 0.3.18",
 ]
 
 [[package]]
@@ -1906,7 +1912,7 @@ source = "git+https://github.com/element-hq/tracing.git?rev=20f5b3d8ba057ca9c4ae
 dependencies = [
  "pin-project-lite",
  "tracing-attributes",
- "tracing-core 0.1.34",
+ "tracing-core",
 ]
 
 [[package]]
@@ -1917,7 +1923,7 @@ dependencies = [
  "crossbeam-channel",
  "thiserror 2.0.17",
  "time",
- "tracing-subscriber 0.3.20",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -1928,14 +1934,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "tracing-core"
-version = "0.1.32"
-source = "git+https://github.com/element-hq/tracing.git?rev=ca9431f74d37c9d3b5e6a9f35b2c706711dab7dd#ca9431f74d37c9d3b5e6a9f35b2c706711dab7dd"
-dependencies = [
- "once_cell",
 ]
 
 [[package]]
@@ -1954,18 +1952,7 @@ source = "git+https://github.com/element-hq/tracing.git?rev=20f5b3d8ba057ca9c4ae
 dependencies = [
  "log",
  "once_cell",
- "tracing-core 0.1.34",
-]
-
-[[package]]
-name = "tracing-subscriber"
-version = "0.3.18"
-source = "git+https://github.com/element-hq/tracing.git?rev=ca9431f74d37c9d3b5e6a9f35b2c706711dab7dd#ca9431f74d37c9d3b5e6a9f35b2c706711dab7dd"
-dependencies = [
- "sharded-slab",
- "smallvec",
- "thread_local",
- "tracing-core 0.1.32",
+ "tracing-core",
 ]
 
 [[package]]
@@ -1981,7 +1968,7 @@ dependencies = [
  "smallvec",
  "thread_local",
  "tracing",
- "tracing-core 0.1.34",
+ "tracing-core",
  "tracing-log",
 ]
 

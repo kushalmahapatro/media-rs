@@ -4,17 +4,23 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import '../frb_generated.dart';
+import 'delivery.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'media.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `decode_heic_with_libheif`, `decode_image_with_ffmpeg_impl`, `decode_image_with_ffmpeg`
+// These functions are ignored because they are not marked as `pub`: `apply_exif_orientation`, `decode_heic_with_libheif`, `decode_image_with_ffmpeg_impl`, `decode_image_with_ffmpeg`, `read_exif_orientation`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `CompressProgress`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Exposed via FRB
 Future<VideoInfo> getVideoInfo({required String path}) =>
     RustLib.instance.api.crateApiMediaGetVideoInfo(path: path);
+
+/// Analytic HD/SD delivery estimates (no sample encode). Equivalent to `get_video_info(path)?.delivery`.
+Future<VideoDeliveryEstimates> getVideoDeliveryEstimates({
+  required String path,
+}) => RustLib.instance.api.crateApiMediaGetVideoDeliveryEstimates(path: path);
 
 Future<String> generateVideoThumbnail({
   required String path,
@@ -217,21 +223,29 @@ class VideoInfo {
   final BigInt durationMs;
   final int width;
   final int height;
+
+  /// Clockwise rotation (0, 90, 180, 270) from stream/display matrix or `rotate` metadata.
+  final int rotationDegrees;
   final BigInt sizeBytes;
   final BigInt? bitrate;
   final String? codecName;
   final String? formatName;
   final List<ResolutionPreset> suggestions;
 
+  /// WhatsApp-style HD (720-class) / SD (480-class) analytic delivery estimates.
+  final VideoDeliveryEstimates delivery;
+
   const VideoInfo({
     required this.durationMs,
     required this.width,
     required this.height,
+    required this.rotationDegrees,
     required this.sizeBytes,
     this.bitrate,
     this.codecName,
     this.formatName,
     required this.suggestions,
+    required this.delivery,
   });
 
   @override
@@ -239,11 +253,13 @@ class VideoInfo {
       durationMs.hashCode ^
       width.hashCode ^
       height.hashCode ^
+      rotationDegrees.hashCode ^
       sizeBytes.hashCode ^
       bitrate.hashCode ^
       codecName.hashCode ^
       formatName.hashCode ^
-      suggestions.hashCode;
+      suggestions.hashCode ^
+      delivery.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -253,11 +269,13 @@ class VideoInfo {
           durationMs == other.durationMs &&
           width == other.width &&
           height == other.height &&
+          rotationDegrees == other.rotationDegrees &&
           sizeBytes == other.sizeBytes &&
           bitrate == other.bitrate &&
           codecName == other.codecName &&
           formatName == other.formatName &&
-          suggestions == other.suggestions;
+          suggestions == other.suggestions &&
+          delivery == other.delivery;
 }
 
 class VideoThumbnailParams {

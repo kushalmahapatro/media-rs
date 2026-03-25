@@ -14,6 +14,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   media:
     path: ../
+  os_video_delivery:
+    path: ../packages/os_video_delivery
   file_picker: ^10.3.7
   image_picker: ^1.2.1
   path: ^1.9.1
@@ -31,3 +33,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+hooks:
+  user_defines:
+    media:
+      localBuild: false

@@ -387,11 +387,32 @@ class FFmpegBuilder extends BaseBuilder {
     }
 
     // Android ABIs to build.
-    // NOTE: For arm64-v8a we use cpu=armv8-a to avoid FFmpeg generating
-    // unsupported -mcpu=arm64 flags (clang expects e.g. armv8-a instead).
+    // `clangPrefix`: NDK clang triple (before API level). `crossPrefixName`: FFmpeg --cross-prefix basename in bin/.
     final abis = [
-      {'arch': 'aarch64', 'abi': 'arm64-v8a', 'api': 21, 'cpu': 'armv8-a'},
-      {'arch': 'x86_64', 'abi': 'x86_64', 'api': 21, 'cpu': 'generic'},
+      {
+        'arch': 'aarch64',
+        'abi': 'arm64-v8a',
+        'api': 21,
+        'cpu': 'armv8-a',
+        'clangPrefix': 'aarch64-linux-android',
+        'crossPrefixName': 'aarch64-linux-android-',
+      },
+      {
+        'arch': 'arm',
+        'abi': 'armeabi-v7a',
+        'api': 21,
+        'cpu': 'armv7-a',
+        'clangPrefix': 'armv7a-linux-androideabi',
+        'crossPrefixName': 'arm-linux-androideabi-',
+      },
+      {
+        'arch': 'x86_64',
+        'abi': 'x86_64',
+        'api': 21,
+        'cpu': 'generic',
+        'clangPrefix': 'x86_64-linux-android',
+        'crossPrefixName': 'x86_64-linux-android-',
+      },
     ];
 
     final sourceDir = getSourceDir(sourceName);
@@ -402,6 +423,8 @@ class FFmpegBuilder extends BaseBuilder {
       final abi = abiInfo['abi'] as String;
       final apiLevel = abiInfo['api'] as int;
       final cpu = abiInfo['cpu'] as String;
+      final clangPrefix = abiInfo['clangPrefix'] as String;
+      final crossPrefixName = abiInfo['crossPrefixName'] as String;
 
       print('Building FFmpeg for Android $abi (API $apiLevel)...');
 
@@ -430,13 +453,13 @@ class FFmpegBuilder extends BaseBuilder {
       }
 
       // Set up toolchain
-      final cc = path.join(toolchain, 'bin', '$arch-linux-android$apiLevel-clang');
-      final cxx = path.join(toolchain, 'bin', '$arch-linux-android$apiLevel-clang++');
+      final cc = path.join(toolchain, 'bin', '$clangPrefix$apiLevel-clang');
+      final cxx = path.join(toolchain, 'bin', '$clangPrefix$apiLevel-clang++');
       final ar = path.join(toolchain, 'bin', 'llvm-ar');
       final ranlib = path.join(toolchain, 'bin', 'llvm-ranlib');
       final strip = path.join(toolchain, 'bin', 'llvm-strip');
       final nm = path.join(toolchain, 'bin', 'llvm-nm');
-      final crossPrefix = path.join(toolchain, 'bin', '$arch-linux-android-');
+      final crossPrefix = path.join(toolchain, 'bin', crossPrefixName);
       final sysroot = path.join(toolchain, 'sysroot');
 
       // Verify toolchain binaries exist
@@ -500,6 +523,8 @@ class FFmpegBuilder extends BaseBuilder {
 
       if (arch == 'aarch64') {
         extraCflags.add('-march=armv8-a');
+      } else if (arch == 'arm') {
+        extraCflags.addAll(['-march=armv7-a', '-mfpu=neon', '-mfloat-abi=softfp']);
       } else if (arch == 'x86_64') {
         extraCflags.addAll(['-march=x86-64', '-msse4.2', '-mpopcnt', '-m64']);
       }
@@ -544,7 +569,7 @@ class FFmpegBuilder extends BaseBuilder {
         '--disable-mediacodec',
       ];
 
-      if (arch == 'aarch64') {
+      if (arch == 'aarch64' || arch == 'arm') {
         configureArgs.add('--enable-neon');
       } else if (arch == 'x86_64' || arch == 'x86') {
         configureArgs.add('--disable-x86asm');

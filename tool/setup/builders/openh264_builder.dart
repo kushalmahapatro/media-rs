@@ -75,17 +75,30 @@ class OpenH264Builder extends BaseBuilder {
       throw Exception('Could not find Android NDK toolchain');
     }
 
-    // Android ABIs to build
+    // Android ABIs to build.
+    // `ndkClang` is the NDK clang basename prefix (before API level), e.g. armv7a-linux-androideabi.
     final abis = [
       {
         'abi': 'arm64-v8a',
         'api': 21,
-        // CPU name used by OpenH264 makefiles.
         'cpu': 'arm64',
-        // Toolchain target triple prefix used by NDK clang.
         'toolchainArch': 'aarch64',
+        'ndkClang': null, // default: ${toolchainArch}-linux-android
       },
-      {'abi': 'x86_64', 'api': 21, 'cpu': 'x86_64', 'toolchainArch': 'x86_64'},
+      {
+        'abi': 'armeabi-v7a',
+        'api': 21,
+        'cpu': 'arm',
+        'toolchainArch': 'arm',
+        'ndkClang': 'armv7a-linux-androideabi',
+      },
+      {
+        'abi': 'x86_64',
+        'api': 21,
+        'cpu': 'x86_64',
+        'toolchainArch': 'x86_64',
+        'ndkClang': null,
+      },
     ];
 
     for (final abiInfo in abis) {
@@ -93,6 +106,7 @@ class OpenH264Builder extends BaseBuilder {
       final apiLevel = abiInfo['api'] as int;
       final cpu = abiInfo['cpu'] as String;
       final toolchainArch = abiInfo['toolchainArch'] as String;
+      final ndkClangOverride = abiInfo['ndkClang'] as String?;
 
       print('Building OpenH264 for Android $abi (API $apiLevel)...');
 
@@ -104,10 +118,9 @@ class OpenH264Builder extends BaseBuilder {
       await FileOps.ensureDirectory(installDir);
 
       // Set up Android toolchain.
-      // NOTE: For 64-bit ARM, the NDK uses 'aarch64-linux-android' as the
-      // target triple, not 'arm64-linux-android'.
-      final cc = path.join(toolchain, 'bin', '${toolchainArch}-linux-android$apiLevel-clang');
-      final cxx = path.join(toolchain, 'bin', '${toolchainArch}-linux-android$apiLevel-clang++');
+      final ndkClangPrefix = ndkClangOverride ?? '${toolchainArch}-linux-android';
+      final cc = path.join(toolchain, 'bin', '$ndkClangPrefix$apiLevel-clang');
+      final cxx = path.join(toolchain, 'bin', '$ndkClangPrefix$apiLevel-clang++');
       final ar = path.join(toolchain, 'bin', 'llvm-ar');
       final ranlib = path.join(toolchain, 'bin', 'llvm-ranlib');
       final sysroot = path.join(toolchain, 'sysroot');
@@ -163,6 +176,8 @@ class OpenH264Builder extends BaseBuilder {
       final extraCflags = <String>['-fPIC'];
       if (cpu == 'arm64') {
         extraCflags.add('-march=armv8-a');
+      } else if (cpu == 'arm') {
+        extraCflags.addAll(['-march=armv7-a', '-mfpu=neon', '-mfloat-abi=softfp']);
       } else if (cpu == 'x86_64') {
         extraCflags.addAll(['-march=x86-64', '-msse4.2', '-mpopcnt', '-m64']);
       }

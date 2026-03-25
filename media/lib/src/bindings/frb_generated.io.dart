@@ -3,6 +3,7 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/delivery.dart';
 import 'api/logger.dart';
 import 'api/media.dart';
 import 'dart:async';
@@ -19,8 +20,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     required super.portManager,
   });
 
+  CrossPlatformFinalizerArg
+  get rust_arc_decrement_strong_count_LogLevelPtr => wire
+      ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevelPtr;
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw);
+
+  @protected
+  LogLevel
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    dynamic raw,
+  );
+
+  @protected
+  LogLevel
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    dynamic raw,
+  );
 
   @protected
   RustStreamSink<String> dco_decode_StreamSink_String_Dco(dynamic raw);
@@ -75,6 +92,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CompressionEstimate dco_decode_compression_estimate(dynamic raw);
 
   @protected
+  DeliveryEstimate dco_decode_delivery_estimate(dynamic raw);
+
+  @protected
+  DeliveryProfileId dco_decode_delivery_profile_id(dynamic raw);
+
+  @protected
   int dco_decode_i_32(dynamic raw);
 
   @protected
@@ -85,9 +108,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ResolutionPreset> dco_decode_list_resolution_preset(dynamic raw);
-
-  @protected
-  LogLevel dco_decode_log_level(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -145,6 +165,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void dco_decode_unit(dynamic raw);
 
   @protected
+  BigInt dco_decode_usize(dynamic raw);
+
+  @protected
+  VideoDeliveryEstimates dco_decode_video_delivery_estimates(dynamic raw);
+
+  @protected
   VideoInfo dco_decode_video_info(dynamic raw);
 
   @protected
@@ -155,6 +181,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+
+  @protected
+  LogLevel
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  LogLevel
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    SseDeserializer deserializer,
+  );
 
   @protected
   RustStreamSink<String> sse_decode_StreamSink_String_Dco(
@@ -223,6 +261,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  DeliveryEstimate sse_decode_delivery_estimate(SseDeserializer deserializer);
+
+  @protected
+  DeliveryProfileId sse_decode_delivery_profile_id(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
@@ -237,9 +283,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ResolutionPreset> sse_decode_list_resolution_preset(
     SseDeserializer deserializer,
   );
-
-  @protected
-  LogLevel sse_decode_log_level(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -301,6 +344,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_decode_unit(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer);
+
+  @protected
+  VideoDeliveryEstimates sse_decode_video_delivery_estimates(
+    SseDeserializer deserializer,
+  );
 
   @protected
   VideoInfo sse_decode_video_info(SseDeserializer deserializer);
@@ -529,6 +580,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  int cst_encode_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.toSigned(64).toInt();
+  }
+
+  @protected
   void cst_api_fill_to_wire_box_autoadd_compress_params(
     CompressParams apiObj,
     ffi.Pointer<wire_cst_compress_params> wireObj,
@@ -601,6 +658,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  void cst_api_fill_to_wire_delivery_estimate(
+    DeliveryEstimate apiObj,
+    wire_cst_delivery_estimate wireObj,
+  ) {
+    wireObj.profile_id = cst_encode_delivery_profile_id(apiObj.profileId);
+    wireObj.width = cst_encode_u_32(apiObj.width);
+    wireObj.height = cst_encode_u_32(apiObj.height);
+    wireObj.estimated_size_bytes = cst_encode_u_64(apiObj.estimatedSizeBytes);
+    wireObj.video_bitrate_kbps = cst_encode_u_32(apiObj.videoBitrateKbps);
+    wireObj.audio_bitrate_kbps = cst_encode_u_32(apiObj.audioBitrateKbps);
+    wireObj.estimated_encode_time_ms = cst_encode_u_64(
+      apiObj.estimatedEncodeTimeMs,
+    );
+  }
+
+  @protected
   void cst_api_fill_to_wire_image_thumbnail_params(
     ImageThumbnailParams apiObj,
     wire_cst_image_thumbnail_params wireObj,
@@ -666,6 +739,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  void cst_api_fill_to_wire_video_delivery_estimates(
+    VideoDeliveryEstimates apiObj,
+    wire_cst_video_delivery_estimates wireObj,
+  ) {
+    cst_api_fill_to_wire_delivery_estimate(apiObj.hd720, wireObj.hd_720);
+    cst_api_fill_to_wire_delivery_estimate(apiObj.sd480, wireObj.sd_480);
+  }
+
+  @protected
   void cst_api_fill_to_wire_video_info(
     VideoInfo apiObj,
     wire_cst_video_info wireObj,
@@ -673,11 +755,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     wireObj.duration_ms = cst_encode_u_64(apiObj.durationMs);
     wireObj.width = cst_encode_u_32(apiObj.width);
     wireObj.height = cst_encode_u_32(apiObj.height);
+    wireObj.rotation_degrees = cst_encode_i_32(apiObj.rotationDegrees);
     wireObj.size_bytes = cst_encode_u_64(apiObj.sizeBytes);
     wireObj.bitrate = cst_encode_opt_box_autoadd_u_64(apiObj.bitrate);
     wireObj.codec_name = cst_encode_opt_String(apiObj.codecName);
     wireObj.format_name = cst_encode_opt_String(apiObj.formatName);
     wireObj.suggestions = cst_encode_list_resolution_preset(apiObj.suggestions);
+    cst_api_fill_to_wire_video_delivery_estimates(
+      apiObj.delivery,
+      wireObj.delivery,
+    );
   }
 
   @protected
@@ -704,13 +791,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  int
+  cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel raw,
+  );
+
+  @protected
+  int
+  cst_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel raw,
+  );
+
+  @protected
   bool cst_encode_bool(bool raw);
 
   @protected
-  int cst_encode_i_32(int raw);
+  int cst_encode_delivery_profile_id(DeliveryProfileId raw);
 
   @protected
-  int cst_encode_log_level(LogLevel raw);
+  int cst_encode_i_32(int raw);
 
   @protected
   int cst_encode_output_format(OutputFormat raw);
@@ -727,6 +826,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_AnyhowException(
     AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel self,
     SseSerializer serializer,
   );
 
@@ -809,6 +922,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_delivery_estimate(
+    DeliveryEstimate self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_delivery_profile_id(
+    DeliveryProfileId self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
@@ -828,9 +953,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     List<ResolutionPreset> self,
     SseSerializer serializer,
   );
-
-  @protected
-  void sse_encode_log_level(LogLevel self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
@@ -900,6 +1022,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_video_delivery_estimates(
+    VideoDeliveryEstimates self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_video_info(VideoInfo self, SseSerializer serializer);
@@ -1165,6 +1296,28 @@ class RustLibWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__media__get_video_delivery_estimates(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+  ) {
+    return _wire__crate__api__media__get_video_delivery_estimates(port_, path);
+  }
+
+  late final _wire__crate__api__media__get_video_delivery_estimatesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_media_wire__crate__api__media__get_video_delivery_estimates');
+  late final _wire__crate__api__media__get_video_delivery_estimates =
+      _wire__crate__api__media__get_video_delivery_estimatesPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
+
   void wire__crate__api__media__get_video_info(
     int port_,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
@@ -1208,7 +1361,7 @@ class RustLibWire implements BaseWire {
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
-            ffi.Int32,
+            ffi.UintPtr,
             ffi.Bool,
             ffi.Pointer<wire_cst_write_to_files>,
             ffi.Bool,
@@ -1252,7 +1405,7 @@ class RustLibWire implements BaseWire {
             ffi.Int64,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<ffi.Uint32>,
-            ffi.Int32,
+            ffi.UintPtr,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
           )
@@ -1269,6 +1422,24 @@ class RustLibWire implements BaseWire {
           ffi.Pointer<wire_cst_list_prim_u_8_strict>,
         )
       >();
+
+  void wire__crate__api__logger__log_level_for_verbose_backend(
+    int port_,
+    bool verbose,
+  ) {
+    return _wire__crate__api__logger__log_level_for_verbose_backend(
+      port_,
+      verbose,
+    );
+  }
+
+  late final _wire__crate__api__logger__log_level_for_verbose_backendPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Bool)>>(
+        'frbgen_media_wire__crate__api__logger__log_level_for_verbose_backend',
+      );
+  late final _wire__crate__api__logger__log_level_for_verbose_backend =
+      _wire__crate__api__logger__log_level_for_verbose_backendPtr
+          .asFunction<void Function(int, bool)>();
 
   void wire__crate__api__media__output_format_extension(int port_, int that) {
     return _wire__crate__api__media__output_format_extension(port_, that);
@@ -1328,6 +1499,40 @@ class RustLibWire implements BaseWire {
           .asFunction<
             void Function(int, ffi.Pointer<wire_cst_thumbnail_size_type>)
           >();
+
+  void
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevelPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+        'frbgen_media_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel',
+      );
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel =
+      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevelPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevelPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+        'frbgen_media_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel',
+      );
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel =
+      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevelPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<ffi.Bool> cst_new_box_autoadd_bool(bool value) {
     return _cst_new_box_autoadd_bool(value);
@@ -1624,6 +1829,35 @@ final class wire_cst_compression_estimate extends ffi.Struct {
   external int estimated_duration_ms;
 }
 
+final class wire_cst_delivery_estimate extends ffi.Struct {
+  @ffi.Int32()
+  external int profile_id;
+
+  @ffi.Uint32()
+  external int width;
+
+  @ffi.Uint32()
+  external int height;
+
+  @ffi.Uint64()
+  external int estimated_size_bytes;
+
+  @ffi.Uint32()
+  external int video_bitrate_kbps;
+
+  @ffi.Uint32()
+  external int audio_bitrate_kbps;
+
+  @ffi.Uint64()
+  external int estimated_encode_time_ms;
+}
+
+final class wire_cst_video_delivery_estimates extends ffi.Struct {
+  external wire_cst_delivery_estimate hd_720;
+
+  external wire_cst_delivery_estimate sd_480;
+}
+
 final class wire_cst_video_info extends ffi.Struct {
   @ffi.Uint64()
   external int duration_ms;
@@ -1633,6 +1867,9 @@ final class wire_cst_video_info extends ffi.Struct {
 
   @ffi.Uint32()
   external int height;
+
+  @ffi.Int32()
+  external int rotation_degrees;
 
   @ffi.Uint64()
   external int size_bytes;
@@ -1644,4 +1881,6 @@ final class wire_cst_video_info extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> format_name;
 
   external ffi.Pointer<wire_cst_list_resolution_preset> suggestions;
+
+  external wire_cst_video_delivery_estimates delivery;
 }

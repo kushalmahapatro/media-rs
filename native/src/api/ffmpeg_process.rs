@@ -3,9 +3,139 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
 use crate::api::media::CompressParams;
+
+/// Optional `-hwaccel` args inserted before `-i` when decoding (see `MEDIA_RS_FFMPEG_NO_HWACCEL`).
+fn hwaccel_decode_prefix() -> Vec<String> {
+    if std::env::var("MEDIA_RS_FFMPEG_NO_HWACCEL")
+        .map(|s| {
+            s == "1"
+                || s.eq_ignore_ascii_case("true")
+                || s.eq_ignore_ascii_case("yes")
+        })
+        .unwrap_or(false)
+    {
+        return Vec::new();
+    }
+    #[cfg(target_os = "windows")]
+    {
+        vec!["-hwaccel".into(), "d3d11va".into()]
+    }
+    #[cfg(target_os = "macos")]
+    {
+        vec!["-hwaccel".into(), "videotoolbox".into()]
+    }
+    #[cfg(target_os = "ios")]
+    {
+        vec!["-hwaccel".into(), "videotoolbox".into()]
+    }
+    #[cfg(target_os = "android")]
+    {
+        vec!["-hwaccel".into(), "mediacodec".into()]
+    }
+    #[cfg(target_os = "linux")]
+    {
+        vec!["-hwaccel".into(), "auto".into()]
+    }
+    #[cfg(not(any(
+        target_os = "windows",
+        target_os = "macos",
+        target_os = "ios",
+        target_os = "android",
+        target_os = "linux"
+    )))]
+    {
+        Vec::new()
+    }
+}
+
+fn hwaccel_decode_enabled() -> bool {
+    !hwaccel_decode_prefix().is_empty()
+}
+
+/// Pull GPU frames to system memory before CPU `scale`/colour filters (d3d11va / VideoToolbox /
+/// MediaCodec / VAAPI). If FFmpeg falls back to software decode for a clip, `hwdownload` can fail;
+/// use `MEDIA_RS_FFMPEG_NO_HWACCEL=1` for that path.
+fn vf_hwdownload_prefix() -> &'static str {
+    if hwaccel_decode_enabled() {
+        "hwdownload,format=nv12,"
+    } else {
+        ""
+    }
+}
+
+/// Optional HDR → SDR for thumbnails only (`MEDIA_RS_FFMPEG_TONEMAP=1` / `true`).
+fn vf_tonemap_prefix() -> &'static str {
+    if std::env::var("MEDIA_RS_FFMPEG_TONEMAP")
+        .map(|s| s == "1" || s.eq_ignore_ascii_case("true"))
+        .unwrap_or(false)
+    {
+        "tonemap=hable,"
+    } else {
+        ""
+    }
+}
+
+/// Transcode: tone-map HDR → SDR by default so H.264 output matches OS players (no HDR tag /
+/// blown highlights). Opt out with `MEDIA_RS_FFMPEG_NO_TONEMAP=1`.
+fn vf_compress_tonemap_prefix() -> &'static str {
+    if std::env::var("MEDIA_RS_FFMPEG_NO_TONEMAP")
+        .map(|s| s == "1" || s.eq_ignore_ascii_case("true") || s.eq_ignore_ascii_case("yes"))
+        .unwrap_or(false)
+    {
+        ""
+    } else {
+        "tonemap=hable,"
+    }
+}
+
+/// Bake display-matrix rotation into pixels (same convention as `VideoInfo.rotation_degrees`).
+/// `-autorotate` is unreliable alongside a custom `-vf` graph; transpose runs after tonemap, before scale.
+fn vf_transpose_from_display_rotation(rotation_clockwise_deg: i32) -> String {
+    let d = ((rotation_clockwise_deg % 360) + 360) % 360;
+    match d {
+        90 => "transpose=1,".to_string(),
+        180 => "transpose=1,transpose=1,".to_string(),
+        270 => "transpose=2,".to_string(),
+        _ => String::new(),
+    }
+}
+
+fn vf_scale_matrix_suffix(out_w: &str, out_h: &str, out_range: &str, pix_fmt: &str) -> String {
+    format!(
+        "scale={}:{}:flags=accurate_rnd+full_chroma_int:\
+in_color_matrix=auto:in_range=auto:out_color_matrix=bt709:out_range={},format={}",
+        out_w, out_h, out_range, pix_fmt
+    )
+}
+
+/// Thumbnails: optional tonemap via env; compress uses [vf_compress_tonemap_prefix].
+fn vf_scale_color_then_format(out_w: &str, out_h: &str, out_range: &str, pix_fmt: &str) -> String {
+    format!(
+        "{}{}{}",
+        vf_hwdownload_prefix(),
+        vf_tonemap_prefix(),
+        vf_scale_matrix_suffix(out_w, out_h, out_range, pix_fmt)
+    )
+}
+
+fn vf_compress_filter(
+    out_w: &str,
+    out_h: &str,
+    out_range: &str,
+    pix_fmt: &str,
+    rotation_degrees: i32,
+) -> String {
+    format!(
+        "{}{}{}{}",
+        vf_hwdownload_prefix(),
+        vf_compress_tonemap_prefix(),
+        vf_transpose_from_display_rotation(rotation_degrees),
+        vf_scale_matrix_suffix(out_w, out_h, out_range, pix_fmt)
+    )
+}
 
 /// Statistics from a compression operation
 #[derive(Debug, Clone)]
@@ -193,7 +323,7 @@ impl FFmpegProcess {
         return "ios";
     }
 
-    /// Compress a video segment using FFmpeg process
+    /// Compress a video segment using FFmpeg process (tries HW encoders first, then OpenH264, then x264).
     pub fn compress_segment(
         &self,
         input_path: &str,
@@ -201,101 +331,155 @@ impl FFmpegProcess {
         params: &CompressParams,
         start_ms: Option<u64>,
         duration_ms: Option<u64>,
+        rotation_degrees: i32,
     ) -> Result<CompressionStats> {
         debug!(
-            "compress_segment: input={}, output={}, start={:?}, duration={:?}",
-            input_path, output_path, start_ms, duration_ms
+            "compress_segment: input={}, output={}, start={:?}, duration={:?}, rotation={}°",
+            input_path, output_path, start_ms, duration_ms, rotation_degrees
         );
 
-        let args = self.build_command_args(input_path, output_path, params, start_ms, duration_ms)?;
-        
-        debug!("FFmpeg command: {} {}", self.ffmpeg_path.display(), args.join(" "));
-        
-        let start_time = std::time::Instant::now();
-        
-        let mut cmd = Command::new(&self.ffmpeg_path);
-        cmd.args(&args);
-        
-        #[cfg(target_os = "windows")]
-        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
-        
-        let output = cmd
-            .output()
-            .context("Failed to execute FFmpeg process")?;
-        
-        let elapsed_ms = start_time.elapsed().as_millis() as u64;
-        
-        if !output.status.success() {
+        let mut last_err: Option<anyhow::Error> = None;
+        for enc in Self::encoder_candidates() {
+            let args = match self.build_command_args_with_encoder(
+                input_path,
+                output_path,
+                params,
+                start_ms,
+                duration_ms,
+                rotation_degrees,
+                enc,
+            ) {
+                Ok(a) => a,
+                Err(e) => {
+                    last_err = Some(e);
+                    continue;
+                }
+            };
+
+            debug!(
+                "FFmpeg command (encoder={}): {} {}",
+                enc,
+                self.ffmpeg_path.display(),
+                args.join(" ")
+            );
+
+            let _ = std::fs::remove_file(output_path);
+
+            let start_time = std::time::Instant::now();
+            let output = self.run_ffmpeg(&args)?;
+            let elapsed_ms = start_time.elapsed().as_millis() as u64;
+
+            if output.status.success() {
+                let stats =
+                    self.parse_output(&output.stderr, elapsed_ms, duration_ms, output_path)?;
+                debug!("compress_segment completed: {:?}", stats);
+                return Ok(stats);
+            }
+
             let stderr = String::from_utf8_lossy(&output.stderr);
-            error!("FFmpeg process failed: {}", stderr);
-            return Err(anyhow::anyhow!("FFmpeg process failed: {}", stderr));
+            warn!("FFmpeg encoder {} failed: {}", enc, stderr);
+            last_err = Some(anyhow::anyhow!("encoder {}: {}", enc, stderr));
         }
-        
-        // Parse output to get statistics
-        let stats = self.parse_output(&output.stderr, elapsed_ms, duration_ms)?;
-        
-        debug!("compress_segment completed: {:?}", stats);
-        Ok(stats)
+
+        Err(last_err.unwrap_or_else(|| anyhow::anyhow!("No FFmpeg encoder succeeded")))
     }
 
-    /// Build FFmpeg command arguments
-    fn build_command_args(
+    fn run_ffmpeg(&self, args: &[String]) -> Result<std::process::Output> {
+        let mut cmd = Command::new(&self.ffmpeg_path);
+        cmd.args(args);
+        #[cfg(target_os = "windows")]
+        cmd.creation_flags(0x08000000);
+
+        cmd.output().context("Failed to execute FFmpeg process")
+    }
+
+    fn encoder_candidates() -> &'static [&'static str] {
+        if cfg!(target_os = "macos") || cfg!(target_os = "ios") {
+            &["h264_videotoolbox", "libopenh264", "libx264"]
+        } else if cfg!(target_os = "windows") {
+            &["h264_amf", "h264_nvenc", "h264_qsv", "libopenh264", "libx264"]
+        } else if cfg!(target_os = "android") {
+            &["h264_mediacodec", "libopenh264", "libx264"]
+        } else if cfg!(target_os = "linux") {
+            &["h264_nvenc", "libopenh264", "libx264"]
+        } else {
+            &["libopenh264", "libx264"]
+        }
+    }
+
+    fn build_command_args_with_encoder(
         &self,
         input_path: &str,
         output_path: &str,
         params: &CompressParams,
         start_ms: Option<u64>,
         duration_ms: Option<u64>,
+        rotation_degrees: i32,
+        video_encoder: &str,
     ) -> Result<Vec<String>> {
-        let mut args = Vec::new();
-        
-        // Input file
+        let mut args = hwaccel_decode_prefix();
         args.push("-i".to_string());
         args.push(input_path.to_string());
-        
-        // Start time (seek)
+
         if let Some(start) = start_ms {
             args.push("-ss".to_string());
             args.push(Self::format_timestamp(start));
         }
-        
-        // Duration
+
         if let Some(duration) = duration_ms {
             args.push("-t".to_string());
             args.push(Self::format_timestamp(duration));
         }
-        
-        // Video codec
+
+        args.push("-vf".to_string());
+        let vf = if let (Some(width), Some(height)) = (params.width, params.height) {
+            vf_compress_filter(
+                &width.to_string(),
+                &height.to_string(),
+                "tv",
+                "yuv420p",
+                rotation_degrees,
+            )
+        } else {
+            vf_compress_filter("iw", "ih", "tv", "yuv420p", rotation_degrees)
+        };
+        args.push(vf);
+
         args.push("-c:v".to_string());
-        args.push("libopenh264".to_string());
-        
-        // Bitrate
-        if params.target_bitrate_kbps > 0 {
+        args.push(video_encoder.to_string());
+
+        let use_bitrate = params.target_bitrate_kbps > 0;
+        if use_bitrate {
+            let br = params.target_bitrate_kbps;
             args.push("-b:v".to_string());
-            args.push(format!("{}k", params.target_bitrate_kbps));
-        }
-        
-        // CRF (quality)
-        if let Some(crf) = params.crf {
+            args.push(format!("{}k", br));
+            args.push("-maxrate".to_string());
+            args.push(format!("{}k", br));
+            args.push("-bufsize".to_string());
+            args.push(format!("{}k", br.saturating_mul(2)));
+        } else if let Some(crf) = params.crf {
             args.push("-crf".to_string());
             args.push(crf.to_string());
         }
-        
-        // Scale (resolution)
-        if let (Some(width), Some(height)) = (params.width, params.height) {
-            args.push("-vf".to_string());
-            args.push(format!("scale={}:{}", width, height));
-        }
-        
-        // No audio (faster encoding)
-        args.push("-an".to_string());
-        
-        // Overwrite output
+
+        args.push("-colorspace".to_string());
+        args.push("bt709".to_string());
+        args.push("-color_primaries".to_string());
+        args.push("bt709".to_string());
+        args.push("-color_trc".to_string());
+        args.push("bt709".to_string());
+
+        args.push("-c:a".to_string());
+        args.push("aac".to_string());
+        args.push("-b:a".to_string());
+        args.push("128k".to_string());
+
+        args.push("-movflags".to_string());
+        args.push("+faststart".to_string());
+
         args.push("-y".to_string());
-        
-        // Output file
         args.push(output_path.to_string());
-        
+
         Ok(args)
     }
 
@@ -306,13 +490,12 @@ impl FFmpegProcess {
         time_ms: u64,
         params: &crate::api::media::VideoThumbnailParams,
     ) -> Result<(Vec<u8>, u32, u32)> {
-        use crate::api::media::{OutputFormat, ThumbnailSizeType};
+        use crate::api::media::OutputFormat;
         
         debug!("generate_thumbnail: input={}, time={}ms", input_path, time_ms);
-        
-        let mut args = Vec::new();
-        
-        // Input file
+
+        let mut args = hwaccel_decode_prefix();
+        args.push("-autorotate".to_string());
         args.push("-i".to_string());
         args.push(input_path.to_string());
         
@@ -324,16 +507,25 @@ impl FFmpegProcess {
         args.push("-frames:v".to_string());
         args.push("1".to_string());
         
-        // Scale if needed
-        if let Some(size_type) = &params.size_type {
+        // RGB for stills: lets MJPEG/PNG/WebP get correct levels (MJPEG uses JPEG/full path).
+        // `out_range=pc` + bt709 matrix after auto-tagged conversion fixes washed phone/cam clips.
+        let vf = if let Some(size_type) = &params.size_type {
             let (target_w, target_h) = size_type.dimensions();
             if target_w > 0 && target_h > 0 {
-                args.push("-vf".to_string());
-                // Force scale to specific dimensions (or aspect ratio logic could be applied here)
-                // For now, consistent with existing logic:
-                args.push(format!("scale={}:{}", target_w, target_h));
+                vf_scale_color_then_format(
+                    &target_w.to_string(),
+                    &target_h.to_string(),
+                    "pc",
+                    "rgb24",
+                )
+            } else {
+                vf_scale_color_then_format("iw", "ih", "pc", "rgb24")
             }
-        }
+        } else {
+            vf_scale_color_then_format("iw", "ih", "pc", "rgb24")
+        };
+        args.push("-vf".to_string());
+        args.push(vf);
         
         // Output format
         let format = params.format.unwrap_or(OutputFormat::PNG);
@@ -363,14 +555,8 @@ impl FFmpegProcess {
         
         debug!("FFmpeg thumbnail command: {} {}", self.ffmpeg_path.display(), args.join(" "));
         
-        let mut cmd = Command::new(&self.ffmpeg_path);
-        cmd.args(&args);
-        
-        #[cfg(target_os = "windows")]
-        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
-        
-        let output = cmd
-            .output()
+        let output = self
+            .run_ffmpeg(&args)
             .context("Failed to execute FFmpeg process for thumbnail")?;
             
         if !output.status.success() {
@@ -419,6 +605,7 @@ impl FFmpegProcess {
         stderr: &[u8],
         elapsed_ms: u64,
         expected_duration_ms: Option<u64>,
+        output_path: &str,
     ) -> Result<CompressionStats> {
         let output_str = String::from_utf8_lossy(stderr);
         
@@ -445,11 +632,13 @@ impl FFmpegProcess {
             }
         }
         
-        // If we couldn't parse from progress, try to get file size
         if encoded_size_bytes == 0 {
-            // The output file should exist, try to get its size
-            // This is a fallback - we'll use the expected duration
-            processed_duration_ms = expected_duration_ms.unwrap_or(0);
+            if let Ok(meta) = std::fs::metadata(output_path) {
+                encoded_size_bytes = meta.len();
+            }
+            if processed_duration_ms == 0 {
+                processed_duration_ms = expected_duration_ms.unwrap_or(0);
+            }
         }
         
         Ok(CompressionStats {

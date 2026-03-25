@@ -65,7 +65,7 @@ Targets: $target
   final systemEnv = Platform.environment;
   final packageRoot = Uri.parse('${Directory.current.path}/..');
 
-  final (OS os, List<Architecture> architectures) = switch (target) {
+  final (OS os, List<Architecture> initialArchitectures) = switch (target) {
     'ios' => (OS.iOS, iosArchitectures),
     'macos' => (OS.macOS, macosArchitectures),
     'windows' => (OS.windows, windowsArchitectures),
@@ -73,6 +73,31 @@ Targets: $target
     'android' => (OS.android, androidArchitectures),
     _ => throw Exception('Unknown target: $target'),
   };
+
+  // Build only Android ABIs that already have generated FFmpeg prebuilts, unless the
+  // user pins one tree with MEDIA_                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             RS_FFMPEG_DIR (then all listed ABIs are attempted).
+  List<Architecture> architectures = initialArchitectures;
+  if (os == OS.android && getEnv(systemEnv, 'MEDIA_RS_FFMPEG_DIR') == null) {
+    architectures = [
+      for (final arch in initialArchitectures)
+        if (localGeneratedFfmpegInstallExists(os, arch, null)) arch,
+    ];
+    for (final arch in initialArchitectures) {
+      if (architectures.contains(arch)) continue;
+      final subDir = androidFfmpegInstallSubDir(arch);
+      logger.warning(
+        'Skipping Android $arch: no FFmpeg prebuilt at third_party/generated/ffmpeg_install/$subDir. '
+        'From repo root run: dart run tool/setup.dart --android',
+      );
+    }
+    if (architectures.isEmpty) {
+      logger.severe(
+        'No Android FFmpeg prebuilts found under third_party/generated/ffmpeg_install/android/.\n'
+        'From repo root run: dart run tool/setup.dart --android',
+      );
+      exit(1);
+    }
+  }
 
   await buildAndUpload(buildDir, version, crateName, toolchainChannel, os, architectures, logger, (
     os,

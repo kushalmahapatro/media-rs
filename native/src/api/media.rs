@@ -1,6 +1,7 @@
 use crate::api::video::{self, check_output_path, get_file_name_without_extension};
 use crate::frb_generated::StreamSink;
 use anyhow::{Context, Error};
+use exif::{In, Reader as ExifReader, Tag};
 use image::{DynamicImage, ImageBuffer, Rgb};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info};
@@ -19,11 +20,15 @@ pub struct VideoInfo {
     pub duration_ms: u64,
     pub width: u32,
     pub height: u32,
+    /// Clockwise rotation (0, 90, 180, 270) from stream/display matrix or `rotate` metadata.
+    pub rotation_degrees: i32,
     pub size_bytes: u64,
     pub bitrate: Option<u64>,
     pub codec_name: Option<String>,
     pub format_name: Option<String>,
     pub suggestions: Vec<ResolutionPreset>,
+    /// WhatsApp-style HD (720-class) / SD (480-class) analytic delivery estimates.
+    pub delivery: crate::api::delivery::VideoDeliveryEstimates,
 }
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
@@ -103,9 +108,16 @@ pub struct CompressionEstimate {
     pub estimated_duration_ms: u64,
 }
 
+pub use crate::api::delivery::{DeliveryEstimate, DeliveryProfileId, VideoDeliveryEstimates};
+
 /// Exposed via FRB
 pub fn get_video_info(path: String) -> anyhow::Result<VideoInfo> {
     video::get_video_info(&path)
+}
+
+/// Analytic HD/SD delivery estimates (no sample encode). Equivalent to `get_video_info(path)?.delivery`.
+pub fn get_video_delivery_estimates(path: String) -> anyhow::Result<VideoDeliveryEstimates> {
+    Ok(get_video_info(path)?.delivery)
 }
 
 pub async fn generate_video_thumbnail(
@@ -248,6 +260,37 @@ pub fn generate_video_timeline_thumbnails(
     Ok(())
 }
 
+fn read_exif_orientation(path: &str) -> u8 {
+    let Ok(file) = std::fs::File::open(path) else {
+        return 1;
+    };
+    let mut reader = std::io::BufReader::new(file);
+    let Ok(exif) = ExifReader::new().read_from_container(&mut reader) else {
+        return 1;
+    };
+    let Some(field) = exif.get_field(Tag::Orientation, In::PRIMARY) else {
+        return 1;
+    };
+    match field.value.get_uint(0) {
+        Some(v) if (1..=8).contains(&v) => v as u8,
+        _ => 1,
+    }
+}
+
+fn apply_exif_orientation(img: DynamicImage, orientation: u8) -> DynamicImage {
+    match orientation {
+        1 => img,
+        2 => img.fliph(),
+        3 => img.rotate180(),
+        4 => img.flipv(),
+        5 => img.rotate90().fliph(),
+        6 => img.rotate90(),
+        7 => img.rotate270().fliph(),
+        8 => img.rotate270(),
+        _ => img,
+    }
+}
+
 pub async fn generate_image_thumbnail(
     path: String,
     output_path: String,
@@ -321,6 +364,8 @@ pub async fn generate_image_thumbnail(
             }
         }
     };
+
+    let img = apply_exif_orientation(img, read_exif_orientation(&path));
 
     let thumbnail = img.thumbnail(size.0, size.1);
 

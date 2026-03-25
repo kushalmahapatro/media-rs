@@ -1,0 +1,17 @@
+name: os_video_delivery_example
+description: Manual QA for os_video_delivery (probe, estimates, thumbnail, transcode).
+publish_to: none
+version: 0.0.1
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path_provider: ^2.1.0
+  os_video_delivery:
+    path: ../
+
+flutter:
+  uses-material-design: true

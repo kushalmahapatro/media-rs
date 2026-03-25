@@ -43,9 +43,19 @@ Future<String?> setupAndroid(
     }
   }
 
-  final targetTriple = (effectiveArchitecture == Architecture.arm64 || effectiveArchitecture == Architecture.arm)
-      ? 'aarch64-linux-android'
-      : 'x86_64-linux-android';
+  // Rust / Cargo target triple (must match `cargo build --target`).
+  final rustTargetTriple = switch (effectiveArchitecture) {
+    Architecture.arm64 => 'aarch64-linux-android',
+    Architecture.arm => 'armv7-linux-androideabi',
+    Architecture.x64 => 'x86_64-linux-android',
+    _ => 'x86_64-linux-android',
+  };
+  // Cargo and cc-rs expect underscore env keys (e.g. CC_armv7_linux_androideabi).
+  final rustTargetTripleEnv = rustTargetTriple.replaceAll('-', '_');
+  // NDK clang binary prefix uses armv7a- for 32-bit ARM.
+  final ndkClangPrefix = rustTargetTriple == 'armv7-linux-androideabi'
+      ? 'armv7a-linux-androideabi'
+      : rustTargetTriple;
 
   // Find sysroot path (similar to what cargo-ndk does)
   final sysrootPaths = [
@@ -88,16 +98,16 @@ Future<String?> setupAndroid(
       final apiLevel = getEnv(systemEnv, 'ANDROID_API_LEVEL') ?? '21';
 
       // Set CC and CFLAGS for the target (required by ffmpeg-sys-next build script)
-      final ccPath = '$toolchainPath/bin/$targetTriple$apiLevel-clang';
+      final ccPath = '$toolchainPath/bin/$ndkClangPrefix$apiLevel-clang';
       if (File(ccPath).existsSync()) {
-        envVars['CC_$targetTriple'] = ccPath;
+        envVars['CC_$rustTargetTripleEnv'] = ccPath;
 
         // Set CFLAGS for the target (build script adds -fPIC separately)
         final cflags = '--sysroot=$sysrootPath';
-        envVars['CFLAGS_$targetTriple'] = cflags;
+        envVars['CFLAGS_$rustTargetTripleEnv'] = cflags;
 
-        logger.info('Set CC_$targetTriple to: $ccPath');
-        logger.info('Set CFLAGS_$targetTriple to: $cflags');
+        logger.info('Set CC_$rustTargetTripleEnv to: $ccPath');
+        logger.info('Set CFLAGS_$rustTargetTripleEnv to: $cflags');
       } else {
         logger.warning('Android CC path not found: $ccPath');
       }

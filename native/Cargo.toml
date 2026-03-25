@@ -34,6 +34,7 @@ image = { version = "0.25" }
 libheif-rs = { version = "2.5", features = ["image"] }
 logger = { path = "packages/logger" }
 tracing = { workspace = true }
+kamadak-exif = "0.6.1"
 
 
 [build-dependencies]
@@ -55,7 +56,6 @@ tracing-subscriber = { git = "https://github.com/element-hq/tracing.git", rev = 
 ] }
 tracing-appender = { git = "https://github.com/element-hq/tracing.git", rev = "20f5b3d8ba057ca9c4ae00ad30dda3dce8a71c05" }
 const_panic = { git = "https://github.com/jplatte/const_panic", rev = "9024a4cb3eac45c1d2d980f17aaee287b17be498" }
-paranoid-android = { git = "https://github.com/element-hq/paranoid-android.git", rev = "69388ac5b4afeed7be4401c70ce17f6d9a2cf19b" }
 tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros"] }
 log-panics = "2.1.0"
 once_cell = "1.19"

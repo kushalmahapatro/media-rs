@@ -6,6 +6,7 @@
 // Static analysis wrongly picks the IO variant, thus ignore this
 // ignore_for_file: argument_type_not_assignable
 
+import 'api/delivery.dart';
 import 'api/logger.dart';
 import 'api/media.dart';
 import 'dart:async';
@@ -21,8 +22,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     required super.portManager,
   });
 
+  CrossPlatformFinalizerArg
+  get rust_arc_decrement_strong_count_LogLevelPtr => wire
+      .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel;
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw);
+
+  @protected
+  LogLevel
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    dynamic raw,
+  );
+
+  @protected
+  LogLevel
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    dynamic raw,
+  );
 
   @protected
   RustStreamSink<String> dco_decode_StreamSink_String_Dco(dynamic raw);
@@ -77,6 +94,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CompressionEstimate dco_decode_compression_estimate(dynamic raw);
 
   @protected
+  DeliveryEstimate dco_decode_delivery_estimate(dynamic raw);
+
+  @protected
+  DeliveryProfileId dco_decode_delivery_profile_id(dynamic raw);
+
+  @protected
   int dco_decode_i_32(dynamic raw);
 
   @protected
@@ -87,9 +110,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ResolutionPreset> dco_decode_list_resolution_preset(dynamic raw);
-
-  @protected
-  LogLevel dco_decode_log_level(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -147,6 +167,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void dco_decode_unit(dynamic raw);
 
   @protected
+  BigInt dco_decode_usize(dynamic raw);
+
+  @protected
+  VideoDeliveryEstimates dco_decode_video_delivery_estimates(dynamic raw);
+
+  @protected
   VideoInfo dco_decode_video_info(dynamic raw);
 
   @protected
@@ -157,6 +183,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+
+  @protected
+  LogLevel
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  LogLevel
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    SseDeserializer deserializer,
+  );
 
   @protected
   RustStreamSink<String> sse_decode_StreamSink_String_Dco(
@@ -225,6 +263,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  DeliveryEstimate sse_decode_delivery_estimate(SseDeserializer deserializer);
+
+  @protected
+  DeliveryProfileId sse_decode_delivery_profile_id(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
@@ -239,9 +285,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ResolutionPreset> sse_decode_list_resolution_preset(
     SseDeserializer deserializer,
   );
-
-  @protected
-  LogLevel sse_decode_log_level(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -303,6 +346,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_decode_unit(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer);
+
+  @protected
+  VideoDeliveryEstimates sse_decode_video_delivery_estimates(
+    SseDeserializer deserializer,
+  );
 
   @protected
   VideoInfo sse_decode_video_info(SseDeserializer deserializer);
@@ -429,6 +480,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     return [
       cst_encode_u_64(raw.estimatedSizeBytes),
       cst_encode_u_64(raw.estimatedDurationMs),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_delivery_estimate(DeliveryEstimate raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_delivery_profile_id(raw.profileId),
+      cst_encode_u_32(raw.width),
+      cst_encode_u_32(raw.height),
+      cst_encode_u_64(raw.estimatedSizeBytes),
+      cst_encode_u_32(raw.videoBitrateKbps),
+      cst_encode_u_32(raw.audioBitrateKbps),
+      cst_encode_u_64(raw.estimatedEncodeTimeMs),
     ].jsify()!;
   }
 
@@ -563,17 +628,34 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  JSAny cst_encode_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return castNativeBigInt(raw);
+  }
+
+  @protected
+  JSAny cst_encode_video_delivery_estimates(VideoDeliveryEstimates raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_delivery_estimate(raw.hd720),
+      cst_encode_delivery_estimate(raw.sd480),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_video_info(VideoInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
       cst_encode_u_64(raw.durationMs),
       cst_encode_u_32(raw.width),
       cst_encode_u_32(raw.height),
+      cst_encode_i_32(raw.rotationDegrees),
       cst_encode_u_64(raw.sizeBytes),
       cst_encode_opt_box_autoadd_u_64(raw.bitrate),
       cst_encode_opt_String(raw.codecName),
       cst_encode_opt_String(raw.formatName),
       cst_encode_list_resolution_preset(raw.suggestions),
+      cst_encode_video_delivery_estimates(raw.delivery),
     ].jsify()!;
   }
 
@@ -599,13 +681,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  int
+  cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel raw,
+  );
+
+  @protected
+  int
+  cst_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel raw,
+  );
+
+  @protected
   bool cst_encode_bool(bool raw);
 
   @protected
-  int cst_encode_i_32(int raw);
+  int cst_encode_delivery_profile_id(DeliveryProfileId raw);
 
   @protected
-  int cst_encode_log_level(LogLevel raw);
+  int cst_encode_i_32(int raw);
 
   @protected
   int cst_encode_output_format(OutputFormat raw);
@@ -622,6 +716,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_AnyhowException(
     AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel self,
     SseSerializer serializer,
   );
 
@@ -704,6 +812,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_delivery_estimate(
+    DeliveryEstimate self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_delivery_profile_id(
+    DeliveryProfileId self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
@@ -723,9 +843,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     List<ResolutionPreset> self,
     SseSerializer serializer,
   );
-
-  @protected
-  void sse_encode_log_level(LogLevel self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
@@ -795,6 +912,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_video_delivery_estimates(
+    VideoDeliveryEstimates self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_video_info(VideoInfo self, SseSerializer serializer);
@@ -887,6 +1013,14 @@ class RustLibWire implements BaseWire {
     sink,
   );
 
+  void wire__crate__api__media__get_video_delivery_estimates(
+    NativePortType port_,
+    String path,
+  ) => wasmModule.wire__crate__api__media__get_video_delivery_estimates(
+    port_,
+    path,
+  );
+
   void wire__crate__api__media__get_video_info(
     NativePortType port_,
     String path,
@@ -922,6 +1056,14 @@ class RustLibWire implements BaseWire {
     message,
   );
 
+  void wire__crate__api__logger__log_level_for_verbose_backend(
+    NativePortType port_,
+    bool verbose,
+  ) => wasmModule.wire__crate__api__logger__log_level_for_verbose_backend(
+    port_,
+    verbose,
+  );
+
   void wire__crate__api__media__output_format_extension(
     NativePortType port_,
     int that,
@@ -942,6 +1084,22 @@ class RustLibWire implements BaseWire {
     port_,
     that,
   );
+
+  void
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    int ptr,
+  ) => wasmModule
+      .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+        ptr,
+      );
+
+  void
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    int ptr,
+  ) => wasmModule
+      .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+        ptr,
+      );
 }
 
 @JS('wasm_bindgen')
@@ -992,6 +1150,11 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     String sink,
   );
 
+  external void wire__crate__api__media__get_video_delivery_estimates(
+    NativePortType port_,
+    String path,
+  );
+
   external void wire__crate__api__media__get_video_info(
     NativePortType port_,
     String path,
@@ -1014,6 +1177,11 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     String message,
   );
 
+  external void wire__crate__api__logger__log_level_for_verbose_backend(
+    NativePortType port_,
+    bool verbose,
+  );
+
   external void wire__crate__api__media__output_format_extension(
     NativePortType port_,
     int that,
@@ -1027,5 +1195,15 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__api__media__thumbnail_size_type_dimensions(
     NativePortType port_,
     JSAny that,
+  );
+
+  external void
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    int ptr,
+  );
+
+  external void
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    int ptr,
   );
 }

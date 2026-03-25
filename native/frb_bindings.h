@@ -82,15 +82,32 @@ typedef struct wire_cst_compression_estimate {
   uint64_t estimated_duration_ms;
 } wire_cst_compression_estimate;
 
+typedef struct wire_cst_delivery_estimate {
+  int32_t profile_id;
+  uint32_t width;
+  uint32_t height;
+  uint64_t estimated_size_bytes;
+  uint32_t video_bitrate_kbps;
+  uint32_t audio_bitrate_kbps;
+  uint64_t estimated_encode_time_ms;
+} wire_cst_delivery_estimate;
+
+typedef struct wire_cst_video_delivery_estimates {
+  struct wire_cst_delivery_estimate hd_720;
+  struct wire_cst_delivery_estimate sd_480;
+} wire_cst_video_delivery_estimates;
+
 typedef struct wire_cst_video_info {
   uint64_t duration_ms;
   uint32_t width;
   uint32_t height;
+  int32_t rotation_degrees;
   uint64_t size_bytes;
   uint64_t *bitrate;
   struct wire_cst_list_prim_u_8_strict *codec_name;
   struct wire_cst_list_prim_u_8_strict *format_name;
   struct wire_cst_list_resolution_preset *suggestions;
+  struct wire_cst_video_delivery_estimates delivery;
 } wire_cst_video_info;
 
 void frbgen_media_wire__crate__api__media__compress_video(int64_t port_,
@@ -125,11 +142,14 @@ void frbgen_media_wire__crate__api__media__generate_video_timeline_thumbnails(in
                                                                               bool *empty_image_fallback,
                                                                               struct wire_cst_list_prim_u_8_strict *sink);
 
+void frbgen_media_wire__crate__api__media__get_video_delivery_estimates(int64_t port_,
+                                                                        struct wire_cst_list_prim_u_8_strict *path);
+
 void frbgen_media_wire__crate__api__media__get_video_info(int64_t port_,
                                                           struct wire_cst_list_prim_u_8_strict *path);
 
 void frbgen_media_wire__crate__api__logger__init_logger(int64_t port_,
-                                                        int32_t log_level,
+                                                        uintptr_t log_level,
                                                         bool write_to_stdout_or_system,
                                                         struct wire_cst_write_to_files *write_to_files,
                                                         bool use_lightweight_tokio_runtime);
@@ -137,9 +157,12 @@ void frbgen_media_wire__crate__api__logger__init_logger(int64_t port_,
 void frbgen_media_wire__crate__api__logger__log(int64_t port_,
                                                 struct wire_cst_list_prim_u_8_strict *file,
                                                 uint32_t *line,
-                                                int32_t level,
+                                                uintptr_t level,
                                                 struct wire_cst_list_prim_u_8_strict *target,
                                                 struct wire_cst_list_prim_u_8_strict *message);
+
+void frbgen_media_wire__crate__api__logger__log_level_for_verbose_backend(int64_t port_,
+                                                                          bool verbose);
 
 void frbgen_media_wire__crate__api__media__output_format_extension(int64_t port_, int32_t that);
 
@@ -148,6 +171,10 @@ void frbgen_media_wire__crate__api__logger__reload_tracing_file_writer(int64_t p
 
 void frbgen_media_wire__crate__api__media__thumbnail_size_type_dimensions(int64_t port_,
                                                                           struct wire_cst_thumbnail_size_type *that);
+
+void frbgen_media_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(const void *ptr);
+
+void frbgen_media_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(const void *ptr);
 
 bool *frbgen_media_cst_new_box_autoadd_bool(bool value);
 
@@ -189,15 +216,19 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_write_to_files);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_list_prim_u_8_strict);
     dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_list_resolution_preset);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__debug_threads);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__init_logger);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__log);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__log_level_for_verbose_backend);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__logger__reload_tracing_file_writer);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__compress_video);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__estimate_compression);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__generate_image_thumbnail);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__generate_video_thumbnail);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__generate_video_timeline_thumbnails);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__get_video_delivery_estimates);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__get_video_info);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__output_format_extension);
     dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__media__thumbnail_size_type_dimensions);

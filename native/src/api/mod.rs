@@ -1,3 +1,4 @@
+pub mod delivery;
 pub mod media;
 pub mod video;
 pub mod logger;

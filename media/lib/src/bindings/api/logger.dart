@@ -6,6 +6,14 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `_LogLevel`
+
+/// Returns a [LogLevel] for Flutter `Media.init` (opaque type has no Dart enum variants).
+Future<LogLevel> logLevelForVerboseBackend({required bool verbose}) => RustLib
+    .instance
+    .api
+    .crateApiLoggerLogLevelForVerboseBackend(verbose: verbose);
+
 Future<void> log({
   required String file,
   int? line,
@@ -40,7 +48,8 @@ Future<void> reloadTracingFileWriter({required WriteToFiles writeToFiles}) =>
       writeToFiles: writeToFiles,
     );
 
-enum LogLevel { error, warn, info, debug, trace }
+// Rust type: RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>
+abstract class LogLevel implements RustOpaqueInterface {}
 
 class WriteToFiles {
   final String path;

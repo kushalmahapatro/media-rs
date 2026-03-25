@@ -7,6 +7,25 @@ String? getEnv(Map<String, String> systemEnv, String key) {
   return Platform.environment[key] ?? systemEnv[key];
 }
 
+/// Whether the default generated FFmpeg tree exists for this target (no `MEDIA_RS_FFMPEG_DIR`).
+bool localGeneratedFfmpegInstallExists(
+  OS targetOS,
+  Architecture effectiveArchitecture,
+  dynamic iOSSdk,
+) {
+  final subDir = _getFfmpegSubDir(targetOS, effectiveArchitecture, iOSSdk);
+  final dir = absolute(join(Directory.current.path, '..', 'third_party', 'generated', 'ffmpeg_install', subDir));
+  return Directory(dir).existsSync();
+}
+
+/// Path under `third_party/generated/` for logs, e.g. `ffmpeg_install/android/arm64-v8a`.
+String generatedFfmpegInstallRelativePath(
+  OS targetOS,
+  Architecture effectiveArchitecture,
+  dynamic iOSSdk,
+) =>
+    join('ffmpeg_install', _getFfmpegSubDir(targetOS, effectiveArchitecture, iOSSdk));
+
 String resolveFfmpegDir(
   Uri packageRoot,
   OS targetOS,
@@ -22,10 +41,28 @@ String resolveFfmpegDir(
   final dir = absolute(join(Directory.current.path, '..', 'third_party', 'generated', 'ffmpeg_install', subDir));
 
   if (!Directory(dir).existsSync()) {
-    throw Exception("FFmpeg install not found at $dir for $targetOS/$effectiveArchitecture");
+    throw Exception(
+      'FFmpeg install not found at $dir for $targetOS/$effectiveArchitecture.\n'
+      'From the repo root run: dart run tool/setup.dart --android\n'
+      '(Or set MEDIA_RS_FFMPEG_DIR to a matching prebuilt prefix.)',
+    );
   }
   return dir;
 }
+
+/// Android NDK ABI folder names under `*_install/android/<abi>/`.
+String _androidAbiDir(Architecture arch) {
+  return switch (arch) {
+    Architecture.arm64 => 'arm64-v8a',
+    Architecture.arm => 'armeabi-v7a',
+    Architecture.x64 => 'x86_64',
+    _ => throw UnsupportedError('Unsupported Android architecture: $arch'),
+  };
+}
+
+/// Subpath under `third_party/generated/ffmpeg_install/` for logs (e.g. `android/arm64-v8a`).
+String androidFfmpegInstallSubDir(Architecture arch) =>
+    join('android', _androidAbiDir(arch));
 
 String _getFfmpegSubDir(OS targetOS, Architecture arch, dynamic iOSSdk) {
   switch (targetOS) {
@@ -37,10 +74,7 @@ String _getFfmpegSubDir(OS targetOS, Architecture arch, dynamic iOSSdk) {
       }
       return arch == Architecture.x64 ? 'ios/simulator_x64' : 'ios/device';
     case OS.android:
-      if (arch == Architecture.arm64 || arch == Architecture.arm) {
-        return 'android/arm64-v8a';
-      }
-      return 'android/x86_64';
+      return join('android', _androidAbiDir(arch));
     case OS.linux:
       return arch == Architecture.arm64 ? 'linux/arm64' : 'linux/x86_64';
     case OS.windows:
@@ -76,9 +110,7 @@ String? resolveLibheifDir(
       );
       break;
     case OS.android:
-      final abi = (effectiveArchitecture == Architecture.arm64 || effectiveArchitecture == Architecture.arm)
-          ? 'arm64-v8a'
-          : 'x86_64';
+      final abi = _androidAbiDir(effectiveArchitecture);
       dirPath = absolute(
         join(Directory.current.path, '..', 'third_party', 'generated', 'libheif_install', 'android', abi),
       );
@@ -119,9 +151,7 @@ String? resolveOpenh264Dir(
       );
       break;
     case OS.android:
-      final abi = (effectiveArchitecture == Architecture.arm64 || effectiveArchitecture == Architecture.arm)
-          ? 'arm64-v8a'
-          : 'x86_64';
+      final abi = _androidAbiDir(effectiveArchitecture);
       dirPath = absolute(
         join(Directory.current.path, '..', 'third_party', 'generated', 'openh264_install', 'android', abi),
       );

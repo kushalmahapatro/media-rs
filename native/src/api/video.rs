@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+#[cfg(target_os = "windows")]
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::api::media::{CompressParams, CompressionEstimate, OutputFormat, ThumbnailSizeType};
@@ -491,9 +492,12 @@ fn get_video_info_internal(path: &str) -> Result<crate::api::media::VideoInfo> {
 
     debug!("get_video_info_internal - getting display dimensions with rotation");
     // Get display dimensions accounting for rotation (check both stream and format metadata for MOV files)
-    let (display_width, display_height, _rotation) =
+    let (display_width, display_height, rotation_degrees) =
         get_display_dimensions_with_format(&ictx, &stream, stored_width, stored_height);
-    debug!("get_video_info_internal - display dimensions: {}x{}", display_width, display_height);
+    debug!(
+        "get_video_info_internal - display dimensions: {}x{}, rotation={}°",
+        display_width, display_height, rotation_degrees
+    );
 
     debug!("get_video_info_internal - getting duration");
     let duration = ictx.duration(); // AV_TIME_BASE
@@ -518,15 +522,24 @@ fn get_video_info_internal(path: &str) -> Result<crate::api::media::VideoInfo> {
     let suggestions =
         generate_resolution_presets(display_width, display_height, bitrate.unwrap_or(0));
 
+    let delivery = crate::api::delivery::compute_video_delivery_estimates_with_source(
+        duration_ms,
+        display_width,
+        display_height,
+        bitrate,
+    );
+
     let result = crate::api::media::VideoInfo {
         duration_ms,
         width: display_width,
         height: display_height,
+        rotation_degrees,
         size_bytes,
         bitrate,
         codec_name: Some(codec_name.unwrap_or_default()),
         format_name: Some(format_name),
         suggestions,
+        delivery,
     };
     
     // Explicitly drop the context before returning to ensure cleanup
@@ -1001,29 +1014,114 @@ pub fn check_output_path(output_path: &str) -> anyhow::Result<PathBuf> {
     Ok(base_output_dir)
 }
 
+fn estimate_compression_sample_with_ffmpeg_process(
+    thread_id: usize,
+    point: f64,
+    path: &str,
+    params: &CompressParams,
+    base_output_dir: &Path,
+    filename_stem: &Path,
+    total_duration_ms: u64,
+    sample_duration_ms: u64,
+    rotation_degrees: i32,
+) -> Result<(f64, f64)> {
+    debug!(
+        "estimate_compression - thread {} started, point: {}",
+        thread_id, point
+    );
+    let start_ms = (total_duration_ms as f64 * point) as u64;
+    let actual_start_ms = if start_ms + sample_duration_ms > total_duration_ms {
+        total_duration_ms.saturating_sub(sample_duration_ms)
+    } else {
+        start_ms
+    };
+
+    debug!(
+        "estimate_compression - thread {}: start_ms={}, actual_start_ms={}, sample_duration_ms={}",
+        thread_id, start_ms, actual_start_ms, sample_duration_ms
+    );
+
+    let temp_path = format!(
+        "{}/{}.est.part.{}.mp4",
+        base_output_dir.display(),
+        filename_stem.display(),
+        thread_id
+    );
+
+    debug!(
+        "estimate_compression - thread {}: using FFmpeg process for compression",
+        thread_id
+    );
+
+    let compression_start = std::time::Instant::now();
+
+    let result = (|| -> Result<crate::api::ffmpeg_process::CompressionStats> {
+        use crate::api::ffmpeg_process::FFmpegProcess;
+
+        let ffmpeg = FFmpegProcess::new().context("Failed to initialize FFmpeg process")?;
+
+        ffmpeg.compress_segment(
+            path,
+            &temp_path,
+            params,
+            Some(actual_start_ms),
+            Some(sample_duration_ms),
+            rotation_degrees,
+        )
+    })();
+
+    let compression_elapsed = compression_start.elapsed();
+    debug!(
+        "estimate_compression - thread {}: FFmpeg process completed in {:?}",
+        thread_id, compression_elapsed
+    );
+
+    std::fs::remove_file(&temp_path).ok();
+
+    match result {
+        Ok(stats) => {
+            if stats.processed_duration_ms > 0 && stats.elapsed_ms > 0 {
+                let speed = stats.processed_duration_ms as f64 / stats.elapsed_ms as f64;
+                let size_rate =
+                    stats.encoded_size_bytes as f64 / stats.processed_duration_ms as f64;
+                debug!(
+                    "estimate_compression - thread {}: success, speed={:.2}x, size_rate={:.2} bytes/ms",
+                    thread_id, speed, size_rate
+                );
+                Ok((speed, size_rate))
+            } else {
+                warn!(
+                    "estimate_compression - thread {}: zero duration processed",
+                    thread_id
+                );
+                Err(anyhow::anyhow!("Zero duration processed"))
+            }
+        }
+        Err(e) => {
+            error!(
+                "estimate_compression - thread {}: FFmpeg process failed: {}",
+                thread_id, e
+            );
+            Err(e)
+        }
+    }
+}
+
 pub fn estimate_compression(
     path: &str,
     temp_output_path: &str,
     params: &CompressParams,
 ) -> Result<CompressionEstimate> {
-    // On Windows, we MUST get video info first to avoid opening multiple FFmpeg contexts
-    // which causes crashes. On other platforms, we can let the internal version handle it.
-    // #[cfg(target_os = "windows")]
-    // {
-    //     debug!("estimate_compression (Windows) - getting video info first to avoid FFmpeg crash");
-    //     let info = get_video_info(path)?;
-    //     debug!("estimate_compression (Windows) - got video info, calling internal version");
-    //     estimate_compression_with_info(path, temp_output_path, params, Some(&info))
-    
-    // }
-    
-    // #[cfg(not(target_os = "windows"))]
-    // {
-    //     // On other platforms, call the internal version with no pre-fetched video info
-    //     estimate_compression_with_info(path, temp_output_path, params, None)
-    // }
-
-     estimate_compression_with_info(path, temp_output_path, params, None)
+    #[cfg(target_os = "windows")]
+    {
+        debug!("estimate_compression (Windows) - prefetching video info");
+        let info = get_video_info(path)?;
+        return estimate_compression_with_info(path, temp_output_path, params, Some(&info));
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        estimate_compression_with_info(path, temp_output_path, params, None)
+    }
 }
 
 /// Internal version that accepts optional VideoInfo to avoid opening a second FFmpeg context
@@ -1083,7 +1181,32 @@ pub fn estimate_compression_with_info(
     };
     debug!("estimate_compression - get_video_info_internal() succeeded, duration: {}ms", info.duration_ms);
     let total_duration_ms = info.duration_ms;
-    
+
+    // Bitrate-only mode: instant analytic estimate (matches subprocess transcode: video + AAC 128k + mux pad).
+    if params.crf.is_none() && params.target_bitrate_kbps > 0 {
+        let input_bitrate_kbps = info.bitrate.unwrap_or(0) / 1000;
+        let mut v_kbps = params.target_bitrate_kbps;
+        if input_bitrate_kbps > 0 && v_kbps > input_bitrate_kbps as u32 {
+            v_kbps = input_bitrate_kbps as u32;
+        }
+        const AUDIO_KBPS: u32 = 128;
+        const MUX_PAD: u64 = 65_536;
+        let raw_size = crate::api::delivery::estimate_delivery_size_bytes(
+            total_duration_ms,
+            v_kbps,
+            AUDIO_KBPS,
+            MUX_PAD,
+        );
+        let estimated_size_bytes =
+            crate::api::delivery::apply_vbr_size_calibration(raw_size);
+        let estimated_duration_ms =
+            crate::api::delivery::estimate_encode_time_ms(total_duration_ms, 2.5);
+        return Ok(crate::api::media::CompressionEstimate {
+            estimated_size_bytes,
+            estimated_duration_ms,
+        });
+    }
+
     // CRITICAL: Release mutex before spawning threads
     // The spawned threads will acquire the mutex individually in perform_compression
     // If we hold the mutex here, the threads will deadlock waiting for it
@@ -1137,127 +1260,94 @@ pub fn estimate_compression_with_info(
     // For Bitrate Mode Size Calculation
     let mut bitrate_mode_size: Option<u64> = None;
     if params.crf.is_none() {
-        // ... Logic using estimated_target_bitrate ...
-        let audio_bitrate_bps = 192_000u64; // Est audio
+        let audio_bitrate_bps = 128_000u64;
         let video_bitrate_bps = (estimated_target_bitrate * 1000) as u64;
         let total_bps = video_bitrate_bps + audio_bitrate_bps;
-        bitrate_mode_size = Some((total_bps * total_duration_ms) / 8000);
+        let raw = (total_bps * total_duration_ms) / 8000;
+        bitrate_mode_size = Some(crate::api::delivery::apply_vbr_size_calibration(raw));
     }
 
-    // Use parallel execution on all platforms for best performance
-    // On Windows, use a semaphore to limit concurrent FFmpeg context creation
-    debug!("estimate_compression - spawning {} threads for parallel sampling", points.len());
-    let results: Vec<Result<(f64, f64)>> = std::thread::scope(|s| {
-        let handles: Vec<_> = points
+    debug!("estimate_compression - sampling {} point(s)", points.len());
+    let results: Vec<Result<(f64, f64)>> = if cfg!(target_os = "windows") {
+        points
             .iter()
             .enumerate()
             .map(|(i, &point)| {
-                let path = path.to_owned();
-                let params = params.clone();
-                let base_output_dir = base_output_dir.to_owned();
-                let filename_without_extension = filename_without_extension.to_owned();
-                let total_duration_ms = total_duration_ms;
-                let sample_duration_ms = sample_duration_ms;
-                s.spawn(move || {
-                    let thread_id = i;
-                    debug!("estimate_compression - thread {} started, point: {}", thread_id, point);
-                    let start_ms = (total_duration_ms as f64 * point) as u64;
-
-                    // Ensure we don't seek past end (minus sample duration)
-                    let actual_start_ms = if start_ms + sample_duration_ms > total_duration_ms {
-                        total_duration_ms.saturating_sub(sample_duration_ms)
-                    } else {
-                        start_ms
-                    };
-
-
-                    debug!("estimate_compression - thread {}: start_ms={}, actual_start_ms={}, sample_duration_ms={}", 
-                           thread_id, start_ms, actual_start_ms, sample_duration_ms);
-
-                    let temp_path = format!(
-                        "{}/{}.est.part.{}.mp4",
-                        base_output_dir.display(),
-                        filename_without_extension.display(),
-                        i
-                    );
-
-                    debug!("estimate_compression - thread {}: using FFmpeg process for compression", thread_id);
-                    
-                    // Use FFmpeg process for true parallel execution on all platforms
-                    // No semaphore needed - processes are isolated!
-                    let compression_start = std::time::Instant::now();
-                    
-                    let result = (|| -> Result<crate::api::ffmpeg_process::CompressionStats> {
-                        use crate::api::ffmpeg_process::FFmpegProcess;
-                        
-                        let ffmpeg = FFmpegProcess::new()
-                            .context("Failed to initialize FFmpeg process")?;
-                        
-                        ffmpeg.compress_segment(
+                estimate_compression_sample_with_ffmpeg_process(
+                    i,
+                    point,
+                    path,
+                    params,
+                    &base_output_dir,
+                    &filename_without_extension,
+                    total_duration_ms,
+                    sample_duration_ms,
+                    info.rotation_degrees,
+                )
+            })
+            .collect()
+    } else {
+        std::thread::scope(|s| {
+            let handles: Vec<_> = points
+                .iter()
+                .enumerate()
+                .map(|(i, &point)| {
+                    let path = path.to_owned();
+                    let params = params.clone();
+                    let base_output_dir = base_output_dir.clone();
+                    let filename_without_extension = filename_without_extension.clone();
+                    s.spawn(move || {
+                        estimate_compression_sample_with_ffmpeg_process(
+                            i,
+                            point,
                             &path,
-                            &temp_path,
                             &params,
-                            Some(actual_start_ms),
-                            Some(sample_duration_ms),
+                            &base_output_dir,
+                            &filename_without_extension,
+                            total_duration_ms,
+                            sample_duration_ms,
+                            info.rotation_degrees,
                         )
-                    })();
-                    
-                    let compression_elapsed = compression_start.elapsed();
-                    debug!("estimate_compression - thread {}: FFmpeg process completed in {:?}", 
-                           thread_id, compression_elapsed);
-                    
-                    std::fs::remove_file(&temp_path).ok();
+                    })
+                })
+                .collect();
 
-                    match result {
-                        Ok(stats) => {
-                            if stats.processed_duration_ms > 0 && stats.elapsed_ms > 0 {
-                                let speed =
-                                    stats.processed_duration_ms as f64 / stats.elapsed_ms as f64;
-                                let size_rate = stats.encoded_size_bytes as f64
-                                    / stats.processed_duration_ms as f64;
-                                debug!("estimate_compression - thread {}: success, speed={:.2}x, size_rate={:.2} bytes/ms", 
-                                       thread_id, speed, size_rate);
-                                Ok((speed, size_rate))
-                            } else {
-                                warn!("estimate_compression - thread {}: zero duration processed", thread_id);
-                                Err(anyhow::anyhow!("Zero duration processed"))
-                            }
-                        }
+            debug!(
+                "estimate_compression - waiting for {} threads to complete",
+                handles.len()
+            );
+            let join_start = std::time::Instant::now();
+            let results: Vec<_> = handles
+                .into_iter()
+                .enumerate()
+                .map(|(i, h)| {
+                    debug!("estimate_compression - waiting for thread {} to join", i);
+                    let join_result = h.join();
+                    let join_elapsed = join_start.elapsed();
+                    debug!(
+                        "estimate_compression - thread {} joined after {:?}",
+                        i, join_elapsed
+                    );
+                    match join_result {
+                        Ok(result) => result,
                         Err(e) => {
-                            error!("estimate_compression - thread {}: FFmpeg process failed: {}", thread_id, e);
-                            Err(e)
+                            let panic_msg = if let Some(s) = e.downcast_ref::<&str>() {
+                                format!("Thread {} panicked: {}", i, s)
+                            } else if let Some(s) = e.downcast_ref::<String>() {
+                                format!("Thread {} panicked: {}", i, s)
+                            } else {
+                                format!("Thread {} panicked: unknown error", i)
+                            };
+                            error!("{}", panic_msg);
+                            Err(anyhow::anyhow!(panic_msg))
                         }
                     }
                 })
-            })
-            .collect();
-
-        debug!("estimate_compression - waiting for {} threads to complete", handles.len());
-        let join_start = std::time::Instant::now();
-        let results: Vec<_> = handles.into_iter().enumerate().map(|(i, h)| {
-            debug!("estimate_compression - waiting for thread {} to join", i);
-            let join_result = h.join();
-            let join_elapsed = join_start.elapsed();
-            debug!("estimate_compression - thread {} joined after {:?}", i, join_elapsed);
-            match join_result {
-                Ok(result) => result,
-                Err(e) => {
-                    // Thread panicked - try to extract panic message
-                    let panic_msg = if let Some(s) = e.downcast_ref::<&str>() {
-                        format!("Thread {} panicked: {}", i, s)
-                    } else if let Some(s) = e.downcast_ref::<String>() {
-                        format!("Thread {} panicked: {}", i, s)
-                    } else {
-                        format!("Thread {} panicked: unknown error", i)
-                    };
-                    error!("{}", panic_msg);
-                    Err(anyhow::anyhow!(panic_msg))
-                }
-            }
-        }).collect();
-        debug!("estimate_compression - all threads completed");
-        results
-    });
+                .collect();
+            debug!("estimate_compression - all threads completed");
+            results
+        })
+    };
 
     debug!("estimate_compression - processing {} results", results.len());
     let mut total_speed_x = 0.0;
@@ -1328,15 +1418,18 @@ pub fn estimate_compression_with_info(
             fixed_size
         } else {
             // CRF mode or no bitrate hint: approximate using a modest video bitrate
-            // plus 192kbps audio, based on the source duration.
+            // plus 128kbps audio, based on the source duration.
             let video_bitrate_bps = info.bitrate.unwrap_or(2_000_000u64);
-            let audio_bitrate_bps = 192_000u64;
+            let audio_bitrate_bps = 128_000u64;
             let total_bps = video_bitrate_bps + audio_bitrate_bps;
-            (total_bps * total_duration_ms) / 8000
+            crate::api::delivery::apply_vbr_size_calibration(
+                (total_bps * total_duration_ms) / 8000,
+            )
         };
 
-        // Duration estimate: assume 1x realtime as a safe default if we have no samples.
-        let estimated_duration_ms = total_duration_ms;
+        // Duration estimate: assume ~1x realtime as a safe default if we have no samples.
+        let estimated_duration_ms =
+            crate::api::delivery::estimate_encode_time_ms(total_duration_ms, 1.0);
 
         return Ok(crate::api::media::CompressionEstimate {
             estimated_size_bytes,
@@ -1347,8 +1440,8 @@ pub fn estimate_compression_with_info(
     // Size: use average video rate from samples
     let avg_video_rate_per_ms = total_size_per_ms / valid_samples as f64;
 
-    // Speed: use sum of per-sample speeds
-    let estimated_speed = total_speed_x;
+    // Average encoding speed (× realtime) across samples — sum would divide duration wrongly.
+    let estimated_speed = total_speed_x / valid_samples as f64;
 
     let estimated_duration_ms = (total_duration_ms as f64 / estimated_speed) as u64;
 
@@ -1358,8 +1451,8 @@ pub fn estimate_compression_with_info(
         // Video estimate from sampled rate
         let video_est = avg_video_rate_per_ms * total_duration_ms as f64;
 
-        // Audio estimate (constant 192kbps = 24 bytes/ms), skipped in sampling
-        let audio_est = (192.0 / 8.0) * total_duration_ms as f64;
+        // Audio estimate (constant 128kbps), skipped in sampling
+        let audio_est = (128.0 / 8.0) * total_duration_ms as f64;
 
         (video_est + audio_est) as u64
     };
@@ -1463,6 +1556,17 @@ fn perform_compression(
     
     let output_path_str = output_path_resolved.to_string_lossy().to_string();
 
+    let rotation_degrees = match get_video_info(path) {
+        Ok(i) => i.rotation_degrees,
+        Err(e) => {
+            warn!(
+                "perform_compression: could not read rotation ({}); using 0°",
+                e
+            );
+            0
+        }
+    };
+
     debug!("perform_compression - attempting process-based compression");
     if let Ok(ffmpeg) = crate::api::ffmpeg_process::FFmpegProcess::new() {
         match ffmpeg.compress_segment(
@@ -1471,6 +1575,7 @@ fn perform_compression(
             params,
             start_ms,
             duration_limit_ms,
+            rotation_degrees,
         ) {
             Ok(stats) => {
                 debug!("perform_compression - process-based compression succeeded");
@@ -2082,7 +2187,7 @@ fn perform_compression(
                 encoder.set_format(ffmpeg::format::Sample::F32(
                     ffmpeg::format::sample::Type::Planar,
                 ));
-                encoder.set_bit_rate(192_000); // 192kbps
+                encoder.set_bit_rate(128_000);
                 encoder.set_time_base(ffmpeg::util::rational::Rational(
                     1,
                     target_sample_rate as i32,
@@ -3205,8 +3310,7 @@ mod tests {
             result_br.estimated_size_bytes, result_br.estimated_duration_ms
         );
 
-        // Expected size: (1000kbps + 192kbps audio) * duration (183s)
-        // 1192 * 1000 / 8 * 183 = ~27.2MB.
+        // Expected size: (1000kbps + 128kbps audio) * duration (183s), analytic path.
         assert!(
             result_br.estimated_size_bytes > 20_000_000
                 && result_br.estimated_size_bytes < 40_000_000

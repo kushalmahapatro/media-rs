@@ -3,6 +3,7 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/delivery.dart';
 import 'api/logger.dart';
 import 'api/media.dart';
 import 'dart:async';
@@ -65,7 +66,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1535488819;
+  int get rustContentHash => -743991708;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -112,6 +113,10 @@ abstract class RustLibApi extends BaseApi {
     bool? emptyImageFallback,
   });
 
+  Future<VideoDeliveryEstimates> crateApiMediaGetVideoDeliveryEstimates({
+    required String path,
+  });
+
   Future<VideoInfo> crateApiMediaGetVideoInfo({required String path});
 
   Future<void> crateApiLoggerInitLogger({
@@ -129,6 +134,10 @@ abstract class RustLibApi extends BaseApi {
     required String message,
   });
 
+  Future<LogLevel> crateApiLoggerLogLevelForVerboseBackend({
+    required bool verbose,
+  });
+
   Future<void> crateApiMediaOutputFormatExtension({required OutputFormat that});
 
   Future<void> crateApiLoggerReloadTracingFileWriter({
@@ -138,6 +147,14 @@ abstract class RustLibApi extends BaseApi {
   Future<(int, int)> crateApiMediaThumbnailSizeTypeDimensions({
     required ThumbnailSizeType that,
   });
+
+  RustArcIncrementStrongCountFnType
+  get rust_arc_increment_strong_count_LogLevel;
+
+  RustArcDecrementStrongCountFnType
+  get rust_arc_decrement_strong_count_LogLevel;
+
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_LogLevelPtr;
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -384,6 +401,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<VideoDeliveryEstimates> crateApiMediaGetVideoDeliveryEstimates({
+    required String path,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__media__get_video_delivery_estimates(
+            port_,
+            arg0,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_video_delivery_estimates,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMediaGetVideoDeliveryEstimatesConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMediaGetVideoDeliveryEstimatesConstMeta =>
+      const TaskConstMeta(
+        debugName: "get_video_delivery_estimates",
+        argNames: ["path"],
+      );
+
+  @override
   Future<VideoInfo> crateApiMediaGetVideoInfo({required String path}) {
     return handler.executeNormal(
       NormalTask(
@@ -415,7 +462,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          var arg0 = cst_encode_log_level(logLevel);
+          var arg0 =
+              cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+                logLevel,
+              );
           var arg1 = cst_encode_bool(writeToStdoutOrSystem);
           var arg2 = cst_encode_opt_box_autoadd_write_to_files(writeToFiles);
           var arg3 = cst_encode_bool(useLightweightTokioRuntime);
@@ -466,7 +516,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: (port_) {
           var arg0 = cst_encode_String(file);
           var arg1 = cst_encode_opt_box_autoadd_u_32(line);
-          var arg2 = cst_encode_log_level(level);
+          var arg2 =
+              cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+                level,
+              );
           var arg3 = cst_encode_String(target);
           var arg4 = cst_encode_String(message);
           return wire.wire__crate__api__logger__log(
@@ -493,6 +546,37 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     debugName: "log",
     argNames: ["file", "line", "level", "target", "message"],
   );
+
+  @override
+  Future<LogLevel> crateApiLoggerLogLevelForVerboseBackend({
+    required bool verbose,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_bool(verbose);
+          return wire.wire__crate__api__logger__log_level_for_verbose_backend(
+            port_,
+            arg0,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiLoggerLogLevelForVerboseBackendConstMeta,
+        argValues: [verbose],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLoggerLogLevelForVerboseBackendConstMeta =>
+      const TaskConstMeta(
+        debugName: "log_level_for_verbose_backend",
+        argNames: ["verbose"],
+      );
 
   @override
   Future<void> crateApiMediaOutputFormatExtension({
@@ -584,10 +668,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         argNames: ["that"],
       );
 
+  RustArcIncrementStrongCountFnType
+  get rust_arc_increment_strong_count_LogLevel => wire
+      .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel;
+
+  RustArcDecrementStrongCountFnType
+  get rust_arc_decrement_strong_count_LogLevel => wire
+      .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel;
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return AnyhowException(raw as String);
+  }
+
+  @protected
+  LogLevel
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return LogLevelImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  LogLevel
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return LogLevelImpl.frbInternalDcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -707,6 +817,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  DeliveryEstimate dco_decode_delivery_estimate(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return DeliveryEstimate(
+      profileId: dco_decode_delivery_profile_id(arr[0]),
+      width: dco_decode_u_32(arr[1]),
+      height: dco_decode_u_32(arr[2]),
+      estimatedSizeBytes: dco_decode_u_64(arr[3]),
+      videoBitrateKbps: dco_decode_u_32(arr[4]),
+      audioBitrateKbps: dco_decode_u_32(arr[5]),
+      estimatedEncodeTimeMs: dco_decode_u_64(arr[6]),
+    );
+  }
+
+  @protected
+  DeliveryProfileId dco_decode_delivery_profile_id(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return DeliveryProfileId.values[raw as int];
+  }
+
+  @protected
   int dco_decode_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -734,12 +867,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<ResolutionPreset> dco_decode_list_resolution_preset(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_resolution_preset).toList();
-  }
-
-  @protected
-  LogLevel dco_decode_log_level(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return LogLevel.values[raw as int];
   }
 
   @protected
@@ -881,20 +1008,40 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  BigInt dco_decode_usize(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeU64(raw);
+  }
+
+  @protected
+  VideoDeliveryEstimates dco_decode_video_delivery_estimates(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return VideoDeliveryEstimates(
+      hd720: dco_decode_delivery_estimate(arr[0]),
+      sd480: dco_decode_delivery_estimate(arr[1]),
+    );
+  }
+
+  @protected
   VideoInfo dco_decode_video_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 8)
-      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    if (arr.length != 10)
+      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
     return VideoInfo(
       durationMs: dco_decode_u_64(arr[0]),
       width: dco_decode_u_32(arr[1]),
       height: dco_decode_u_32(arr[2]),
-      sizeBytes: dco_decode_u_64(arr[3]),
-      bitrate: dco_decode_opt_box_autoadd_u_64(arr[4]),
-      codecName: dco_decode_opt_String(arr[5]),
-      formatName: dco_decode_opt_String(arr[6]),
-      suggestions: dco_decode_list_resolution_preset(arr[7]),
+      rotationDegrees: dco_decode_i_32(arr[3]),
+      sizeBytes: dco_decode_u_64(arr[4]),
+      bitrate: dco_decode_opt_box_autoadd_u_64(arr[5]),
+      codecName: dco_decode_opt_String(arr[6]),
+      formatName: dco_decode_opt_String(arr[7]),
+      suggestions: dco_decode_list_resolution_preset(arr[8]),
+      delivery: dco_decode_video_delivery_estimates(arr[9]),
     );
   }
 
@@ -930,6 +1077,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_String(deserializer);
     return AnyhowException(inner);
+  }
+
+  @protected
+  LogLevel
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return LogLevelImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
+  LogLevel
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return LogLevelImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
   }
 
   @protected
@@ -1066,6 +1237,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  DeliveryEstimate sse_decode_delivery_estimate(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_profileId = sse_decode_delivery_profile_id(deserializer);
+    var var_width = sse_decode_u_32(deserializer);
+    var var_height = sse_decode_u_32(deserializer);
+    var var_estimatedSizeBytes = sse_decode_u_64(deserializer);
+    var var_videoBitrateKbps = sse_decode_u_32(deserializer);
+    var var_audioBitrateKbps = sse_decode_u_32(deserializer);
+    var var_estimatedEncodeTimeMs = sse_decode_u_64(deserializer);
+    return DeliveryEstimate(
+      profileId: var_profileId,
+      width: var_width,
+      height: var_height,
+      estimatedSizeBytes: var_estimatedSizeBytes,
+      videoBitrateKbps: var_videoBitrateKbps,
+      audioBitrateKbps: var_audioBitrateKbps,
+      estimatedEncodeTimeMs: var_estimatedEncodeTimeMs,
+    );
+  }
+
+  @protected
+  DeliveryProfileId sse_decode_delivery_profile_id(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return DeliveryProfileId.values[inner];
+  }
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
@@ -1102,13 +1303,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       ans_.add(sse_decode_resolution_preset(deserializer));
     }
     return ans_;
-  }
-
-  @protected
-  LogLevel sse_decode_log_level(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var inner = sse_decode_i_32(deserializer);
-    return LogLevel.values[inner];
   }
 
   @protected
@@ -1300,25 +1494,45 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getBigUint64();
+  }
+
+  @protected
+  VideoDeliveryEstimates sse_decode_video_delivery_estimates(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_hd720 = sse_decode_delivery_estimate(deserializer);
+    var var_sd480 = sse_decode_delivery_estimate(deserializer);
+    return VideoDeliveryEstimates(hd720: var_hd720, sd480: var_sd480);
+  }
+
+  @protected
   VideoInfo sse_decode_video_info(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_durationMs = sse_decode_u_64(deserializer);
     var var_width = sse_decode_u_32(deserializer);
     var var_height = sse_decode_u_32(deserializer);
+    var var_rotationDegrees = sse_decode_i_32(deserializer);
     var var_sizeBytes = sse_decode_u_64(deserializer);
     var var_bitrate = sse_decode_opt_box_autoadd_u_64(deserializer);
     var var_codecName = sse_decode_opt_String(deserializer);
     var var_formatName = sse_decode_opt_String(deserializer);
     var var_suggestions = sse_decode_list_resolution_preset(deserializer);
+    var var_delivery = sse_decode_video_delivery_estimates(deserializer);
     return VideoInfo(
       durationMs: var_durationMs,
       width: var_width,
       height: var_height,
+      rotationDegrees: var_rotationDegrees,
       sizeBytes: var_sizeBytes,
       bitrate: var_bitrate,
       codecName: var_codecName,
       formatName: var_formatName,
       suggestions: var_suggestions,
+      delivery: var_delivery,
     );
   }
 
@@ -1355,21 +1569,41 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int
+  cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    // ignore: invalid_use_of_internal_member
+    return (raw as LogLevelImpl).frbInternalCstEncode(move: true);
+  }
+
+  @protected
+  int
+  cst_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    // ignore: invalid_use_of_internal_member
+    return (raw as LogLevelImpl).frbInternalCstEncode();
+  }
+
+  @protected
   bool cst_encode_bool(bool raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
   }
 
   @protected
-  int cst_encode_i_32(int raw) {
+  int cst_encode_delivery_profile_id(DeliveryProfileId raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw;
+    return cst_encode_i_32(raw.index);
   }
 
   @protected
-  int cst_encode_log_level(LogLevel raw) {
+  int cst_encode_i_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_i_32(raw.index);
+    return raw;
   }
 
   @protected
@@ -1403,6 +1637,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as LogLevelImpl).frbInternalSseEncode(move: true),
+      serializer,
+    );
+  }
+
+  @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+    LogLevel self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as LogLevelImpl).frbInternalSseEncode(move: null),
+      serializer,
+    );
   }
 
   @protected
@@ -1546,6 +1806,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_delivery_estimate(
+    DeliveryEstimate self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_delivery_profile_id(self.profileId, serializer);
+    sse_encode_u_32(self.width, serializer);
+    sse_encode_u_32(self.height, serializer);
+    sse_encode_u_64(self.estimatedSizeBytes, serializer);
+    sse_encode_u_32(self.videoBitrateKbps, serializer);
+    sse_encode_u_32(self.audioBitrateKbps, serializer);
+    sse_encode_u_64(self.estimatedEncodeTimeMs, serializer);
+  }
+
+  @protected
+  void sse_encode_delivery_profile_id(
+    DeliveryProfileId self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
@@ -1581,12 +1865,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     for (final item in self) {
       sse_encode_resolution_preset(item, serializer);
     }
-  }
-
-  @protected
-  void sse_encode_log_level(LogLevel self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
@@ -1764,16 +2042,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putBigUint64(self);
+  }
+
+  @protected
+  void sse_encode_video_delivery_estimates(
+    VideoDeliveryEstimates self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_delivery_estimate(self.hd720, serializer);
+    sse_encode_delivery_estimate(self.sd480, serializer);
+  }
+
+  @protected
   void sse_encode_video_info(VideoInfo self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_64(self.durationMs, serializer);
     sse_encode_u_32(self.width, serializer);
     sse_encode_u_32(self.height, serializer);
+    sse_encode_i_32(self.rotationDegrees, serializer);
     sse_encode_u_64(self.sizeBytes, serializer);
     sse_encode_opt_box_autoadd_u_64(self.bitrate, serializer);
     sse_encode_opt_String(self.codecName, serializer);
     sse_encode_opt_String(self.formatName, serializer);
     sse_encode_list_resolution_preset(self.suggestions, serializer);
+    sse_encode_video_delivery_estimates(self.delivery, serializer);
   }
 
   @protected
@@ -1795,4 +2091,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.fileSuffix, serializer);
     sse_encode_opt_box_autoadd_u_64(self.maxFiles, serializer);
   }
+}
+
+@sealed
+class LogLevelImpl extends RustOpaque implements LogLevel {
+  // Not to be used by end users
+  LogLevelImpl.frbInternalDcoDecode(List<dynamic> wire)
+    : super.frbInternalDcoDecode(wire, _kStaticData);
+
+  // Not to be used by end users
+  LogLevelImpl.frbInternalSseDecode(BigInt ptr, int externalSizeOnNative)
+    : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
+
+  static final _kStaticData = RustArcStaticData(
+    rustArcIncrementStrongCount:
+        RustLib.instance.api.rust_arc_increment_strong_count_LogLevel,
+    rustArcDecrementStrongCount:
+        RustLib.instance.api.rust_arc_decrement_strong_count_LogLevel,
+    rustArcDecrementStrongCountPtr:
+        RustLib.instance.api.rust_arc_decrement_strong_count_LogLevelPtr,
+  );
 }

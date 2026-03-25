@@ -25,6 +25,7 @@
 
 // Section: imports
 
+use crate::api::logger::*;
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
 use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
 use flutter_rust_bridge::{Handler, IntoIntoDart};
@@ -37,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1535488819;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -743991708;
 
 // Section: executor
 
@@ -240,6 +241,29 @@ fn wire__crate__api__media__generate_video_timeline_thumbnails_impl(
         },
     )
 }
+fn wire__crate__api__media__get_video_delivery_estimates_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_video_delivery_estimates",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::media::get_video_delivery_estimates(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__media__get_video_info_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     path: impl CstDecode<String>,
@@ -265,7 +289,7 @@ fn wire__crate__api__media__get_video_info_impl(
 }
 fn wire__crate__api__logger__init_logger_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    log_level: impl CstDecode<crate::api::logger::LogLevel>,
+    log_level: impl CstDecode<LogLevel>,
     write_to_stdout_or_system: impl CstDecode<bool>,
     write_to_files: impl CstDecode<Option<crate::api::logger::WriteToFiles>>,
     use_lightweight_tokio_runtime: impl CstDecode<bool>,
@@ -303,7 +327,7 @@ fn wire__crate__api__logger__log_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     file: impl CstDecode<String>,
     line: impl CstDecode<Option<u32>>,
-    level: impl CstDecode<crate::api::logger::LogLevel>,
+    level: impl CstDecode<LogLevel>,
     target: impl CstDecode<String>,
     message: impl CstDecode<String>,
 ) {
@@ -336,6 +360,29 @@ fn wire__crate__api__logger__log_impl(
                     })()
                     .await,
                 )
+            }
+        },
+    )
+}
+fn wire__crate__api__logger__log_level_for_verbose_backend_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    verbose: impl CstDecode<bool>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "log_level_for_verbose_backend",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_verbose = verbose.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::api::logger::log_level_for_verbose_backend(api_verbose),
+                    )?;
+                    Ok(output_ok)
+                })())
             }
         },
     )
@@ -421,23 +468,20 @@ impl CstDecode<bool> for bool {
         self
     }
 }
+impl CstDecode<crate::api::delivery::DeliveryProfileId> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::api::delivery::DeliveryProfileId {
+        match self {
+            0 => crate::api::delivery::DeliveryProfileId::Hd720,
+            1 => crate::api::delivery::DeliveryProfileId::Sd480,
+            _ => unreachable!("Invalid variant for DeliveryProfileId: {}", self),
+        }
+    }
+}
 impl CstDecode<i32> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> i32 {
         self
-    }
-}
-impl CstDecode<crate::api::logger::LogLevel> for i32 {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    fn cst_decode(self) -> crate::api::logger::LogLevel {
-        match self {
-            0 => crate::api::logger::LogLevel::Error,
-            1 => crate::api::logger::LogLevel::Warn,
-            2 => crate::api::logger::LogLevel::Info,
-            3 => crate::api::logger::LogLevel::Debug,
-            4 => crate::api::logger::LogLevel::Trace,
-            _ => unreachable!("Invalid variant for LogLevel: {}", self),
-        }
     }
 }
 impl CstDecode<crate::api::media::OutputFormat> for i32 {
@@ -469,11 +513,37 @@ impl CstDecode<u8> for u8 {
         self
     }
 }
+impl CstDecode<usize> for usize {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> usize {
+        self
+    }
+}
 impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <String>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::anyhow::anyhow!("{}", inner);
+    }
+}
+
+impl SseDecode for LogLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueNom<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return unsafe { decode_rust_opaque_nom(inner) };
     }
 }
 
@@ -532,6 +602,40 @@ impl SseDecode for crate::api::media::CompressionEstimate {
     }
 }
 
+impl SseDecode for crate::api::delivery::DeliveryEstimate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_profileId = <crate::api::delivery::DeliveryProfileId>::sse_decode(deserializer);
+        let mut var_width = <u32>::sse_decode(deserializer);
+        let mut var_height = <u32>::sse_decode(deserializer);
+        let mut var_estimatedSizeBytes = <u64>::sse_decode(deserializer);
+        let mut var_videoBitrateKbps = <u32>::sse_decode(deserializer);
+        let mut var_audioBitrateKbps = <u32>::sse_decode(deserializer);
+        let mut var_estimatedEncodeTimeMs = <u64>::sse_decode(deserializer);
+        return crate::api::delivery::DeliveryEstimate {
+            profile_id: var_profileId,
+            width: var_width,
+            height: var_height,
+            estimated_size_bytes: var_estimatedSizeBytes,
+            video_bitrate_kbps: var_videoBitrateKbps,
+            audio_bitrate_kbps: var_audioBitrateKbps,
+            estimated_encode_time_ms: var_estimatedEncodeTimeMs,
+        };
+    }
+}
+
+impl SseDecode for crate::api::delivery::DeliveryProfileId {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::delivery::DeliveryProfileId::Hd720,
+            1 => crate::api::delivery::DeliveryProfileId::Sd480,
+            _ => unreachable!("Invalid variant for DeliveryProfileId: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -575,21 +679,6 @@ impl SseDecode for Vec<crate::api::media::ResolutionPreset> {
             ));
         }
         return ans_;
-    }
-}
-
-impl SseDecode for crate::api::logger::LogLevel {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <i32>::sse_decode(deserializer);
-        return match inner {
-            0 => crate::api::logger::LogLevel::Error,
-            1 => crate::api::logger::LogLevel::Warn,
-            2 => crate::api::logger::LogLevel::Info,
-            3 => crate::api::logger::LogLevel::Debug,
-            4 => crate::api::logger::LogLevel::Trace,
-            _ => unreachable!("Invalid variant for LogLevel: {}", inner),
-        };
     }
 }
 
@@ -793,27 +882,51 @@ impl SseDecode for () {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {}
 }
 
+impl SseDecode for usize {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u64::<NativeEndian>().unwrap() as _
+    }
+}
+
+impl SseDecode for crate::api::delivery::VideoDeliveryEstimates {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_hd720 = <crate::api::delivery::DeliveryEstimate>::sse_decode(deserializer);
+        let mut var_sd480 = <crate::api::delivery::DeliveryEstimate>::sse_decode(deserializer);
+        return crate::api::delivery::VideoDeliveryEstimates {
+            hd_720: var_hd720,
+            sd_480: var_sd480,
+        };
+    }
+}
+
 impl SseDecode for crate::api::media::VideoInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_durationMs = <u64>::sse_decode(deserializer);
         let mut var_width = <u32>::sse_decode(deserializer);
         let mut var_height = <u32>::sse_decode(deserializer);
+        let mut var_rotationDegrees = <i32>::sse_decode(deserializer);
         let mut var_sizeBytes = <u64>::sse_decode(deserializer);
         let mut var_bitrate = <Option<u64>>::sse_decode(deserializer);
         let mut var_codecName = <Option<String>>::sse_decode(deserializer);
         let mut var_formatName = <Option<String>>::sse_decode(deserializer);
         let mut var_suggestions =
             <Vec<crate::api::media::ResolutionPreset>>::sse_decode(deserializer);
+        let mut var_delivery =
+            <crate::api::delivery::VideoDeliveryEstimates>::sse_decode(deserializer);
         return crate::api::media::VideoInfo {
             duration_ms: var_durationMs,
             width: var_width,
             height: var_height,
+            rotation_degrees: var_rotationDegrees,
             size_bytes: var_sizeBytes,
             bitrate: var_bitrate,
             codec_name: var_codecName,
             format_name: var_formatName,
             suggestions: var_suggestions,
+            delivery: var_delivery,
         };
     }
 }
@@ -877,6 +990,21 @@ fn pde_ffi_dispatcher_sync_impl(
 // Section: rust2dart
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<LogLevel> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, StdArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<LogLevel> {}
+
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<LogLevel>> for LogLevel {
+    fn into_into_dart(self) -> FrbWrapper<LogLevel> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::media::CompressParams {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -923,6 +1051,53 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::media::CompressionEstimate>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::delivery::DeliveryEstimate {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.profile_id.into_into_dart().into_dart(),
+            self.width.into_into_dart().into_dart(),
+            self.height.into_into_dart().into_dart(),
+            self.estimated_size_bytes.into_into_dart().into_dart(),
+            self.video_bitrate_kbps.into_into_dart().into_dart(),
+            self.audio_bitrate_kbps.into_into_dart().into_dart(),
+            self.estimated_encode_time_ms.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::delivery::DeliveryEstimate
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::delivery::DeliveryEstimate>
+    for crate::api::delivery::DeliveryEstimate
+{
+    fn into_into_dart(self) -> crate::api::delivery::DeliveryEstimate {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::delivery::DeliveryProfileId {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Hd720 => 0.into_dart(),
+            Self::Sd480 => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::delivery::DeliveryProfileId
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::delivery::DeliveryProfileId>
+    for crate::api::delivery::DeliveryProfileId
+{
+    fn into_into_dart(self) -> crate::api::delivery::DeliveryProfileId {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::media::ImageThumbnailParams {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -941,30 +1116,6 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::media::ImageThumbnailParams>
 {
     fn into_into_dart(self) -> crate::api::media::ImageThumbnailParams {
         self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::logger::LogLevel> {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        match self.0 {
-            crate::api::logger::LogLevel::Error => 0.into_dart(),
-            crate::api::logger::LogLevel::Warn => 1.into_dart(),
-            crate::api::logger::LogLevel::Info => 2.into_dart(),
-            crate::api::logger::LogLevel::Debug => 3.into_dart(),
-            crate::api::logger::LogLevel::Trace => 4.into_dart(),
-            _ => unreachable!(),
-        }
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for FrbWrapper<crate::api::logger::LogLevel>
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::logger::LogLevel>>
-    for crate::api::logger::LogLevel
-{
-    fn into_into_dart(self) -> FrbWrapper<crate::api::logger::LogLevel> {
-        self.into()
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -1043,17 +1194,40 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::media::ThumbnailSizeType>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::delivery::VideoDeliveryEstimates {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.hd_720.into_into_dart().into_dart(),
+            self.sd_480.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::delivery::VideoDeliveryEstimates
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::delivery::VideoDeliveryEstimates>
+    for crate::api::delivery::VideoDeliveryEstimates
+{
+    fn into_into_dart(self) -> crate::api::delivery::VideoDeliveryEstimates {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::media::VideoInfo {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.duration_ms.into_into_dart().into_dart(),
             self.width.into_into_dart().into_dart(),
             self.height.into_into_dart().into_dart(),
+            self.rotation_degrees.into_into_dart().into_dart(),
             self.size_bytes.into_into_dart().into_dart(),
             self.bitrate.into_into_dart().into_dart(),
             self.codec_name.into_into_dart().into_dart(),
             self.format_name.into_into_dart().into_dart(),
             self.suggestions.into_into_dart().into_dart(),
+            self.delivery.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -1119,6 +1293,24 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseEncode for LogLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, StdArc<_>>(self), serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
 impl SseEncode for StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1160,6 +1352,35 @@ impl SseEncode for crate::api::media::CompressionEstimate {
     }
 }
 
+impl SseEncode for crate::api::delivery::DeliveryEstimate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::api::delivery::DeliveryProfileId>::sse_encode(self.profile_id, serializer);
+        <u32>::sse_encode(self.width, serializer);
+        <u32>::sse_encode(self.height, serializer);
+        <u64>::sse_encode(self.estimated_size_bytes, serializer);
+        <u32>::sse_encode(self.video_bitrate_kbps, serializer);
+        <u32>::sse_encode(self.audio_bitrate_kbps, serializer);
+        <u64>::sse_encode(self.estimated_encode_time_ms, serializer);
+    }
+}
+
+impl SseEncode for crate::api::delivery::DeliveryProfileId {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::delivery::DeliveryProfileId::Hd720 => 0,
+                crate::api::delivery::DeliveryProfileId::Sd480 => 1,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1192,25 +1413,6 @@ impl SseEncode for Vec<crate::api::media::ResolutionPreset> {
         for item in self {
             <crate::api::media::ResolutionPreset>::sse_encode(item, serializer);
         }
-    }
-}
-
-impl SseEncode for crate::api::logger::LogLevel {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <i32>::sse_encode(
-            match self {
-                crate::api::logger::LogLevel::Error => 0,
-                crate::api::logger::LogLevel::Warn => 1,
-                crate::api::logger::LogLevel::Info => 2,
-                crate::api::logger::LogLevel::Debug => 3,
-                crate::api::logger::LogLevel::Trace => 4,
-                _ => {
-                    unimplemented!("");
-                }
-            },
-            serializer,
-        );
     }
 }
 
@@ -1396,17 +1598,37 @@ impl SseEncode for () {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {}
 }
 
+impl SseEncode for usize {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer
+            .cursor
+            .write_u64::<NativeEndian>(self as _)
+            .unwrap();
+    }
+}
+
+impl SseEncode for crate::api::delivery::VideoDeliveryEstimates {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::api::delivery::DeliveryEstimate>::sse_encode(self.hd_720, serializer);
+        <crate::api::delivery::DeliveryEstimate>::sse_encode(self.sd_480, serializer);
+    }
+}
+
 impl SseEncode for crate::api::media::VideoInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <u64>::sse_encode(self.duration_ms, serializer);
         <u32>::sse_encode(self.width, serializer);
         <u32>::sse_encode(self.height, serializer);
+        <i32>::sse_encode(self.rotation_degrees, serializer);
         <u64>::sse_encode(self.size_bytes, serializer);
         <Option<u64>>::sse_encode(self.bitrate, serializer);
         <Option<String>>::sse_encode(self.codec_name, serializer);
         <Option<String>>::sse_encode(self.format_name, serializer);
         <Vec<crate::api::media::ResolutionPreset>>::sse_encode(self.suggestions, serializer);
+        <crate::api::delivery::VideoDeliveryEstimates>::sse_encode(self.delivery, serializer);
     }
 }
 
@@ -1437,6 +1659,7 @@ mod io {
     // Section: imports
 
     use super::*;
+    use crate::api::logger::*;
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
@@ -1455,6 +1678,27 @@ mod io {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> flutter_rust_bridge::for_generated::anyhow::Error {
             unimplemented!()
+        }
+    }
+    impl CstDecode<LogLevel> for usize {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> LogLevel {
+            flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(CstDecode::<
+                RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>,
+            >::cst_decode(
+                self
+            ))
+        }
+    }
+    impl CstDecode<RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>>
+        for usize
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(
+            self,
+        ) -> RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>
+        {
+            unsafe { decode_rust_opaque_nom(self as _) }
         }
     }
     impl CstDecode<StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec>>
@@ -1568,6 +1812,20 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::api::delivery::DeliveryEstimate> for wire_cst_delivery_estimate {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::delivery::DeliveryEstimate {
+            crate::api::delivery::DeliveryEstimate {
+                profile_id: self.profile_id.cst_decode(),
+                width: self.width.cst_decode(),
+                height: self.height.cst_decode(),
+                estimated_size_bytes: self.estimated_size_bytes.cst_decode(),
+                video_bitrate_kbps: self.video_bitrate_kbps.cst_decode(),
+                audio_bitrate_kbps: self.audio_bitrate_kbps.cst_decode(),
+                estimated_encode_time_ms: self.estimated_encode_time_ms.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::api::media::ImageThumbnailParams> for wire_cst_image_thumbnail_params {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::api::media::ImageThumbnailParams {
@@ -1631,6 +1889,15 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::api::delivery::VideoDeliveryEstimates> for wire_cst_video_delivery_estimates {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::delivery::VideoDeliveryEstimates {
+            crate::api::delivery::VideoDeliveryEstimates {
+                hd_720: self.hd_720.cst_decode(),
+                sd_480: self.sd_480.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::api::media::VideoInfo> for wire_cst_video_info {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::api::media::VideoInfo {
@@ -1638,11 +1905,13 @@ mod io {
                 duration_ms: self.duration_ms.cst_decode(),
                 width: self.width.cst_decode(),
                 height: self.height.cst_decode(),
+                rotation_degrees: self.rotation_degrees.cst_decode(),
                 size_bytes: self.size_bytes.cst_decode(),
                 bitrate: self.bitrate.cst_decode(),
                 codec_name: self.codec_name.cst_decode(),
                 format_name: self.format_name.cst_decode(),
                 suggestions: self.suggestions.cst_decode(),
+                delivery: self.delivery.cst_decode(),
             }
         }
     }
@@ -1693,6 +1962,24 @@ mod io {
         }
     }
     impl Default for wire_cst_compression_estimate {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_delivery_estimate {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                profile_id: Default::default(),
+                width: Default::default(),
+                height: Default::default(),
+                estimated_size_bytes: Default::default(),
+                video_bitrate_kbps: Default::default(),
+                audio_bitrate_kbps: Default::default(),
+                estimated_encode_time_ms: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_delivery_estimate {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -1752,17 +2039,32 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_video_delivery_estimates {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                hd_720: Default::default(),
+                sd_480: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_video_delivery_estimates {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_video_info {
         fn new_with_null_ptr() -> Self {
             Self {
                 duration_ms: Default::default(),
                 width: Default::default(),
                 height: Default::default(),
+                rotation_degrees: Default::default(),
                 size_bytes: Default::default(),
                 bitrate: core::ptr::null_mut(),
                 codec_name: core::ptr::null_mut(),
                 format_name: core::ptr::null_mut(),
                 suggestions: core::ptr::null_mut(),
+                delivery: Default::default(),
             }
         }
     }
@@ -1882,6 +2184,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__media__get_video_delivery_estimates(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__media__get_video_delivery_estimates_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_media_wire__crate__api__media__get_video_info(
         port_: i64,
         path: *mut wire_cst_list_prim_u_8_strict,
@@ -1892,7 +2202,7 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_media_wire__crate__api__logger__init_logger(
         port_: i64,
-        log_level: i32,
+        log_level: usize,
         write_to_stdout_or_system: bool,
         write_to_files: *mut wire_cst_write_to_files,
         use_lightweight_tokio_runtime: bool,
@@ -1911,11 +2221,19 @@ mod io {
         port_: i64,
         file: *mut wire_cst_list_prim_u_8_strict,
         line: *mut u32,
-        level: i32,
+        level: usize,
         target: *mut wire_cst_list_prim_u_8_strict,
         message: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__api__logger__log_impl(port_, file, line, level, target, message)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_wire__crate__api__logger__log_level_for_verbose_backend(
+        port_: i64,
+        verbose: bool,
+    ) {
+        wire__crate__api__logger__log_level_for_verbose_backend_impl(port_, verbose)
     }
 
     #[unsafe(no_mangle)]
@@ -1940,6 +2258,24 @@ mod io {
         that: *mut wire_cst_thumbnail_size_type,
     ) {
         wire__crate__api__media__thumbnail_size_type_dimensions_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+        ptr: *const std::ffi::c_void,
+    ) {
+        unsafe {
+            StdArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>::increment_strong_count(ptr as _);
+        }
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+        ptr: *const std::ffi::c_void,
+    ) {
+        unsafe {
+            StdArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>::decrement_strong_count(ptr as _);
+        }
     }
 
     #[unsafe(no_mangle)]
@@ -2058,6 +2394,17 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_delivery_estimate {
+        profile_id: i32,
+        width: u32,
+        height: u32,
+        estimated_size_bytes: u64,
+        video_bitrate_kbps: u32,
+        audio_bitrate_kbps: u32,
+        estimated_encode_time_ms: u64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_image_thumbnail_params {
         size_type: *mut wire_cst_thumbnail_size_type,
         format: *mut i32,
@@ -2108,15 +2455,23 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_video_delivery_estimates {
+        hd_720: wire_cst_delivery_estimate,
+        sd_480: wire_cst_delivery_estimate,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_video_info {
         duration_ms: u64,
         width: u32,
         height: u32,
+        rotation_degrees: i32,
         size_bytes: u64,
         bitrate: *mut u64,
         codec_name: *mut wire_cst_list_prim_u_8_strict,
         format_name: *mut wire_cst_list_prim_u_8_strict,
         suggestions: *mut wire_cst_list_resolution_preset,
+        delivery: wire_cst_video_delivery_estimates,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -2146,6 +2501,7 @@ mod web {
     // Section: imports
 
     use super::*;
+    use crate::api::logger::*;
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
@@ -2219,6 +2575,31 @@ mod web {
             crate::api::media::CompressionEstimate {
                 estimated_size_bytes: self_.get(0).cst_decode(),
                 estimated_duration_ms: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::delivery::DeliveryEstimate>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::delivery::DeliveryEstimate {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                7,
+                "Expected 7 elements, got {}",
+                self_.length()
+            );
+            crate::api::delivery::DeliveryEstimate {
+                profile_id: self_.get(0).cst_decode(),
+                width: self_.get(1).cst_decode(),
+                height: self_.get(2).cst_decode(),
+                estimated_size_bytes: self_.get(3).cst_decode(),
+                video_bitrate_kbps: self_.get(4).cst_decode(),
+                audio_bitrate_kbps: self_.get(5).cst_decode(),
+                estimated_encode_time_ms: self_.get(6).cst_decode(),
             }
         }
     }
@@ -2321,6 +2702,26 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::api::delivery::VideoDeliveryEstimates>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::delivery::VideoDeliveryEstimates {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::api::delivery::VideoDeliveryEstimates {
+                hd_720: self_.get(0).cst_decode(),
+                sd_480: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::api::media::VideoInfo>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -2331,19 +2732,21 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                8,
-                "Expected 8 elements, got {}",
+                10,
+                "Expected 10 elements, got {}",
                 self_.length()
             );
             crate::api::media::VideoInfo {
                 duration_ms: self_.get(0).cst_decode(),
                 width: self_.get(1).cst_decode(),
                 height: self_.get(2).cst_decode(),
-                size_bytes: self_.get(3).cst_decode(),
-                bitrate: self_.get(4).cst_decode(),
-                codec_name: self_.get(5).cst_decode(),
-                format_name: self_.get(6).cst_decode(),
-                suggestions: self_.get(7).cst_decode(),
+                rotation_degrees: self_.get(3).cst_decode(),
+                size_bytes: self_.get(4).cst_decode(),
+                bitrate: self_.get(5).cst_decode(),
+                codec_name: self_.get(6).cst_decode(),
+                format_name: self_.get(7).cst_decode(),
+                suggestions: self_.get(8).cst_decode(),
+                delivery: self_.get(9).cst_decode(),
             }
         }
     }
@@ -2398,6 +2801,31 @@ mod web {
             unimplemented!()
         }
     }
+    impl CstDecode<LogLevel> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> LogLevel {
+            flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(CstDecode::<
+                RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>,
+            >::cst_decode(
+                self
+            ))
+        }
+    }
+    impl CstDecode<RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(
+            self,
+        ) -> RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>
+        {
+            #[cfg(target_pointer_width = "64")]
+            {
+                compile_error!("64-bit pointers are not supported.");
+            }
+            unsafe { decode_rust_opaque_nom((self.as_f64().unwrap() as usize) as _) }
+        }
+    }
     impl CstDecode<StreamSink<String, flutter_rust_bridge::for_generated::DcoCodec>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -2418,6 +2846,14 @@ mod web {
             self.is_truthy()
         }
     }
+    impl CstDecode<crate::api::delivery::DeliveryProfileId>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::delivery::DeliveryProfileId {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<i32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> i32 {
@@ -2430,14 +2866,6 @@ mod web {
             self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint8Array>()
                 .to_vec()
                 .into()
-        }
-    }
-    impl CstDecode<crate::api::logger::LogLevel>
-        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
-    {
-        // Codec=Cst (C-struct based), see doc to use other codecs
-        fn cst_decode(self) -> crate::api::logger::LogLevel {
-            (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
     impl CstDecode<crate::api::media::OutputFormat>
@@ -2464,6 +2892,12 @@ mod web {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> u8 {
             self.unchecked_into_f64() as _
+        }
+    }
+    impl CstDecode<usize> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> usize {
+            ::std::convert::TryInto::<u64>::try_into(self).unwrap() as _
         }
     }
 
@@ -2550,6 +2984,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__media__get_video_delivery_estimates(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__media__get_video_delivery_estimates_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__media__get_video_info(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         path: String,
@@ -2560,7 +3002,7 @@ mod web {
     #[wasm_bindgen]
     pub fn wire__crate__api__logger__init_logger(
         port_: flutter_rust_bridge::for_generated::MessagePort,
-        log_level: i32,
+        log_level: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         write_to_stdout_or_system: bool,
         write_to_files: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         use_lightweight_tokio_runtime: bool,
@@ -2579,11 +3021,19 @@ mod web {
         port_: flutter_rust_bridge::for_generated::MessagePort,
         file: String,
         line: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
-        level: i32,
+        level: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         target: String,
         message: String,
     ) {
         wire__crate__api__logger__log_impl(port_, file, line, level, target, message)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__logger__log_level_for_verbose_backend(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        verbose: bool,
+    ) {
+        wire__crate__api__logger__log_level_for_verbose_backend_impl(port_, verbose)
     }
 
     #[wasm_bindgen]
@@ -2608,6 +3058,24 @@ mod web {
         that: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__api__media__thumbnail_size_type_dimensions_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+        ptr: *const std::ffi::c_void,
+    ) {
+        unsafe {
+            StdArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>::increment_strong_count(ptr as _);
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLogLevel(
+        ptr: *const std::ffi::c_void,
+    ) {
+        unsafe {
+            StdArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<LogLevel>>::decrement_strong_count(ptr as _);
+        }
     }
 }
 #[cfg(target_family = "wasm")]

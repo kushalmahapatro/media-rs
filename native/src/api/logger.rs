@@ -5,6 +5,15 @@ use logging::platform::{TracingConfiguration, TracingFileConfiguration};
 
 pub use logging::tracing::LogLevel;
 
+/// Returns a [LogLevel] for Flutter `Media.init` (opaque type has no Dart enum variants).
+pub fn log_level_for_verbose_backend(verbose: bool) -> LogLevel {
+    if verbose {
+        LogLevel::Debug
+    } else {
+        LogLevel::Warn
+    }
+}
+
 pub async fn log(
     file: String,
     line: Option<u32>,

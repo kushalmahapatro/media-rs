@@ -44,11 +44,6 @@ Map<String, String> buildEnvVars({
     }
   }
 
-  // Android target override
-  if (targetOS == OS.android && effectiveArchitecture == Architecture.arm) {
-    envVars['CARGO_BUILD_TARGET'] = 'aarch64-linux-android';
-  }
-
   // OpenH264
   if (openh264Path != null) {
     envVars['OPENH264_DIR'] = openh264Path;

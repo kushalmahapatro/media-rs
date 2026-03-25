@@ -33,16 +33,22 @@ void main(List<String> args) async {
   await build(args, (BuildInput input, BuildOutputBuilder output) async {
     final localBuild = input.userDefines['localBuild'] == 'true';
     final String sourcePath = 'src/bindings/frb_generated.io.dart';
+    logger.info('localBuild: $localBuild');
+    final systemEnv = await _getShellEnvironment(input);
     if (localBuild) {
-      final systemEnv = await _getShellEnvironment(input);
       await runLocalBuild(input, output, sourcePath, args, systemEnv);
     } else {
-      await downloadAssets(input, output, sourcePath);
+      await downloadAssets(input, output, sourcePath, systemEnv);
     }
   });
 }
 
-Future<void> downloadAssets(BuildInput input, BuildOutputBuilder output, String sourcePath) async {
+Future<void> downloadAssets(
+  BuildInput input,
+  BuildOutputBuilder output,
+  String sourcePath,
+  Map<String, String> systemEnv,
+) async {
   final targetOS = input.config.code.targetOS;
   final targetArchitecture = input.config.code.targetArchitecture;
   final iOSSdk = targetOS == OS.iOS ? input.config.code.iOS.targetSdk : null;
@@ -50,6 +56,7 @@ Future<void> downloadAssets(BuildInput input, BuildOutputBuilder output, String 
   final linkMode = DynamicLoadingBundled();
   final crateName = await getCrateName();
   final libraryName = targetOS.libraryFileName(crateName, linkMode);
+  final isSimulator = iOSSdk?.type == 'iphonesimulator';
 
   final targetTriple = getTargetTriple(targetOS, targetArchitecture, iOSSdk);
 
@@ -69,6 +76,51 @@ Future<void> downloadAssets(BuildInput input, BuildOutputBuilder output, String 
   output.assets.code.add(
     CodeAsset(package: input.packageName, name: sourcePath, linkMode: linkMode, file: finalFile.uri),
   );
+  logger.info('Copying libc++_shared.so');
+
+  var effectiveArchitecture = targetArchitecture;
+  if (targetOS == OS.android && targetArchitecture == Architecture.arm) {
+    effectiveArchitecture = Architecture.arm64;
+    logger.info('Overriding architecture from $targetArchitecture to arm64');
+  }
+
+  // Resolve paths
+  final ffmpegDir = resolveFfmpegDir(input.packageRoot, targetOS, effectiveArchitecture, iOSSdk, systemEnv);
+  final libheifPath = resolveLibheifDir(input.packageRoot, targetOS, effectiveArchitecture, isSimulator, systemEnv);
+  final openh264Path = resolveOpenh264Dir(input.packageRoot, targetOS, effectiveArchitecture, systemEnv);
+
+  // Setup environment variables
+  final envVars = buildEnvVars(
+    ffmpegDir: ffmpegDir,
+    targetOS: targetOS,
+    effectiveArchitecture: effectiveArchitecture,
+    isSimulator: isSimulator,
+    systemEnv: systemEnv,
+    logger: logger,
+    libheifPath: libheifPath,
+    openh264Path: openh264Path,
+  );
+
+  String? androidNdkHome;
+  if (targetOS == OS.android) {
+    androidNdkHome = await setupAndroid(
+      envVars,
+      input.packageRoot,
+      effectiveArchitecture,
+      systemEnv,
+      cCompilerPath: input.config.code.cCompiler?.compiler,
+      logger: logger,
+    );
+    _cleanAndroidTarget(input, effectiveArchitecture);
+    if (androidNdkHome == null) {
+      logger.shout('Android NDK not found, skipping build...');
+      return;
+    }
+  }
+
+  if (targetOS == OS.android && libheifPath != null && androidNdkHome != null) {
+    _copyAndroidLibcxx(input, output, effectiveArchitecture, androidNdkHome, sourcePath);
+  }
 }
 
 Future<void> runLocalBuild(

@@ -78,6 +78,21 @@ class VideoMetadataWidget extends StatelessWidget {
             Text('Original Duration: ${videoInfo!.durationMs} ms'),
             Text('Original Resolution: ${videoInfo!.width}x${videoInfo!.height}'),
             Text('Original Size: $sizeStringBytes / $sizeStringKB / $sizeStringMB'),
+            const Divider(height: 24),
+            const Text(
+              'Delivery estimates (analytic HD / SD)',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'HD ~${videoInfo!.delivery.hd720.estimatedSizeBytes} bytes '
+              '(${videoInfo!.delivery.hd720.width}x${videoInfo!.delivery.hd720.height}, '
+              '${videoInfo!.delivery.hd720.videoBitrateKbps} kbps video)',
+            ),
+            Text(
+              'SD ~${videoInfo!.delivery.sd480.estimatedSizeBytes} bytes '
+              '(${videoInfo!.delivery.sd480.width}x${videoInfo!.delivery.sd480.height}, '
+              '${videoInfo!.delivery.sd480.videoBitrateKbps} kbps video)',
+            ),
           ],
         ),
       ),
@@ -144,7 +159,43 @@ class CompressionWidget extends StatelessWidget {
 
         const Divider(),
         const Text("Compression Controls", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        if (VideoLabViewModel.platformBackendAvailable) ...[
+          const Text('Processing backend', style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          SegmentedButton<VideoLabBackend>(
+            segments: const [
+              ButtonSegment<VideoLabBackend>(
+                value: VideoLabBackend.rustMedia,
+                label: Text('Rust / FFmpeg'),
+                icon: Icon(Icons.terminal, size: 18),
+              ),
+              ButtonSegment<VideoLabBackend>(
+                value: VideoLabBackend.platformOs,
+                label: Text('OS codecs'),
+                icon: Icon(Icons.smartphone, size: 18),
+              ),
+            ],
+            selected: {viewModel.backend},
+            onSelectionChanged: (Set<VideoLabBackend> next) {
+              if (next.isEmpty) return;
+              viewModel.setBackend(next.first);
+            },
+          ),
+          const SizedBox(height: 12),
+        ] else
+          const Text(
+            'OS codec backend is available on Android, iOS, and macOS only. This device uses Rust / FFmpeg.',
+            style: TextStyle(fontSize: 12, color: Colors.black54),
+          ),
         if (viewModel.targetBitrateKbps != null) Text("Target: ${viewModel.targetBitrateKbps} kbps"),
+        Text(
+          viewModel.backend == VideoLabBackend.platformOs
+              ? 'Platform path: analytic delivery estimate + Media3 (Android) / AVFoundation (Apple) transcode. '
+                  'Target long edge and video bitrate match the fields above; CRF is ignored.'
+              : 'Rust path: sample FFmpeg encode (bitrate-only, CRF cleared for estimate) + AAC 128k; '
+                  'full encode uses your CRF when set.',
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
+        ),
         const SizedBox(height: 10),
 
         Row(
@@ -183,12 +234,21 @@ class CompressionWidget extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        viewModel.backend == VideoLabBackend.platformOs
+                            ? 'Estimate (platform analytic)'
+                            : 'Estimate (Rust / FFmpeg sample)',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 4),
                       Text(
                         "Estimated New Size: $estimateSizeStringBytes / $estimateSizeStringKB / $estimateSizeStringMB",
                       ),
-                      Text("Estimated Duration: $estimateDurationString / $estimateDurationStringSec"),
+                      Text(
+                        "Source duration (for size math): $estimateDurationString / $estimateDurationStringSec",
+                      ),
                     ],
                   ),
                 ),
@@ -206,15 +266,17 @@ class CompressionWidget extends StatelessWidget {
               final String compressedSizeStringKB = '${size.kb} KB';
               final String compressedSizeStringMB = '${size.mb} MB';
 
-              final String compressedDurationString = '${viewModel.compressedDuration!} ms';
-              final String compressedDurationStringSec = '${viewModel.compressedDuration! / BigInt.from(1000)} sec';
+              final outMs = viewModel.compressedOutputDurationMs!;
+              final encMs = viewModel.compressionEncodeTimeMs!;
+              final outSec = '${outMs / BigInt.from(1000)} sec';
+              final encSec = '${encMs / BigInt.from(1000)} sec';
 
               return Card(
                 color: Colors.green.shade50,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -258,7 +320,8 @@ class CompressionWidget extends StatelessWidget {
                         "Compressed Size: $compressedSizeStringBytes / $compressedSizeStringKB / $compressedSizeStringMB",
                       ),
                       const SizedBox(height: 8),
-                      Text("Compressed Duration: $compressedDurationString / $compressedDurationStringSec"),
+                      Text("Output duration (file): $outMs ms / $outSec"),
+                      Text("Encode time (wall clock): $encMs ms / $encSec"),
                     ],
                   ),
                 ),

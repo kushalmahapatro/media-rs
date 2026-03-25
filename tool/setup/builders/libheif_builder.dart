@@ -346,14 +346,16 @@ Requires:
     }
 
     final abis = [
-      {'arch': 'aarch64', 'abi': 'arm64-v8a'},
-      {'arch': 'x86_64', 'abi': 'x86_64'},
+      {'arch': 'aarch64', 'abi': 'arm64-v8a', 'clangPrefix': 'aarch64-linux-android'},
+      {'arch': 'arm', 'abi': 'armeabi-v7a', 'clangPrefix': 'armv7a-linux-androideabi'},
+      {'arch': 'x86_64', 'abi': 'x86_64', 'clangPrefix': 'x86_64-linux-android'},
     ];
     final apiLevel = 21;
 
     for (final abiInfo in abis) {
       final arch = abiInfo['arch'] as String;
       final abi = abiInfo['abi'] as String;
+      final clangPrefix = abiInfo['clangPrefix'] as String;
 
       print('Building libheif for Android $abi...');
 
@@ -363,8 +365,8 @@ Requires:
       await FileOps.ensureDirectory(buildDir);
       await FileOps.ensureDirectory(abiInstallDir);
 
-      final cc = path.join(toolchain, 'bin', '$arch-linux-android$apiLevel-clang');
-      final cxx = path.join(toolchain, 'bin', '$arch-linux-android$apiLevel-clang++');
+      final cc = path.join(toolchain, 'bin', '$clangPrefix$apiLevel-clang');
+      final cxx = path.join(toolchain, 'bin', '$clangPrefix$apiLevel-clang++');
       final sysroot = path.join(toolchain, 'sysroot');
 
       // Build libde265 first

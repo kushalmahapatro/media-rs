@@ -1,16 +1,29 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' show max;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:media/media.dart';
+import 'package:os_video_delivery/os_video_delivery.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+
+/// Processing pipeline for A/B comparison: Rust/FFmpeg vs OS codecs (Media3 / AVFoundation).
+enum VideoLabBackend {
+  rustMedia,
+  platformOs,
+}
 
 class VideoLabViewModel extends ChangeNotifier {
   // Picked file directory
   Directory? _pickedFileDirectory;
+
+  VideoLabBackend _backend = VideoLabBackend.rustMedia;
+  VideoLabBackend get backend => _backend;
+
+  static bool get platformBackendAvailable => OsVideoDelivery.isSupported;
 
   // --- Global / File State ---
   String? _selectedPath;
@@ -82,8 +95,13 @@ class VideoLabViewModel extends ChangeNotifier {
   BigInt? _compressedSize;
   BigInt? get compressedSize => _compressedSize;
 
-  BigInt? _compressedDuration;
-  BigInt? get compressedDuration => _compressedDuration;
+  /// Playback duration of the compressed file (from container metadata).
+  BigInt? _compressedOutputDurationMs;
+  BigInt? get compressedOutputDurationMs => _compressedOutputDurationMs;
+
+  /// Wall-clock time spent in [compressVideo] (not video length).
+  BigInt? _compressionEncodeTimeMs;
+  BigInt? get compressionEncodeTimeMs => _compressionEncodeTimeMs;
 
   bool _isCompressing = false;
   bool get isCompressing => _isCompressing;
@@ -139,6 +157,47 @@ class VideoLabViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setBackend(VideoLabBackend value) {
+    if (_backend == value) return;
+    if (value == VideoLabBackend.platformOs && !OsVideoDelivery.isSupported) return;
+    _backend = value;
+    _timelineSubscription?.cancel();
+    _timelineSubscription = null;
+    _estimate = null;
+    _estimationError = null;
+    _compressionResult = null;
+    _compressedVideoPath = null;
+    _compressedSize = null;
+    _compressedOutputDurationMs = null;
+    _compressionEncodeTimeMs = null;
+    _compressionError = null;
+    _timelineThumbnails.clear();
+    _timelineError = null;
+    _thumbnailPath = null;
+    _thumbnailError = null;
+    notifyListeners();
+  }
+
+  VideoDeliveryProfile _deliveryProfileFromUi() {
+    var w = int.tryParse(widthController.text) ?? 0;
+    var h = int.tryParse(heightController.text) ?? 0;
+    if (w <= 0 || h <= 0) {
+      final info = _videoInfo;
+      if (info != null) {
+        w = info.width;
+        h = info.height;
+      }
+    }
+    final longEdge = max(1, max(w, h));
+    final br = _targetBitrateKbps ?? 1000;
+    return VideoDeliveryProfile(
+      id: 'lab_custom',
+      maxLongEdgePx: longEdge,
+      videoBitrateKbps: br,
+      audioBitrateKbps: 128,
+    );
+  }
+
   Future<void> pickVideoFile() async {
     String? path;
     try {
@@ -169,7 +228,8 @@ class VideoLabViewModel extends ChangeNotifier {
         _compressedVideoPath = null;
         _compressionResult = null;
         _compressedSize = null;
-        _compressedDuration = null;
+        _compressedOutputDurationMs = null;
+        _compressionEncodeTimeMs = null;
         _compressionError = null;
 
         _selectedPreset = null;
@@ -228,13 +288,29 @@ class VideoLabViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final path = await generateVideoThumbnail(
-        path: _selectedPath!,
-        outputPath: _thumbnailOutputPath!,
-        params: VideoThumbnailParams(timeMs: BigInt.from(_value)),
-        emptyImageFallback: true,
-      );
-      _thumbnailPath = path;
+      if (_backend == VideoLabBackend.platformOs) {
+        await Directory(_thumbnailOutputPath!).create(recursive: true);
+        final bytes = await OsVideoDelivery.instance.videoThumbnail(
+          path: _selectedPath!,
+          timeMs: _value.toInt(),
+          maxWidth: 512,
+          maxHeight: 512,
+          format: ThumbnailImageFormat.jpeg,
+          rotationDegrees: _videoInfo?.rotationDegrees,
+        );
+        final name = 'platform_thumb_${_value.toInt()}.jpg';
+        final out = join(_thumbnailOutputPath!, name);
+        await File(out).writeAsBytes(bytes);
+        _thumbnailPath = out;
+      } else {
+        final path = await generateVideoThumbnail(
+          path: _selectedPath!,
+          outputPath: _thumbnailOutputPath!,
+          params: VideoThumbnailParams(timeMs: BigInt.from(_value)),
+          emptyImageFallback: true,
+        );
+        _thumbnailPath = path;
+      }
     } catch (e) {
       _thumbnailError = "Error generating thumbnail: $e";
       debugPrint(_thumbnailError);
@@ -257,23 +333,38 @@ class VideoLabViewModel extends ChangeNotifier {
     final int? width = int.tryParse(widthController.text);
     final int? height = int.tryParse(heightController.text);
     final int targetBitrateKbps = _targetBitrateKbps ?? 1000;
-    final int targetCrf = _targetCrf ?? 28;
     final String preset = "veryfast";
     final BigInt sampleDurationMs = BigInt.from(3000);
     try {
-      final estimate = await estimateCompression(
-        path: _selectedPath!,
-        tempOutputPath: _compressedOutputPath!,
-        params: CompressParams(
-          targetBitrateKbps: targetBitrateKbps,
-          width: width,
-          height: height,
-          preset: preset,
-          crf: targetCrf,
-          sampleDurationMs: sampleDurationMs,
-        ),
-      );
-      _estimate = estimate;
+      if (_backend == VideoLabBackend.platformOs) {
+        final profile = _deliveryProfileFromUi();
+        final rows = await OsVideoDelivery.instance.estimateDelivery(
+          path: _selectedPath!,
+          profiles: [profile],
+        );
+        if (rows.isEmpty) {
+          throw StateError('Platform estimate returned no rows');
+        }
+        final row = rows.first;
+        _estimate = CompressionEstimate(
+          estimatedSizeBytes: BigInt.from(row.estimatedSizeBytes),
+          estimatedDurationMs: BigInt.from(row.estimatedEncodeTimeMs),
+        );
+      } else {
+        final estimate = await estimateCompression(
+          path: _selectedPath!,
+          tempOutputPath: _compressedOutputPath!,
+          params: CompressParams(
+            targetBitrateKbps: targetBitrateKbps,
+            width: width,
+            height: height,
+            preset: preset,
+            crf: null,
+            sampleDurationMs: sampleDurationMs,
+          ),
+        );
+        _estimate = estimate;
+      }
     } catch (e) {
       _estimationError = "Estimation failed: $e";
       debugPrint(_estimationError);
@@ -290,7 +381,8 @@ class VideoLabViewModel extends ChangeNotifier {
     _compressionError = null;
     _compressionResult = null;
     _compressedSize = null;
-    _compressedDuration = null;
+    _compressedOutputDurationMs = null;
+    _compressionEncodeTimeMs = null;
     notifyListeners();
 
     int? w = int.tryParse(widthController.text);
@@ -301,33 +393,50 @@ class VideoLabViewModel extends ChangeNotifier {
     final Stopwatch stopwatch = Stopwatch()..start();
 
     try {
-      final outputPath = await compressVideo(
-        path: _selectedPath!,
-        outputPath: _compressedOutputPath!,
-        params: CompressParams(
-          targetBitrateKbps: targetBitrateKbps,
-          preset: "veryfast",
-          crf: targetCrf,
-          width: w,
-          height: h,
-        ),
-      );
-
-      _compressedVideoPath = outputPath;
-      _compressionResult = "Success! Saved to $outputPath";
-      _compressedSize = await getVideoInfo(path: outputPath).then((info) {
-        return info.sizeBytes;
-      });
+      late final String outputPath;
+      if (_backend == VideoLabBackend.platformOs) {
+        await Directory(_compressedOutputPath!).create(recursive: true);
+        final profile = _deliveryProfileFromUi();
+        final name = 'osvd_${DateTime.now().millisecondsSinceEpoch}.mp4';
+        outputPath = join(_compressedOutputPath!, name);
+        await OsVideoDelivery.instance.transcode(
+          inputPath: _selectedPath!,
+          outputPath: outputPath,
+          profile: profile,
+        );
+        _compressedVideoPath = outputPath;
+        final stat = await File(outputPath).stat();
+        _compressedSize = BigInt.from(stat.size);
+        final outProbe = await OsVideoDelivery.instance.probe(outputPath);
+        _compressedOutputDurationMs = BigInt.from(outProbe.durationMs);
+        _compressionResult = "Success (platform / Media3 or AVFoundation)! Saved to $outputPath";
+      } else {
+        outputPath = await compressVideo(
+          path: _selectedPath!,
+          outputPath: _compressedOutputPath!,
+          params: CompressParams(
+            targetBitrateKbps: targetBitrateKbps,
+            preset: "veryfast",
+            crf: targetCrf,
+            width: w,
+            height: h,
+          ),
+        );
+        _compressedVideoPath = outputPath;
+        final VideoInfo outInfo = await getVideoInfo(path: outputPath);
+        _compressedSize = outInfo.sizeBytes;
+        _compressedOutputDurationMs = outInfo.durationMs;
+        _compressionResult = "Success (Rust / FFmpeg)! Saved to $outputPath";
+      }
     } catch (e) {
       _compressionError = "Compression failed: $e";
       debugPrint(_compressionError);
     } finally {
       _isCompressing = false;
       stopwatch.stop();
+      _compressionEncodeTimeMs = BigInt.from(stopwatch.elapsedMilliseconds);
       notifyListeners();
     }
-    _compressedDuration = BigInt.from(stopwatch.elapsedMilliseconds);
-    notifyListeners();
   }
 
   Future<void> runTimelineGeneration() async {
@@ -348,28 +457,52 @@ class VideoLabViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final stream = generateVideoTimelineThumbnails(
-        path: _selectedPath!,
-        outputPath: join(_thumbnailOutputPath!, "timeline_${DateTime.now().millisecondsSinceEpoch}"),
-        numThumbnails: numThumbnails,
-        params: const ImageThumbnailParams(sizeType: ThumbnailSizeType.small(), format: OutputFormat.webp),
-      );
+      if (_backend == VideoLabBackend.platformOs) {
+        final folder = join(_thumbnailOutputPath!, "timeline_${DateTime.now().millisecondsSinceEpoch}");
+        await Directory(folder).create(recursive: true);
+        final durMs = _videoInfo!.durationMs.toInt();
+        final n = numThumbnails;
+        for (var i = 0; i < n; i++) {
+          final tMs = n <= 1 ? 0 : ((i * durMs) / (n - 1)).round();
+          final bytes = await OsVideoDelivery.instance.videoThumbnail(
+            path: _selectedPath!,
+            timeMs: tMs,
+            maxWidth: 256,
+            maxHeight: 256,
+            format: ThumbnailImageFormat.jpeg,
+            rotationDegrees: _videoInfo?.rotationDegrees,
+          );
+          final out = join(folder, 'timeline_$i.jpg');
+          await File(out).writeAsBytes(bytes);
+          _timelineThumbnails.add(out);
+          notifyListeners();
+        }
+        _generatingTimeline = false;
+        notifyListeners();
+      } else {
+        final stream = generateVideoTimelineThumbnails(
+          path: _selectedPath!,
+          outputPath: join(_thumbnailOutputPath!, "timeline_${DateTime.now().millisecondsSinceEpoch}"),
+          numThumbnails: numThumbnails,
+          params: const ImageThumbnailParams(sizeType: ThumbnailSizeType.small(), format: OutputFormat.webp),
+        );
 
-      _timelineSubscription = stream.listen(
-        (path) {
-          _timelineThumbnails.add(path);
-          notifyListeners();
-        },
-        onError: (e) {
-          _timelineError = "Timeline generation error: $e";
-          _generatingTimeline = false;
-          notifyListeners();
-        },
-        onDone: () {
-          _generatingTimeline = false;
-          notifyListeners();
-        },
-      );
+        _timelineSubscription = stream.listen(
+          (path) {
+            _timelineThumbnails.add(path);
+            notifyListeners();
+          },
+          onError: (e) {
+            _timelineError = "Timeline generation error: $e";
+            _generatingTimeline = false;
+            notifyListeners();
+          },
+          onDone: () {
+            _generatingTimeline = false;
+            notifyListeners();
+          },
+        );
+      }
     } catch (e) {
       _timelineError = "Failed to start timeline generation: $e";
       _generatingTimeline = false;

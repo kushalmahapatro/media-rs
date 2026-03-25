@@ -208,7 +208,7 @@ fn text_layers(
                 .event_format(EventFormatter::for_logcat())
                 // See comment above.
                 .with_ansi(false)
-                .with_writer(paranoid_android::AndroidLogMakeWriter::new(
+                .with_writer(crate::android_log_writer::AndroidLogMakeWriter::new(
                     "messaging".to_owned(),
                 ));
         }),

@@ -1,0 +1,23 @@
+name: media_flutter
+description: >
+  Flutter plugin for media_dart (Android Media3 transcode + JNI glue). Depends on Flutter;
+  for Dart-only clients use media_dart.
+version: 0.1.0
+publish_to: "none"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.0
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  media_dart: ^0.1.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: dev.flutter.packages.media_flutter
+        pluginClass: MediaPlugin

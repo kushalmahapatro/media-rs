@@ -1,0 +1,8 @@
+/Users/km/Projects/matrix.worktrees/matrix-rust-dart-sdk/packages/media/media_dart/rust/target/aarch64-apple-ios/debug/deps/objc2_core_audio_types-560781639beb2c4d.d: /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/lib.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/base_types.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/generated/mod.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/generated/CoreAudioBaseTypes.rs
+
+/Users/km/Projects/matrix.worktrees/matrix-rust-dart-sdk/packages/media/media_dart/rust/target/aarch64-apple-ios/debug/deps/libobjc2_core_audio_types-560781639beb2c4d.rmeta: /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/lib.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/base_types.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/generated/mod.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/generated/CoreAudioBaseTypes.rs
+
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/lib.rs:
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/base_types.rs:
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/generated/mod.rs:
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-core-audio-types-0.3.2/src/generated/CoreAudioBaseTypes.rs:

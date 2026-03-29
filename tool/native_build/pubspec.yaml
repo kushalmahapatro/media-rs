@@ -1,0 +1,17 @@
+name: media_native_build
+description: >
+  Shared paths, FFmpeg fetch, and Rust triple helpers for media_dart hooks and
+  media_cli. No hook/build.dart — safe to depend on from tool/cli without
+  triggering native asset builds for media_dart.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  archive: ^3.6.1
+  code_assets: ^1.0.0
+  logging: ^1.3.0
+  path: ^1.9.1

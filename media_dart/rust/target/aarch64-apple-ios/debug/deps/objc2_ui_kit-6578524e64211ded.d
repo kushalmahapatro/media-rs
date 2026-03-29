@@ -1,0 +1,9 @@
+/Users/km/Projects/matrix.worktrees/matrix-rust-dart-sdk/packages/media/media_dart/rust/target/aarch64-apple-ios/debug/deps/objc2_ui_kit-6578524e64211ded.d: /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/lib.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/mod.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/UIGraphics.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/UIImage.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/image.rs
+
+/Users/km/Projects/matrix.worktrees/matrix-rust-dart-sdk/packages/media/media_dart/rust/target/aarch64-apple-ios/debug/deps/libobjc2_ui_kit-6578524e64211ded.rmeta: /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/lib.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/mod.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/UIGraphics.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/UIImage.rs /Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/image.rs
+
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/lib.rs:
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/mod.rs:
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/UIGraphics.rs:
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/generated/UIImage.rs:
+/Users/km/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-ui-kit-0.3.2/src/image.rs:

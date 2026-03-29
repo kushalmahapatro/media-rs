@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# flutter_app_packager / Fastforge call `appdmg` on PATH. Use a global install if present;
+# otherwise run via npx (downloads the package on first use; requires Node.js).
+#
+# Always attach stdin to /dev/null. Fastforge runs appdmg via Dart Process.start (pipes);
+# without this, Node/npx or appdmg can block on stdin even when the parent closes its end.
+set -euo pipefail
+if command -v appdmg >/dev/null 2>&1; then
+  exec appdmg "$@" </dev/null
+fi
+if ! command -v npx >/dev/null 2>&1; then
+  echo "appdmg: not on PATH and npx not found." >&2
+  echo "  Install Node.js, or run: npm install -g appdmg" >&2
+  exit 127
+fi
+exec npx --yes appdmg "$@" </dev/null

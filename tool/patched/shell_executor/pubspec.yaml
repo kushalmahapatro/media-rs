@@ -1,0 +1,15 @@
+name: shell_executor
+description: >
+  Patched shell_executor 0.3.0: closes child stdin after Process.start so
+  subprocesses (e.g. npx/appdmg) do not block on an open pipe. Upstream:
+  https://github.com/fastforgedev/fastforge/tree/main/packages/shell_executor
+version: 0.3.0
+publish_to: none
+homepage: https://fastforge.dev
+
+environment:
+  sdk: ">=2.16.0 <4.0.0"
+
+dev_dependencies:
+  dependency_validator: ^3.0.0
+  test: ^1.23.1

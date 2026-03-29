@@ -1,0 +1,2 @@
+# Optional: override install location or set sign-identity for productsign.
+install-path: /Applications/

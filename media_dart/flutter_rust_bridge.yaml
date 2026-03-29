@@ -1,0 +1,5 @@
+rust_input: crate::api
+rust_root: rust/media
+dart_output: lib/src/bindings/
+c_output: rust/media/frb_bindings.h
+full_dep: true

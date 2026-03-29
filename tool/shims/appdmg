@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# flutter_app_packager / Fastforge call `appdmg` on PATH. Use a global install if present;
+# otherwise run via npx (downloads the package on first use; requires Node.js).
+set -euo pipefail
+if command -v appdmg >/dev/null 2>&1; then
+  exec appdmg "$@"
+fi
+if ! command -v npx >/dev/null 2>&1; then
+  echo "appdmg: not on PATH and npx not found." >&2
+  echo "  Install Node.js, or run: npm install -g appdmg" >&2
+  exit 127
+fi
+exec npx --yes appdmg "$@"

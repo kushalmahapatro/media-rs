@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/media-rs.iml" filepath="$PROJECT_DIR$/.idea/media-rs.iml" />
+<module fileurl="file://$PROJECT_DIR$/tool/cli/melos_media_cli.iml" filepath="$PROJECT_DIR$/tool/cli/melos_media_cli.iml"/>
+<module fileurl="file://$PROJECT_DIR$/media_dart/melos_media_dart.iml" filepath="$PROJECT_DIR$/media_dart/melos_media_dart.iml"/>
+<module fileurl="file://$PROJECT_DIR$/media_flutter/example/melos_media_example.iml" filepath="$PROJECT_DIR$/media_flutter/example/melos_media_example.iml"/>
+<module fileurl="file://$PROJECT_DIR$/media_flutter/melos_media_flutter.iml" filepath="$PROJECT_DIR$/media_flutter/melos_media_flutter.iml"/>
+<module fileurl="file://$PROJECT_DIR$/melos_media.iml" filepath="$PROJECT_DIR$/melos_media.iml"/>
     </modules>
   </component>
 </project>

@@ -1,5 +1,0 @@
-package com.mediars.example
-
-import io.flutter.embedding.android.FlutterActivity
-
-class MainActivity : FlutterActivity()

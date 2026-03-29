@@ -1,26 +1,195 @@
-name: media_workspace
-description: A media processing library.
-version: 0.0.1
+name: media
+description: >
+  Compatibility entrypoint: re-exports media_flutter so apps can use
+  `package:media/media.dart` with `path: packages/media`.
+version: 0.1.0
+publish_to: "none"
 
 environment:
-  sdk: '>=3.10.0 <4.0.0'
+  sdk: ^3.10.0
+  flutter: ">=3.22.0"
 
 workspace:
-  - media
-  - example
+  - media_dart
+  - media_flutter
+  - media_flutter/example
+  - tool/cli
+  - tool/native_build
 
 dependencies:
-  freezed_annotation: ^3.1.0
-  path: ^1.9.1
-  http: ^1.2.0
-  code_assets: ^1.0.0
-  logging: ^1.3.0
-  hooks: ^1.0.0
-  native_toolchain_rust: ^1.0.3
-  native_assets_cli: ^0.18.0
-  yaml: ^3.1.3
-  toml: ^0.18.0
+  flutter:
+    sdk: flutter
+  media_flutter: ^0.1.0
 
-inno_bundle:
-  id: 64ee1df0-faca-11f0-acd6-db79663d1ab8
-  publisher: kusha
+dev_dependencies:
+  melos: ^7.0.0
+
+melos:
+  command:
+    bootstrap:
+      runPubGetInParallel: true
+  scripts:
+    analyze:
+      description: Run dart analyze in each workspace package
+      exec: dart analyze .
+    test:
+      description: Run dart test in media_dart (pure Dart package)
+      exec: dart test
+      packageFilters:
+        scope: media_dart
+    test:flutter:
+      description: Run flutter test in media_flutter/example
+      run: flutter test
+      packageFilters:
+        scope: media_example
+      exec:
+        concurrency: 1
+    codegen:
+      description: Run build_runner in media_dart (Freezed, json_serializable, etc.)
+      run: dart run build_runner build --delete-conflicting-outputs
+      packageFilters:
+        scope: media_dart
+      exec:
+        concurrency: 1
+    mac-lib:
+      description: Build macOS prebuilts (arm64 + x86_64) into platform-builds/
+      run: dart run media_cli collect-native -t aarch64-apple-darwin -t x86_64-apple-darwin
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    ios-lib:
+      description: Build iOS prebuilts (arm64 + x86_64) into platform-builds/
+      run: dart run media_cli collect-native -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    android-lib:
+      description: Build Android prebuilts (arm64 + x86_64) into platform-builds/
+      run: dart run media_cli collect-native -t aarch64-linux-android -t x86_64-linux-android -t armv7-linux-androideabi
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    linux-lib:
+      description: Build Linux prebuilts (arm64 + x86_64) into platform-builds/
+      # run: dart run media_cli collect-native -t aarch64-unknown-linux-gnu -t x86_64-unknown-linux-gnu
+      run: dart run media_cli collect-native -t x86_64-unknown-linux-gnu
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    windows-lib:
+      description: Build Windows prebuilts (arm64 + x86_64) into platform-builds/
+      # run: dart run media_cli collect-native -t aarch64-pc-windows-msvc -t x86_64-pc-windows-msvc
+      run: dart run media_cli collect-native -t x86_64-pc-windows-msvc
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    build-android:
+      description: Build Android APK for media_flutter/example
+      run: flutter build apk --release 
+      packageFilters:
+        scope: media_example
+      exec:
+        concurrency: 1
+    build-ios:
+      description: Release iOS build for media_flutter/example (no codesign)
+      run: flutter build ios --release --no-codesign
+      packageFilters:
+        scope: media_example
+      exec:
+        concurrency: 1
+    build-linux:
+      description: Build Linux release bundle for media_flutter/example
+      run: flutter build linux --release
+      packageFilters:
+        scope: media_example
+      exec:
+        concurrency: 1
+    build-macos:
+      description: Build macOS release app for media_flutter/example
+      run: flutter build macos --release
+      packageFilters:
+        scope: media_example
+      exec:
+        concurrency: 1
+    build-windows:
+      description: Build Windows release bundle for media_flutter/example
+      run: flutter build windows --release
+      packageFilters:
+        scope: media_example
+      exec:
+        concurrency: 1
+    dist:
+      description: Fastforge release — all jobs for media-example (artifacts under dist/)
+      run: dart run media_cli dist --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-apk:
+      description: Fastforge Android APK → dist/
+      run: dart run media_cli dist --jobs android-apk --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-aab:
+      description: Fastforge Android App Bundle (AAB) → dist/
+      run: dart run media_cli dist --jobs android-aab --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-android:
+      description: Fastforge Android APK + AAB → dist/
+      run: dart run media_cli dist --jobs android-apk,android-aab --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-ipa:
+      description: Fastforge iOS IPA → dist/
+      run: dart run media_cli dist --jobs ios-ipa --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-linux-deb:
+      description: Fastforge Linux .deb → dist/
+      run: dart run media_cli dist --jobs linux-deb --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-macos-dmg:
+      description: Fastforge macOS .dmg → dist/
+      run: dart run media_cli dist --jobs macos-dmg --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-macos-pkg:
+      description: macOS .pkg installer → dist/ (correct bundle layout; not Fastforge pkg)
+      run: dart run media_cli package-macos-pkg
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-windows-exe:
+      description: Fastforge Windows .exe → dist/
+      run: dart run media_cli dist --jobs windows-exe --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    dist-windows-msix:
+      description: Fastforge Windows MSIX → dist/
+      run: dart run media_cli dist --jobs windows-msix --skip-clean
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1

@@ -28,11 +28,9 @@ String mediaRustTargetTriple(CodeConfig code) {
 LinkMode mediaResolvedLinkMode(CodeConfig code) {
   return switch (code.linkModePreference) {
     LinkModePreference.dynamic ||
-    LinkModePreference.preferDynamic =>
-      DynamicLoadingBundled(),
+    LinkModePreference.preferDynamic => DynamicLoadingBundled(),
     LinkModePreference.static ||
-    LinkModePreference.preferStatic =>
-      StaticLinking(),
+    LinkModePreference.preferStatic => StaticLinking(),
     _ => throw UnsupportedError(
       'Unsupported LinkModePreference: ${code.linkModePreference}',
     ),
@@ -42,9 +40,7 @@ LinkMode mediaResolvedLinkMode(CodeConfig code) {
 /// Native library file name for crate `media` (matches [RustBuilder] output).
 String mediaNativeLibraryFileName(CodeConfig code) {
   final linkMode = mediaResolvedLinkMode(code);
-  return code.targetOS
-      .libraryFileName('media', linkMode)
-      .replaceAll('-', '_');
+  return code.targetOS.libraryFileName('media', linkMode).replaceAll('-', '_');
 }
 
 /// `native/ffmpeg/<dir>/` for downloads; throws if desktop FFmpeg is not used for this target.
@@ -75,10 +71,6 @@ String? mediaFfmpegBundleDirForRustTriple(String rustTriple) {
   };
 }
 
-/// Cargo `target/<triple>/<mode>/` directory name for release vs debug.
-String mediaCargoBuildModeFolder({required bool release}) =>
-    release ? 'release' : 'debug';
-
 /// Folder under repository `platform-builds/` (matches layout: `macos/`, `ios/`, …).
 String mediaPlatformBuildsOsDirName(String rustTriple) {
   return switch (mediaOsForRustTriple(rustTriple)) {
@@ -88,8 +80,8 @@ String mediaPlatformBuildsOsDirName(String rustTriple) {
     OS.linux => 'linux',
     OS.windows => 'windows',
     _ => throw UnsupportedError(
-        'Unknown rust triple for platform-builds layout: $rustTriple',
-      ),
+      'Unknown rust triple for platform-builds layout: $rustTriple',
+    ),
   };
 }
 

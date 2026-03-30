@@ -13,7 +13,7 @@ import 'package:path/path.dart' as path;
 const _frbAssetName = 'lib/src/bindings/frb_generated.io.dart';
 const version = 'v0.0.1';
 
-/// Release asset base name: `{triple}.zip` (release) or `{triple}-debug.zip` (debug).
+/// Release asset base name: `{triple}.zip`
 String releaseUrl(String tripleArchiveBase) =>
     'https://github.com/kushalmahapatro/media-rs/releases/download/$version/$tripleArchiveBase.zip';
 void main(List<String> args) async {
@@ -26,6 +26,8 @@ void main(List<String> args) async {
 
     final localBuild = _parseLocalBuild(input);
     final usePrebuild = _parseUsePrebuild(input);
+
+    logger.config('localBuild: $localBuild, usePrebuild: $usePrebuild');
 
     if (localBuild) {
       await _buildFromSource(input: input, output: output, logger: logger);
@@ -113,7 +115,7 @@ Future<void> _buildFromGithubRelease({
   final tripleTarget = mediaRustTargetTriple(code);
   final url = Uri.parse(releaseUrl(tripleTarget));
   logger.config(
-    'Downloading prebuilt library $version for $tripleTarget from release URL $url…',
+    'Downloading prebuilt library $version for $tripleTarget from release URL $url',
   );
   final libFile = mediaNativeLibraryFileName(code);
 
@@ -127,7 +129,7 @@ Future<void> _buildFromGithubRelease({
   final srcLib = path.join(srcDir, libFile);
 
   if (!File(srcLib).existsSync()) {
-    logger.config('Downloading prebuilt $tripleTarget from release…');
+    logger.config('Downloading prebuilt $tripleTarget from release');
     Directory(staging).createSync(recursive: true);
     final zipFile = File(path.join(staging, 'prebuilt.zip'));
     await _httpDownloadToFile(url, zipFile);
@@ -163,9 +165,7 @@ Future<void> _installPrebuiltFromDirectory({
 }) async {
   final code = input.config.code;
   final triple = mediaRustTargetTriple(code);
-  final cargoMode = mediaCargoBuildModeFolder(
-    release: input.config.linkingEnabled,
-  );
+
   final linkMode = mediaResolvedLinkMode(code);
   final libFile = mediaNativeLibraryFileName(code);
 
@@ -177,7 +177,6 @@ Future<void> _installPrebuiltFromDirectory({
   final destDir = mediaHookNativeOutputDir(
     outputDirectory: input.outputDirectory,
     rustTriple: triple,
-    cargoModeFolder: cargoMode,
   );
   Directory(destDir).createSync(recursive: true);
   final destLib = path.join(destDir, libFile);
@@ -330,9 +329,6 @@ Future<void> _setupDesktopFfmpegCodeAssets({
   final destDir = mediaHookNativeOutputDir(
     outputDirectory: input.outputDirectory,
     rustTriple: triple,
-    cargoModeFolder: mediaCargoBuildModeFolder(
-      release: input.config.linkingEnabled,
-    ),
   );
 
   final isWin = code.targetOS == OS.windows;

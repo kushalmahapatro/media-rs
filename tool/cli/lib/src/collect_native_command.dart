@@ -23,7 +23,8 @@ class CollectNativeCommand extends Command<void> {
       ..addMultiOption(
         'target',
         abbr: 't',
-        help: 'Rust target triple(s), e.g. aarch64-apple-darwin. '
+        help:
+            'Rust target triple(s), e.g. aarch64-apple-darwin. '
             'Repeat or comma-separated. Default: host triple.',
       )
       ..addFlag(
@@ -43,13 +44,11 @@ class CollectNativeCommand extends Command<void> {
       )
       ..addOption(
         'archive-dir',
-        help:
-            'Output directory for archives (default: <repo>/release-assets).',
+        help: 'Output directory for archives (default: <repo>/release-assets).',
       )
       ..addOption(
         'archive-version',
-        help:
-            'Optional subdirectory under --archive-dir (e.g. v0.0.1).',
+        help: 'Optional subdirectory under --archive-dir (e.g. v0.0.1).',
       )
       ..addFlag(
         'archive-only',
@@ -74,10 +73,11 @@ class CollectNativeCommand extends Command<void> {
       ..level = Level.CONFIG
       ..onRecord.listen((r) => stdout.writeln('${r.level.name}: ${r.message}'));
 
-    final packageRoot = _resolvePackageRoot(argResults!['package-root'] as String?);
+    final packageRoot = _resolvePackageRoot(
+      argResults!['package-root'] as String?,
+    );
     final workspaceRoot = path.normalize(path.join(packageRoot, '..'));
     final release = !(argResults!['debug'] as bool);
-    final modeFolder = mediaCargoBuildModeFolder(release: release);
     final archiveFormat = _parseArchiveFormat(
       argResults!['archive-format'] as String,
     );
@@ -122,13 +122,7 @@ class CollectNativeCommand extends Command<void> {
             versionSubdirectory: archiveVersion,
           );
           stdout.writeln(
-            'Wrote ${_archiveOutputPath(
-              archiveDir: archiveDir,
-              archiveVersion: archiveVersion,
-              triple: triple,
-              release: release,
-              extension: archiveFormat.fileExtension,
-            )}',
+            'Wrote ${_archiveOutputPath(archiveDir: archiveDir, archiveVersion: archiveVersion, triple: triple, release: release, extension: archiveFormat.fileExtension)}',
           );
         } catch (e, st) {
           stderr.writeln('Archive failed for $triple: $e\n$st');
@@ -138,7 +132,9 @@ class CollectNativeCommand extends Command<void> {
       return;
     }
 
-    final effective = targets.isEmpty ? <String>[_defaultHostTriple()] : targets;
+    final effective = targets.isEmpty
+        ? <String>[_defaultHostTriple()]
+        : targets;
 
     final crateDir = path.join(packageRoot, 'rust', 'media');
     if (!Directory(crateDir).existsSync()) {
@@ -154,14 +150,13 @@ class CollectNativeCommand extends Command<void> {
     );
 
     for (final triple in effective) {
-      stdout.writeln('=== $triple ($modeFolder) ===');
+      stdout.writeln('=== $triple ===');
       try {
         await _collectOne(
           packageRoot: packageRoot,
           crateDir: crateDir,
           cargoTargetRoot: cargoTargetRoot,
           triple: triple,
-          modeFolder: modeFolder,
           release: release,
           logger: logger,
         );
@@ -175,13 +170,7 @@ class CollectNativeCommand extends Command<void> {
             versionSubdirectory: archiveVersion,
           );
           stdout.writeln(
-            'Archive: ${_archiveOutputPath(
-              archiveDir: archiveDir,
-              archiveVersion: archiveVersion,
-              triple: triple,
-              release: release,
-              extension: archiveFormat.fileExtension,
-            )}',
+            'Archive: ${_archiveOutputPath(archiveDir: archiveDir, archiveVersion: archiveVersion, triple: triple, release: release, extension: archiveFormat.fileExtension)}',
           );
         }
       } catch (e, st) {
@@ -302,7 +291,8 @@ class CollectNativeCommand extends Command<void> {
       return 'x86_64-unknown-linux-gnu';
     }
     if (Platform.isWindows) {
-      final arch = (Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '').toUpperCase();
+      final arch = (Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '')
+          .toUpperCase();
       if (arch == 'ARM64') return 'aarch64-pc-windows-msvc';
       return 'x86_64-pc-windows-msvc';
     }
@@ -314,7 +304,6 @@ class CollectNativeCommand extends Command<void> {
     required String crateDir,
     required String cargoTargetRoot,
     required String triple,
-    required String modeFolder,
     required bool release,
     required Logger logger,
   }) async {
@@ -365,7 +354,7 @@ class CollectNativeCommand extends Command<void> {
     }
 
     final libFile = mediaDynamicLibraryFileNameForRustTriple(triple);
-    final builtLib = path.join(cargoTargetRoot, triple, modeFolder, libFile);
+    final builtLib = path.join(cargoTargetRoot, triple, libFile);
     if (!File(builtLib).existsSync()) {
       throw StateError('Expected artifact missing: $builtLib');
     }

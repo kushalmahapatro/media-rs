@@ -1,18 +1,12 @@
 import 'package:media_native_build/media_rust_target.dart';
 import 'package:path/path.dart' as path;
 
-/// Hook output directory for cargo-style layout: `<out>/target/<triple>/<mode>/`.
+/// Hook output directory for cargo-style layout: `<out>/target/<triple>
 String mediaHookNativeOutputDir({
   required Uri outputDirectory,
   required String rustTriple,
-  required String cargoModeFolder,
 }) {
-  return path.join(
-    path.fromUri(outputDirectory),
-    'target',
-    rustTriple,
-    cargoModeFolder,
-  );
+  return path.join(path.fromUri(outputDirectory), 'target', rustTriple);
 }
 
 /// Prebuilt source: `<workspaceRoot>/platform-builds/<os>/<triple>/`.

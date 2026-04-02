@@ -11,3 +11,4 @@ native/temp
 release-assets/
 platform-builds/
 dist/
+test_linux/

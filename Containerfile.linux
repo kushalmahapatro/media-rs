@@ -1,0 +1,39 @@
+FROM ubuntu:22.04
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Flutter dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    xz-utils \
+    zip \
+    libglu1-mesa \
+    clang \
+    cmake \
+    ninja-build \
+    pkg-config \
+    libgtk-3-dev \
+    liblzma-dev \
+    libstdc++-12-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Flutter (stable channel)
+ENV FLUTTER_VERSION="3.24.0"
+RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /flutter
+ENV PATH="/flutter/bin:${PATH}"
+
+# Verify Flutter installation
+RUN flutter doctor
+
+# Set working directory
+WORKDIR /app
+
+# Note: Project files should be mounted as a volume
+# This container is meant to be run with:
+# podman run -v $(pwd):/app:z flutter-linux-builder flutter build linux --release
+
+ENTRYPOINT ["flutter"]
+CMD ["--version"]

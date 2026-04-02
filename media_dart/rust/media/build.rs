@@ -1,7 +1,6 @@
 //! Android: link `nativehelper` / `mediandk` (JNI + NDK Media). NDK API 24 sysroots omit
 //! `libnativehelper.so` stubs for some ABIs; add a higher-API `rustc-link-search` so the
 //! linker can resolve `-lnativehelper` while the app `minSdk` can stay lower.
-//! macOS desktop: ensure hook-populated ffmpeg exists for `include_bytes!`.
 
 use std::path::Path;
 
@@ -12,25 +11,8 @@ fn main() {
         android_link_libs(&target);
     }
 
-    if !target.contains("apple-darwin") {
-        return;
-    }
-    let ffmpeg = Path::new("bundled/current/ffmpeg");
-    let ffprobe = Path::new("bundled/current/ffprobe");
-    if ffmpeg.is_file() && ffprobe.is_file() {
-        println!("cargo:rerun-if-changed=bundled/current/ffmpeg");
-        println!("cargo:rerun-if-changed=bundled/current/ffprobe");
-    } else {
-        panic!(
-            "Missing ffmpeg/ffprobe for macOS build.\n\
-             Expected: {}\n\
-             and:      {}\n\
-             Run `flutter build` (or the Dart native hook) so hook/build.dart downloads tools \
-             and copies them into rust/media/bundled/current/ before cargo runs.",
-            ffmpeg.display(),
-            ffprobe.display(),
-        );
-    }
+    // macOS now works like Linux/Windows - FFmpeg is a CodeAsset, not embedded
+    // No need to check for bundled/current/ffmpeg anymore
 }
 
 fn android_link_libs(target: &str) {

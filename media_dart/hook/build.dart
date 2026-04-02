@@ -147,13 +147,25 @@ Future<void> _buildFromGithubRelease({
     logger.config('Using cached prebuilt from $srcDir');
   }
 
-  await _installPrebuiltFromDirectory(
+  await _installLibraryFromDirectory(
     input: input,
     output: output,
     logger: logger,
     srcDir: srcDir,
     logLabel: 'GitHub release',
   );
+
+  // For desktop platforms (Linux, Windows, macOS), download FFmpeg separately
+  // since it's not included in the GitHub release
+  if (input.config.code.targetOS == OS.linux ||
+      input.config.code.targetOS == OS.windows ||
+      input.config.code.targetOS == OS.macOS) {
+    await _setupDesktopFfmpegCodeAssets(
+      input: input,
+      logger: logger,
+      output: output,
+    );
+  }
 }
 
 Future<void> _installPrebuiltFromDirectory({
@@ -198,12 +210,16 @@ Future<void> _installPrebuiltFromDirectory({
     return;
   }
 
+  // Modified: macOS now works like Linux/Windows - FFmpeg as separate CodeAssets
+  // instead of embedded in the dylib
+  /*
   if (code.targetOS == OS.macOS) {
     logger.config(
       'macOS prebuilt: ffmpeg/ffprobe are embedded in $libFile; no extra CodeAssets.',
     );
     return;
   }
+  */
 
   final isWin = code.targetOS == OS.windows;
   final ffmpegName = isWin ? 'ffmpeg.exe' : 'ffmpeg';
@@ -238,6 +254,48 @@ Future<void> _installPrebuiltFromDirectory({
   logger.config(
     '$logLabel: registered $ffmpegName and $ffprobeName beside $libFile',
   );
+}
+
+/// Installs only the library from a directory (without FFmpeg).
+/// Used for GitHub releases where FFmpeg is downloaded separately.
+Future<void> _installLibraryFromDirectory({
+  required BuildInput input,
+  required BuildOutputBuilder output,
+  required Logger logger,
+  required String srcDir,
+  required String logLabel,
+}) async {
+  final code = input.config.code;
+  final triple = mediaRustTargetTriple(code);
+
+  final linkMode = mediaResolvedLinkMode(code);
+  final libFile = mediaNativeLibraryFileName(code);
+
+  final srcLib = path.join(srcDir, libFile);
+  if (!File(srcLib).existsSync()) {
+    throw StateError('$logLabel: prebuilt library is missing: $srcLib');
+  }
+
+  final destDir = mediaHookNativeOutputDir(
+    outputDirectory: input.outputDirectory,
+    rustTriple: triple,
+  );
+  Directory(destDir).createSync(recursive: true);
+  final destLib = path.join(destDir, libFile);
+  File(srcLib).copySync(destLib);
+  logger.config('$logLabel: copied $srcLib to $destLib');
+
+  output.assets.code.add(
+    CodeAsset(
+      package: input.packageName,
+      name: _frbAssetName,
+      linkMode: linkMode,
+      file: Uri.file(path.normalize(path.absolute(destLib))),
+    ),
+  );
+  output.dependencies.add(Uri.file(path.normalize(path.absolute(srcLib))));
+
+  logger.config('$logLabel: registered $libFile for ${code.targetOS}');
 }
 
 Future<void> _httpDownloadToFile(Uri url, File out) async {

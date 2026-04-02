@@ -1,0 +1,31 @@
+diff --git a/media_dart/rust/media/src/bundled_tools.rs b/media_dart/rust/media/src/bundled_tools.rs
+index XXXXXXX..XXXXXXX 100644
+--- a/media_dart/rust/media/src/bundled_tools.rs
++++ b/media_dart/rust/media/src/bundled_tools.rs
+@@ -101,7 +101,7 @@ fn dylib_dir() -> Option<PathBuf> {
+     let ok = unsafe {
+         GetModuleHandleExW(
+             flags,
+-            media_dylib_path_anchor as *const c_void,
++            media_dylib_path_anchor as *const u16,
+             &mut module as *mut HMODULE,
+         )
+     };
+
+## Explanation
+
+The Windows API function `GetModuleHandleExW` expects a `PCWSTR` (pointer to const wide string),
+which is `*const u16` in Rust. The code was casting to `*const c_void` which causes a type
+mismatch error with windows-sys 0.59.
+
+This is a known issue when updating to newer versions of the windows-sys crate which has
+stricter type checking.
+
+## How to Apply
+
+```bash
+cd ~/Desktop/media-rs
+patch -p1 < WINDOWS_FIX.patch
+```
+
+Or manually edit line 104 in `media_dart/rust/media/src/bundled_tools.rs`

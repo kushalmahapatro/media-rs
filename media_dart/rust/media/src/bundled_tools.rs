@@ -1,58 +1,15 @@
 //! Resolve bundled `ffmpeg` / `ffprobe`.
 //!
-//! Linux / Windows: binaries next to `libmedia` (Dart hook + CodeAssets).
-//! macOS: Mach-O executables cannot be bundled as CodeAssets through the Dart
-//! native-asset pipeline (install-name / `lipo` expect dylibs). The hook copies
-//! tools into `rust/media/bundled/current/` and we embed them with `include_bytes!`,
-//! then materialize to a temp file on first use.
+//! Linux / Windows / macOS: binaries next to `libmedia` (Dart hook + CodeAssets).
+//! The Dart hook places ffmpeg/ffprobe beside the library during build.
 
-#[cfg(all(unix, not(target_os = "macos")))]
-use std::ffi::{c_void, CStr};
 use std::path::PathBuf;
-#[cfg(target_os = "macos")]
-use std::sync::OnceLock;
 
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 #[no_mangle]
 extern "C" fn media_dylib_path_anchor() {}
 
-#[cfg(target_os = "macos")]
-static FFMPEG_PATH: OnceLock<PathBuf> = OnceLock::new();
-#[cfg(target_os = "macos")]
-static FFPROBE_PATH: OnceLock<PathBuf> = OnceLock::new();
-
-#[cfg(target_os = "macos")]
-const FFMPEG_BYTES: &[u8] = include_bytes!("../bundled/current/ffmpeg");
-#[cfg(target_os = "macos")]
-const FFPROBE_BYTES: &[u8] = include_bytes!("../bundled/current/ffprobe");
-
-#[cfg(target_os = "macos")]
-fn materialize_executable(name: &str, bytes: &[u8]) -> PathBuf {
-    use std::fs;
-    use std::io::Write;
-    use std::os::unix::fs::PermissionsExt;
-
-    let root = std::env::temp_dir().join("media_ffmpeg_tools");
-    fs::create_dir_all(&root).unwrap_or(());
-    let p = root.join(name);
-    let needs_write = match fs::metadata(&p) {
-        Ok(m) => m.len() != bytes.len() as u64,
-        Err(_) => true,
-    };
-    if needs_write {
-        let mut f = fs::File::create(&p).unwrap_or_else(|e| {
-            panic!("failed to create {p:?}: {e}");
-        });
-        f.write_all(bytes).unwrap_or_else(|e| panic!("failed to write {p:?}: {e}"));
-        f.sync_all().ok();
-        let mut perms = fs::metadata(&p).unwrap().permissions();
-        perms.set_mode(0o755);
-        fs::set_permissions(&p, perms).unwrap_or_else(|e| panic!("chmod {p:?}: {e}"));
-    }
-    p
-}
-
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 fn sibling_tool(name: &str) -> PathBuf {
     let ext = if cfg!(target_os = "windows") { ".exe" } else { "" };
     let dir = dylib_parent_dir().unwrap_or_else(|| {
@@ -84,6 +41,23 @@ fn dylib_parent_dir() -> Option<PathBuf> {
     path.parent().map(|p| p.to_path_buf())
 }
 
+#[cfg(target_os = "macos")]
+fn dylib_parent_dir() -> Option<PathBuf> {
+    // macOS uses the same dladdr approach as Linux
+    use libc::{dladdr, Dl_info};
+    use std::ffi::c_void;
+    use std::ffi::CStr;
+
+    let mut info: Dl_info = unsafe { std::mem::zeroed() };
+    let ok = unsafe { dladdr(media_dylib_path_anchor as *const c_void, &mut info) };
+    if ok == 0 || info.dli_fname.is_null() {
+        return None;
+    }
+    let s = unsafe { CStr::from_ptr(info.dli_fname) };
+    let path = PathBuf::from(s.to_string_lossy().as_ref());
+    path.parent().map(|p| p.to_path_buf())
+}
+
 #[cfg(windows)]
 use std::ffi::c_void;
 
@@ -101,7 +75,7 @@ fn dylib_parent_dir() -> Option<PathBuf> {
     let ok = unsafe {
         GetModuleHandleExW(
             flags,
-            media_dylib_path_anchor as *const c_void,
+            media_dylib_path_anchor as *const u16,
             &mut module as *mut HMODULE,
         )
     };
@@ -120,28 +94,10 @@ fn dylib_parent_dir() -> Option<PathBuf> {
 
 /// Bundled `ffmpeg` path; no `PATH` fallback.
 pub fn ffmpeg_path() -> PathBuf {
-    #[cfg(target_os = "macos")]
-    {
-        FFMPEG_PATH
-            .get_or_init(|| materialize_executable("ffmpeg", FFMPEG_BYTES))
-            .clone()
-    }
-    #[cfg(not(target_os = "macos"))]
-    {
-        sibling_tool("ffmpeg")
-    }
+    sibling_tool("ffmpeg")
 }
 
 /// Bundled `ffprobe` path; no `PATH` fallback.
 pub fn ffprobe_path() -> PathBuf {
-    #[cfg(target_os = "macos")]
-    {
-        FFPROBE_PATH
-            .get_or_init(|| materialize_executable("ffprobe", FFPROBE_BYTES))
-            .clone()
-    }
-    #[cfg(not(target_os = "macos"))]
-    {
-        sibling_tool("ffprobe")
-    }
+    sibling_tool("ffprobe")
 }

@@ -156,16 +156,18 @@ Future<void> _buildFromGithubRelease({
   );
 
   // For desktop platforms (Linux, Windows, macOS), download FFmpeg separately
-  // since it's not included in the GitHub release
+  // from GitHub releases
   if (input.config.code.targetOS == OS.linux ||
       input.config.code.targetOS == OS.windows ||
       input.config.code.targetOS == OS.macOS) {
-    await _setupDesktopFfmpegCodeAssets(
+    await _downloadFfmpegFromRelease(
       input: input,
       logger: logger,
       output: output,
+      tripleTarget: tripleTarget,
     );
   }
+}
 }
 
 Future<void> _installPrebuiltFromDirectory({
@@ -336,6 +338,109 @@ void _extractZipToDirectory(List<int> bytes, String destDir) {
     File(outPath).parent.createSync(recursive: true);
     File(outPath).writeAsBytesSync(file.content as List<int>);
   }
+}
+
+/// Downloads FFmpeg and ffprobe from GitHub releases for desktop platforms
+Future<void> _downloadFfmpegFromRelease({
+  required BuildInput input,
+  required Logger logger,
+  required BuildOutputBuilder output,
+  required String tripleTarget,
+}) async {
+  final code = input.config.code;
+  final isWin = code.targetOS == OS.windows;
+  final ffmpegName = isWin ? 'ffmpeg.exe' : 'ffmpeg';
+  final ffprobeName = isWin ? 'ffprobe.exe' : 'ffprobe';
+
+  // FFmpeg release URL: {triple}-ffmpeg.zip
+  final ffmpegReleaseUrl =
+      'https://github.com/kushalmahapatro/media-rs/releases/download/$version/${tripleTarget}-ffmpeg.zip';
+
+  final staging = path.join(
+    path.fromUri(input.outputDirectory),
+    '.media_ffmpeg_release',
+    version,
+    tripleTarget,
+  );
+  final ffmpegDir = path.join(staging, tripleTarget);
+  final srcFfmpeg = path.join(ffmpegDir, ffmpegName);
+  final srcFfprobe = path.join(ffmpegDir, ffprobeName);
+
+  // Download FFmpeg if not cached
+  if (!File(srcFfmpeg).existsSync() || !File(srcFfprobe).existsSync()) {
+    logger.config('Downloading FFmpeg for $tripleTarget from $ffmpegReleaseUrl');
+    Directory(staging).createSync(recursive: true);
+    final zipFile = File(path.join(staging, 'ffmpeg.zip'));
+
+    try {
+      await _httpDownloadToFile(Uri.parse(ffmpegReleaseUrl), zipFile);
+
+      // Extract
+      if (Directory(ffmpegDir).existsSync()) {
+        Directory(ffmpegDir).deleteSync(recursive: true);
+      }
+      _extractZipToDirectory(zipFile.readAsBytesSync(), staging);
+      zipFile.deleteSync();
+
+      if (!File(srcFfmpeg).existsSync() || !File(srcFfprobe).existsSync()) {
+        throw StateError(
+          'Downloaded FFmpeg archive missing expected binaries at $ffmpegDir',
+        );
+      }
+      logger.config('Downloaded FFmpeg for $tripleTarget');
+    } catch (e) {
+      logger.config('Failed to download FFmpeg from release: $e');
+      throw StateError(
+        'Failed to download FFmpeg for $tripleTarget. '
+        'Please ensure ${tripleTarget}-ffmpeg.zip exists in GitHub release $version.',
+      );
+    }
+  } else {
+    logger.config('Using cached FFmpeg for $tripleTarget from $ffmpegDir');
+  }
+
+  // Copy to output directory
+  final destDir = mediaHookNativeOutputDir(
+    outputDirectory: input.outputDirectory,
+    rustTriple: tripleTarget,
+  );
+  Directory(destDir).createSync(recursive: true);
+
+  final destFfmpeg = path.join(destDir, ffmpegName);
+  final destFfprobe = path.join(destDir, ffprobeName);
+
+  File(srcFfmpeg).copySync(destFfmpeg);
+  File(srcFfprobe).copySync(destFfprobe);
+
+  // Make executable on Unix
+  if (!isWin) {
+    await Process.run('chmod', ['+x', destFfmpeg, destFfprobe]);
+  }
+
+  // Register as CodeAssets
+  output.assets.code.add(
+    CodeAsset(
+      package: input.packageName,
+      name: ffmpegName,
+      linkMode: DynamicLoadingBundled(),
+      file: Uri.file(path.normalize(path.absolute(destFfmpeg))),
+    ),
+  );
+  output.assets.code.add(
+    CodeAsset(
+      package: input.packageName,
+      name: ffprobeName,
+      linkMode: DynamicLoadingBundled(),
+      file: Uri.file(path.normalize(path.absolute(destFfprobe))),
+    ),
+  );
+
+  output.dependencies.add(Uri.file(path.normalize(path.absolute(srcFfmpeg))));
+  output.dependencies.add(Uri.file(path.normalize(path.absolute(srcFfprobe))));
+
+  logger.config(
+    'GitHub release: registered $ffmpegName and $ffprobeName for $tripleTarget',
+  );
 }
 
 Future<void> _syncMacosFfmpegIntoRustCrate({

@@ -168,7 +168,6 @@ Future<void> _buildFromGithubRelease({
     );
   }
 }
-}
 
 Future<void> _installPrebuiltFromDirectory({
   required BuildInput input,

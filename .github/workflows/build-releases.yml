@@ -1,0 +1,127 @@
+name: Build Flutter Releases
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: media_flutter/example
+        
+      - name: Build Windows
+        run: flutter build windows --release
+        working-directory: media_flutter/example
+        
+      - name: Create Windows installer (optional)
+        run: |
+          # Install Inno Setup or NSIS for creating installers
+          # For now, just zip the output
+          Compress-Archive -Path media_flutter/example/build/windows/x64/runner/Release/* -DestinationPath media-windows-x64.zip
+          
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-windows-x64
+          path: media-windows-x64.zip
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+          
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: media_flutter/example
+        
+      - name: Build Linux
+        run: flutter build linux --release
+        working-directory: media_flutter/example
+        
+      - name: Create tarball
+        run: |
+          cd media_flutter/example/build/linux/x64/release/bundle
+          tar -czf ../../../../../media-linux-x64.tar.gz .
+          
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-linux-x64
+          path: media_flutter/example/media-linux-x64.tar.gz
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: media_flutter/example
+        
+      - name: Build macOS
+        run: flutter build macos --release
+        working-directory: media_flutter/example
+        
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "Media App" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --app-drop-link 600 185 \
+            media-macos.dmg \
+            media_flutter/example/build/macos/Build/Products/Release/media.app
+            
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-macos
+          path: media-macos.dmg
+
+  create-release:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            media-windows-x64/*.zip
+            media-linux-x64/*.tar.gz
+            media-macos/*.dmg
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

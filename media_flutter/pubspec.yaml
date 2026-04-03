@@ -21,3 +21,7 @@ flutter:
       android:
         package: dev.flutter.packages.media_flutter
         pluginClass: MediaPlugin
+      macos:
+        pluginClass: MediaFlutterPlugin
+        dartPluginClass: MediaFlutter
+        fileName: media_flutter.dart

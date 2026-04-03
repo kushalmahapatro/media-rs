@@ -82,20 +82,29 @@ fn sibling_tool(name: &str) -> PathBuf {
     not(media_embed_macos_ffmpeg),
 ))]
 fn sibling_tool(name: &str) -> PathBuf {
-    let p = dylib_parent_dir()
-        .unwrap_or_else(|| {
-            panic!(
-                "could not resolve the directory containing libmedia; ffmpeg/ffprobe must live next to the library"
-            )
-        })
-        .join(name);
-    if !p.is_file() {
-        panic!(
-            "bundled {name} not found next to libmedia at {}. For Flutter macOS, rebuild libmedia with ffmpeg/ffprobe in rust/media/bundled/current/ so they are embedded.",
-            p.display()
-        );
+    // First try: look in the same directory as libmedia.dylib (for non-Flutter)
+    if let Some(dir) = dylib_parent_dir() {
+        let p = dir.join(name);
+        if p.is_file() {
+            return p;
+        }
+        
+        // Second try: look in Contents/Frameworks/ (for Flutter app bundle)
+        // Frameworks are at: MyApp.app/Contents/Frameworks/
+        if let Some(frameworks_dir) = dir.parent().map(|p| p.join("Frameworks")) {
+            let frameworks_p = frameworks_dir.join(name);
+            if frameworks_p.is_file() {
+                return frameworks_p;
+            }
+        }
     }
-    p
+    
+    panic!(
+        "bundled {name} not found. Expected at:\n\
+         - Next to libmedia.dylib, or\n\
+         - In MyApp.app/Contents/Frameworks/\n\
+         Run the post-build script: ./macos/copy_ffmpeg.sh"
+    );
 }
 
 #[cfg(all(

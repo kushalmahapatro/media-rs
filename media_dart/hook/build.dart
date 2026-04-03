@@ -164,14 +164,23 @@ Future<void> _buildFromGithubRelease({
     logLabel: 'GitHub release',
   );
 
-  // Linux/Windows: FFmpeg as separate CodeAssets. macOS: tools are embedded in libmedia at
-  // compile time (Flutter's macOS native-asset pipeline only supports dylibs for bundled assets).
+  // Linux/Windows: FFmpeg as separate CodeAssets. macOS: download to native/ffmpeg/ 
+  // and copy to app bundle via post-build script (avoiding CodeAssets framework wrapping).
   if (input.config.code.targetOS == OS.linux ||
       input.config.code.targetOS == OS.windows) {
     await _downloadFfmpegFromRelease(
       input: input,
       logger: logger,
       output: output,
+      tripleTarget: tripleTarget,
+    );
+  }
+  
+  // macOS: Download FFmpeg to native/ffmpeg/ but don't register as CodeAssets
+  if (input.config.code.targetOS == OS.macOS) {
+    await _downloadFfmpegForMacOS(
+      input: input,
+      logger: logger,
       tripleTarget: tripleTarget,
     );
   }
@@ -471,6 +480,57 @@ Future<void> _downloadFfmpegFromRelease({
   logger.config(
     'GitHub release: registered $ffmpegName and $ffprobeName for $tripleTarget',
   );
+}
+
+/// Downloads FFmpeg for macOS to native/ffmpeg/ directory.
+/// Does NOT register as CodeAssets - will be copied to app bundle via post-build script.
+Future<void> _downloadFfmpegForMacOS({
+  required BuildInput input,
+  required Logger logger,
+  required String tripleTarget,
+}) async {
+  final packageRoot = path.fromUri(input.packageRoot);
+  final isArm64 = tripleTarget == 'aarch64-apple-darwin';
+  final folder = isArm64 ? 'darwin-arm64' : 'darwin-x64';
+  
+  final ffmpegDir = path.join(packageRoot, 'native', 'ffmpeg', folder);
+  final srcFfmpeg = path.join(ffmpegDir, 'ffmpeg');
+  final srcFfprobe = path.join(ffmpegDir, 'ffprobe');
+  
+  // Download if not cached
+  if (!File(srcFfmpeg).existsSync() || !File(srcFfprobe).existsSync()) {
+    final ffmpegReleaseUrl =
+        'https://github.com/kushalmahapatro/media-rs/releases/download/$version/${tripleTarget}-ffmpeg.zip';
+    logger.config('Downloading FFmpeg for macOS $tripleTarget from $ffmpegReleaseUrl');
+    
+    Directory(ffmpegDir).createSync(recursive: true);
+    final zipFile = File(path.join(ffmpegDir, 'ffmpeg.zip'));
+    
+    try {
+      await _httpDownloadToFile(Uri.parse(ffmpegReleaseUrl), zipFile);
+      
+      // Extract
+      final bytes = zipFile.readAsBytesSync();
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final extractRoot = _releaseZipExtractRootFromArchive(
+        archive,
+        cacheRoot: ffmpegDir,
+        triple: tripleTarget,
+      );
+      _extractZipArchive(archive, extractRoot);
+      zipFile.deleteSync();
+      
+      // Make executable
+      await Process.run('chmod', ['+x', srcFfmpeg, srcFfprobe]);
+      
+      logger.config('Downloaded FFmpeg for macOS $tripleTarget to $ffmpegDir');
+    } catch (e) {
+      logger.config('Failed to download FFmpeg: $e');
+      throw StateError('Failed to download FFmpeg for $tripleTarget');
+    }
+  } else {
+    logger.config('Using cached FFmpeg for macOS $tripleTarget from $ffmpegDir');
+  }
 }
 
 Future<void> _syncMacosFfmpegIntoRustCrate({

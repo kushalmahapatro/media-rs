@@ -16,17 +16,21 @@ fi
 # Determine architecture
 ARCH=$(uname -m)
 if [ "$ARCH" = "arm64" ]; then
-    FFMPEG_DIR="native/ffmpeg/darwin-arm64"
+    FFMPEG_ARCH="darwin-arm64"
 else
-    FFMPEG_DIR="native/ffmpeg/darwin-x64"
+    FFMPEG_ARCH="darwin-x64"
 fi
 
 # Source FFmpeg binaries
-FFMPEG_SRC="$FFMPEG_DIR/ffmpeg"
-FFPROBE_SRC="$FFMPEG_DIR/ffprobe"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+FFMPEG_SRC="$PROJECT_ROOT/media_dart/native/ffmpeg/$FFMPEG_ARCH/ffmpeg"
+FFPROBE_SRC="$PROJECT_ROOT/media_dart/native/ffmpeg/$FFMPEG_ARCH/ffprobe"
 
 if [ ! -f "$FFMPEG_SRC" ] || [ ! -f "$FFPROBE_SRC" ]; then
-    echo "Error: FFmpeg binaries not found in $FFMPEG_DIR"
+    echo "Error: FFmpeg binaries not found"
+    echo "  Looking for: $FFMPEG_SRC"
+    echo "  Looking for: $FFPROBE_SRC"
     echo "Run 'dart run hook/build.dart' first to download them."
     exit 1
 fi

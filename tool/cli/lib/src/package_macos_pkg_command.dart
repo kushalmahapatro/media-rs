@@ -6,11 +6,10 @@ import 'package:path/path.dart' as path;
 
 /// Builds a macOS `.pkg` that installs `*.app` as a bundle under `/Applications/`.
 ///
-/// [flutter_app_packager] passes `Foo.app` to `productbuild --root`, which installs
-/// the **contents** of that bundle (e.g. `Contents/`) straight onto disk. We stage a
-/// temp directory that contains **only** `*.app` (not all of `Release/`, which has
-/// loose frameworks/dSYMs) and use that as `--root` so the installer drops
-/// `/Applications/media.app` as a proper bundle.
+/// We stage a temp directory that contains **only** `*.app` (not all of `Release/`,
+/// which has loose frameworks/dSYMs) and run `pkgbuild` with a component plist that
+/// sets `BundleIsRelocatable` false so Installer always uses the install location
+/// (by default `/Applications/`), instead of upgrading a dev copy elsewhere.
 class PackageMacosPkgCommand extends Command<void> {
   PackageMacosPkgCommand() {
     argParser
@@ -120,28 +119,71 @@ class PackageMacosPkgCommand extends Command<void> {
       Directory.systemTemp.path,
       'media_pkg_unsigned_${DateTime.now().microsecondsSinceEpoch}.pkg',
     );
+    final componentPlist = path.join(
+      Directory.systemTemp.path,
+      'media_pkg_components_${DateTime.now().microsecondsSinceEpoch}.plist',
+    );
 
     // `Release/` contains frameworks, dSYMs, etc. Only the .app must be the
-    // productbuild root, or those siblings get installed next to /Applications/*.app.
+    // pkg root, or those siblings get installed next to /Applications/*.app.
+    //
+    // `productbuild --root` marks the app bundle as relocatable; Installer then
+    // upgrades an existing `com.example.media` anywhere on disk instead of
+    // using `/Applications`. `pkgbuild` + `BundleIsRelocatable` false fixes that.
     final stage = Directory(
       path.join(
         Directory.systemTemp.path,
         'media_pkg_stage_${DateTime.now().microsecondsSinceEpoch}',
       ),
     );
+    final trimmedInstall = installPath.replaceAll(RegExp(r'/+$'), '');
+    final installLocation =
+        trimmedInstall.isEmpty ? '/Applications' : trimmedInstall;
+    final pkgIdentifier = _readPackageIdentifier(bundle.path);
     try {
       stage.createSync();
       final stagedApp = path.join(stage.path, path.basename(bundle.path));
       await Process.run('cp', ['-R', bundle.path, stagedApp]);
 
       stdout.writeln(
-        'xcrun productbuild --root ${stage.path} $installPath → $outPkg',
+        'xcrun pkgbuild --root ${stage.path} --install-location $installLocation → $outPkg',
       );
-      final pb = await Process.run('xcrun', [
-        'productbuild',
+      final analyze = await Process.run('xcrun', [
+        'pkgbuild',
         '--root',
         stage.path,
-        installPath,
+        '--analyze',
+        componentPlist,
+      ]);
+      stdout.write(analyze.stdout);
+      stderr.write(analyze.stderr);
+      if (analyze.exitCode != 0) {
+        exitCode = analyze.exitCode;
+        return;
+      }
+      final plistBuddy = await Process.run('/usr/libexec/PlistBuddy', [
+        '-c',
+        'set :0:BundleIsRelocatable false',
+        componentPlist,
+      ]);
+      stdout.write(plistBuddy.stdout);
+      stderr.write(plistBuddy.stderr);
+      if (plistBuddy.exitCode != 0) {
+        exitCode = plistBuddy.exitCode;
+        return;
+      }
+      final pb = await Process.run('xcrun', [
+        'pkgbuild',
+        '--root',
+        stage.path,
+        '--identifier',
+        pkgIdentifier,
+        '--version',
+        version,
+        '--install-location',
+        installLocation,
+        '--component-plist',
+        componentPlist,
         unsigned,
       ]);
       stdout.write(pb.stdout);
@@ -153,6 +195,10 @@ class PackageMacosPkgCommand extends Command<void> {
     } finally {
       if (stage.existsSync()) {
         stage.deleteSync(recursive: true);
+      }
+      final pf = File(componentPlist);
+      if (pf.existsSync()) {
+        pf.deleteSync();
       }
     }
 
@@ -176,6 +222,30 @@ class PackageMacosPkgCommand extends Command<void> {
     }
 
     stdout.writeln('Wrote $outPkg');
+  }
+
+  /// Stable installer package id (distinct from the app bundle id).
+  static String _readPackageIdentifier(String appBundlePath) {
+    final info = File(path.join(appBundlePath, 'Contents', 'Info.plist'));
+    if (!info.existsSync()) {
+      return 'media.app.pkg';
+    }
+    final r = Process.runSync('plutil', [
+      '-extract',
+      'CFBundleIdentifier',
+      'raw',
+      '-o',
+      '-',
+      info.path,
+    ]);
+    if (r.exitCode != 0) {
+      return 'media.app.pkg';
+    }
+    final id = (r.stdout as String).trim();
+    if (id.isEmpty) {
+      return 'media.app.pkg';
+    }
+    return '$id.pkg';
   }
 
   static String? _readInstallPathFromPkgYaml(String appDir) {

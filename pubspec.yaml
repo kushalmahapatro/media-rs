@@ -24,13 +24,18 @@ dependencies:
 dev_dependencies:
   melos: ^7.0.0
 
-# flutter_app_packager (Fastforge) uses shell_executor for `appdmg`; the stock
-# package leaves child stdin as an open pipe, which can hang Node/npx. See
-# tool/patched/shell_executor/lib/src/shell_executor.dart.
+# Fastforge / unified_distributor: patched shell_executor (stdin), flutter_app_packager
+# (macOS pkg productbuild root — see tool/patched/flutter_app_packager/.../app_package_maker_pkg.dart),
+# tool/shims/appdmg → create-dmg.
 dependency_overrides:
   shell_executor:
     path: tool/patched/shell_executor
+  flutter_app_packager:
+    path: tool/patched/flutter_app_packager
 
+# Melos pipes child stderr through `logger.error()` ("ERROR:" prefix). Flutter also
+# prefixes xcodebuild/ld stderr with "ERROR:" → double labels. Append `2>&1` on
+# scripts below so build noise stays on stdout (still visible, not mislabeled).
 melos:
   command:
     bootstrap:
@@ -106,105 +111,105 @@ melos:
         concurrency: 1
     build-android:
       description: Build Android APK for media_flutter/example
-      run: flutter build apk --release 
+      run: flutter build apk --release 2>&1
       packageFilters:
         scope: media_example
       exec:
         concurrency: 1
     build-ios:
       description: Release iOS build for media_flutter/example (no codesign)
-      run: flutter build ios --release --no-codesign
+      run: flutter build ios --release --no-codesign 2>&1
       packageFilters:
         scope: media_example
       exec:
         concurrency: 1
     build-linux:
       description: Build Linux release bundle for media_flutter/example
-      run: flutter build linux --release
+      run: flutter build linux --release 2>&1
       packageFilters:
         scope: media_example
       exec:
         concurrency: 1
     build-macos:
       description: Build macOS release app for media_flutter/example
-      run: flutter build macos --release
+      run: flutter build macos --release 2>&1
       packageFilters:
         scope: media_example
       exec:
         concurrency: 1
     build-windows:
       description: Build Windows release bundle for media_flutter/example
-      run: flutter build windows --release
+      run: flutter build windows --release 2>&1
       packageFilters:
         scope: media_example
       exec:
         concurrency: 1
     dist:
       description: Fastforge release — all jobs for media-example (artifacts under dist/)
-      run: dart run media_cli dist --skip-clean
+      run: dart run media_cli dist --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-apk:
       description: Fastforge Android APK → dist/
-      run: dart run media_cli dist --jobs android-apk --skip-clean
+      run: dart run media_cli dist --jobs android-apk --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-aab:
       description: Fastforge Android App Bundle (AAB) → dist/
-      run: dart run media_cli dist --jobs android-aab --skip-clean
+      run: dart run media_cli dist --jobs android-aab --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-android:
       description: Fastforge Android APK + AAB → dist/
-      run: dart run media_cli dist --jobs android-apk,android-aab --skip-clean
+      run: dart run media_cli dist --jobs android-apk,android-aab --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-ipa:
       description: Fastforge iOS IPA → dist/
-      run: dart run media_cli dist --jobs ios-ipa --skip-clean
+      run: dart run media_cli dist --jobs ios-ipa --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-linux-deb:
       description: Fastforge Linux .deb → dist/
-      run: dart run media_cli dist --jobs linux-deb --skip-clean
+      run: dart run media_cli dist --jobs linux-deb --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-macos-dmg:
       description: Fastforge macOS .dmg → dist/
-      run: dart run media_cli dist --jobs macos-dmg --skip-clean
+      run: dart run media_cli dist --jobs macos-dmg --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-macos-pkg:
-      description: macOS .pkg installer → dist/ (correct bundle layout; not Fastforge pkg)
-      run: dart run media_cli package-macos-pkg
+      description: macOS .pkg → dist/ (media_cli; `--no-build` skips flutter when Release/.app exists)
+      run: dart run media_cli package-macos-pkg 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-windows-exe:
       description: Fastforge Windows .exe → dist/
-      run: dart run media_cli dist --jobs windows-exe --skip-clean
+      run: dart run media_cli dist --jobs windows-exe --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     dist-windows-msix:
       description: Fastforge Windows MSIX → dist/
-      run: dart run media_cli dist --jobs windows-msix --skip-clean
+      run: dart run media_cli dist --jobs windows-msix --skip-clean 2>&1
       packageFilters:
         scope: media_cli
       exec:

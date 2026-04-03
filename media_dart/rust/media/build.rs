@@ -11,8 +11,19 @@ fn main() {
         android_link_libs(&target);
     }
 
-    // macOS now works like Linux/Windows - FFmpeg is a CodeAsset, not embedded
-    // No need to check for bundled/current/ffmpeg anymore
+    // Flutter macOS cannot bundle ffmpeg/ffprobe as CodeAssets (they are MH_EXECUTE; Flutter
+    // expects dylibs). When `bundled/current/{ffmpeg,ffprobe}` exist at compile time, embed them
+    // via `include_bytes!` and extract at runtime (see `bundled_tools.rs`).
+    if target.contains("apple-darwin") {
+        let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+        let ffmpeg = manifest_dir.join("bundled/current/ffmpeg");
+        let ffprobe = manifest_dir.join("bundled/current/ffprobe");
+        if ffmpeg.is_file() && ffprobe.is_file() {
+            println!("cargo:rustc-cfg=media_embed_macos_ffmpeg");
+        }
+        println!("cargo:rerun-if-changed=bundled/current/ffmpeg");
+        println!("cargo:rerun-if-changed=bundled/current/ffprobe");
+    }
 }
 
 fn android_link_libs(target: &str) {

@@ -6,6 +6,7 @@
 <module fileurl="file://$PROJECT_DIR$/media_dart/melos_media_dart.iml" filepath="$PROJECT_DIR$/media_dart/melos_media_dart.iml"/>
 <module fileurl="file://$PROJECT_DIR$/media_flutter/example/melos_media_example.iml" filepath="$PROJECT_DIR$/media_flutter/example/melos_media_example.iml"/>
 <module fileurl="file://$PROJECT_DIR$/media_flutter/melos_media_flutter.iml" filepath="$PROJECT_DIR$/media_flutter/melos_media_flutter.iml"/>
+<module fileurl="file://$PROJECT_DIR$/tool/native_build/melos_media_native_build.iml" filepath="$PROJECT_DIR$/tool/native_build/melos_media_native_build.iml"/>
 <module fileurl="file://$PROJECT_DIR$/melos_media.iml" filepath="$PROJECT_DIR$/melos_media.iml"/>
     </modules>
   </component>

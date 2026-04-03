@@ -77,4 +77,4 @@ lto = "thin"
 codegen-units = 1
 
 [lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)', 'cfg(media_embed_macos_ffmpeg)'] }

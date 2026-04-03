@@ -119,24 +119,33 @@ Future<void> _buildFromGithubRelease({
   );
   final libFile = mediaNativeLibraryFileName(code);
 
-  final staging = path.join(
+  // Cache layout: `.media_prebuilt_release/<version>/` with one folder per triple
+  // (matches zips from `mediaArchivePlatformBuildFolder`, which contain `<triple>/…`).
+  final cacheRoot = path.join(
     path.fromUri(input.outputDirectory),
     '.media_prebuilt_release',
     version,
-    tripleTarget,
   );
-  final srcDir = path.join(staging, tripleTarget);
+  final downloadDir = path.join(cacheRoot, '.download');
+  final srcDir = path.join(cacheRoot, tripleTarget);
   final srcLib = path.join(srcDir, libFile);
 
   if (!File(srcLib).existsSync()) {
     logger.config('Downloading prebuilt $tripleTarget from release');
-    Directory(staging).createSync(recursive: true);
-    final zipFile = File(path.join(staging, 'prebuilt.zip'));
+    Directory(downloadDir).createSync(recursive: true);
+    final zipFile = File(path.join(downloadDir, '$tripleTarget.zip'));
     await _httpDownloadToFile(url, zipFile);
     if (Directory(srcDir).existsSync()) {
       Directory(srcDir).deleteSync(recursive: true);
     }
-    _extractZipToDirectory(zipFile.readAsBytesSync(), staging);
+    final bytes = zipFile.readAsBytesSync();
+    final archive = ZipDecoder().decodeBytes(bytes);
+    final extractRoot = _releaseZipExtractRootFromArchive(
+      archive,
+      cacheRoot: cacheRoot,
+      triple: tripleTarget,
+    );
+    _extractZipArchive(archive, extractRoot);
     zipFile.deleteSync();
     if (!File(srcLib).existsSync()) {
       throw StateError(
@@ -155,11 +164,10 @@ Future<void> _buildFromGithubRelease({
     logLabel: 'GitHub release',
   );
 
-  // For desktop platforms (Linux, Windows, macOS), download FFmpeg separately
-  // from GitHub releases
+  // Linux/Windows: FFmpeg as separate CodeAssets. macOS: tools are embedded in libmedia at
+  // compile time (Flutter's macOS native-asset pipeline only supports dylibs for bundled assets).
   if (input.config.code.targetOS == OS.linux ||
-      input.config.code.targetOS == OS.windows ||
-      input.config.code.targetOS == OS.macOS) {
+      input.config.code.targetOS == OS.windows) {
     await _downloadFfmpegFromRelease(
       input: input,
       logger: logger,
@@ -211,16 +219,13 @@ Future<void> _installPrebuiltFromDirectory({
     return;
   }
 
-  // Modified: macOS now works like Linux/Windows - FFmpeg as separate CodeAssets
-  // instead of embedded in the dylib
-  /*
   if (code.targetOS == OS.macOS) {
     logger.config(
-      'macOS prebuilt: ffmpeg/ffprobe are embedded in $libFile; no extra CodeAssets.',
+      '$logLabel: macOS — FFmpeg/ffprobe are embedded in $libFile at Rust compile time; '
+      'not registered as separate CodeAssets (Flutter macOS requires dylibs for bundled assets).',
     );
     return;
   }
-  */
 
   final isWin = code.targetOS == OS.windows;
   final ffmpegName = isWin ? 'ffmpeg.exe' : 'ffmpeg';
@@ -329,8 +334,21 @@ Future<void> _httpDownloadToFile(Uri url, File out) async {
   throw StateError('Failed to download $url after 3 attempts: $lastError');
 }
 
-void _extractZipToDirectory(List<int> bytes, String destDir) {
-  final archive = ZipDecoder().decodeBytes(bytes);
+/// Release zips from this repo use a top-level [triple] directory; some FFmpeg
+/// bundles may be flat (binaries at archive root).
+String _releaseZipExtractRootFromArchive(
+  Archive archive, {
+  required String cacheRoot,
+  required String triple,
+}) {
+  final prefix = '$triple/';
+  final hasTriplePrefix = archive.files.any(
+    (f) => f.isFile && (f.name == triple || f.name.startsWith(prefix)),
+  );
+  return hasTriplePrefix ? cacheRoot : path.join(cacheRoot, triple);
+}
+
+void _extractZipArchive(Archive archive, String destDir) {
   for (final file in archive.files) {
     if (!file.isFile) continue;
     final outPath = path.join(destDir, file.name);
@@ -347,6 +365,9 @@ Future<void> _downloadFfmpegFromRelease({
   required String tripleTarget,
 }) async {
   final code = input.config.code;
+  if (code.targetOS == OS.macOS) {
+    return;
+  }
   final isWin = code.targetOS == OS.windows;
   final ffmpegName = isWin ? 'ffmpeg.exe' : 'ffmpeg';
   final ffprobeName = isWin ? 'ffprobe.exe' : 'ffprobe';
@@ -355,35 +376,45 @@ Future<void> _downloadFfmpegFromRelease({
   final ffmpegReleaseUrl =
       'https://github.com/kushalmahapatro/media-rs/releases/download/$version/${tripleTarget}-ffmpeg.zip';
 
-  final staging = path.join(
+  // Same idea as prebuilts: version-level cache, `.download/` for zips, one
+  // folder per triple for extracted binaries (avoids deleting the zip dir).
+  final cacheRoot = path.join(
     path.fromUri(input.outputDirectory),
     '.media_ffmpeg_release',
     version,
-    tripleTarget,
   );
-  final ffmpegDir = path.join(staging, tripleTarget);
-  final srcFfmpeg = path.join(ffmpegDir, ffmpegName);
-  final srcFfprobe = path.join(ffmpegDir, ffprobeName);
+  final downloadDir = path.join(cacheRoot, '.download');
+  final tripleDir = path.join(cacheRoot, tripleTarget);
+  final srcFfmpeg = path.join(tripleDir, ffmpegName);
+  final srcFfprobe = path.join(tripleDir, ffprobeName);
 
   // Download FFmpeg if not cached
   if (!File(srcFfmpeg).existsSync() || !File(srcFfprobe).existsSync()) {
-    logger.config('Downloading FFmpeg for $tripleTarget from $ffmpegReleaseUrl');
-    Directory(staging).createSync(recursive: true);
-    final zipFile = File(path.join(staging, 'ffmpeg.zip'));
+    logger.config(
+      'Downloading FFmpeg for $tripleTarget from $ffmpegReleaseUrl',
+    );
+    Directory(downloadDir).createSync(recursive: true);
+    final zipFile = File(path.join(downloadDir, '$tripleTarget-ffmpeg.zip'));
 
     try {
       await _httpDownloadToFile(Uri.parse(ffmpegReleaseUrl), zipFile);
 
-      // Extract
-      if (Directory(ffmpegDir).existsSync()) {
-        Directory(ffmpegDir).deleteSync(recursive: true);
+      if (Directory(tripleDir).existsSync()) {
+        Directory(tripleDir).deleteSync(recursive: true);
       }
-      _extractZipToDirectory(zipFile.readAsBytesSync(), staging);
+      final bytes = zipFile.readAsBytesSync();
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final extractRoot = _releaseZipExtractRootFromArchive(
+        archive,
+        cacheRoot: cacheRoot,
+        triple: tripleTarget,
+      );
+      _extractZipArchive(archive, extractRoot);
       zipFile.deleteSync();
 
       if (!File(srcFfmpeg).existsSync() || !File(srcFfprobe).existsSync()) {
         throw StateError(
-          'Downloaded FFmpeg archive missing expected binaries at $ffmpegDir',
+          'Downloaded FFmpeg archive missing expected binaries under $tripleDir',
         );
       }
       logger.config('Downloaded FFmpeg for $tripleTarget');
@@ -395,7 +426,7 @@ Future<void> _downloadFfmpegFromRelease({
       );
     }
   } else {
-    logger.config('Using cached FFmpeg for $tripleTarget from $ffmpegDir');
+    logger.config('Using cached FFmpeg for $tripleTarget from $tripleDir');
   }
 
   // Copy to output directory

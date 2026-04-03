@@ -93,6 +93,22 @@
       "devDependencies": []
     },
     {
+      "name": "flutter_app_packager",
+      "version": "0.6.5",
+      "dependencies": [
+        "archive",
+        "io",
+        "liquid_engine",
+        "msix",
+        "mustache_template",
+        "path",
+        "pub_semver",
+        "pubspec_parse",
+        "shell_executor",
+        "yaml"
+      ]
+    },
+    {
       "name": "shell_executor",
       "version": "0.3.0",
       "dependencies": []
@@ -140,9 +156,80 @@
       ]
     },
     {
+      "name": "yaml",
+      "version": "3.1.3",
+      "dependencies": [
+        "collection",
+        "source_span",
+        "string_scanner"
+      ]
+    },
+    {
+      "name": "pubspec_parse",
+      "version": "1.5.0",
+      "dependencies": [
+        "checked_yaml",
+        "collection",
+        "json_annotation",
+        "pub_semver",
+        "yaml"
+      ]
+    },
+    {
+      "name": "pub_semver",
+      "version": "2.2.0",
+      "dependencies": [
+        "collection"
+      ]
+    },
+    {
       "name": "path",
       "version": "1.9.1",
       "dependencies": []
+    },
+    {
+      "name": "mustache_template",
+      "version": "2.0.4",
+      "dependencies": []
+    },
+    {
+      "name": "msix",
+      "version": "3.16.13",
+      "dependencies": [
+        "args",
+        "cli_util",
+        "console",
+        "get_it",
+        "image",
+        "package_config",
+        "path",
+        "pub_semver",
+        "yaml"
+      ]
+    },
+    {
+      "name": "liquid_engine",
+      "version": "0.2.2",
+      "dependencies": [
+        "string_scanner"
+      ]
+    },
+    {
+      "name": "io",
+      "version": "1.0.5",
+      "dependencies": [
+        "meta",
+        "path",
+        "string_scanner"
+      ]
+    },
+    {
+      "name": "archive",
+      "version": "3.6.1",
+      "dependencies": [
+        "crypto",
+        "path"
+      ]
     },
     {
       "name": "logging",
@@ -155,14 +242,6 @@
       "dependencies": [
         "collection",
         "hooks"
-      ]
-    },
-    {
-      "name": "archive",
-      "version": "3.6.1",
-      "dependencies": [
-        "crypto",
-        "path"
       ]
     },
     {
@@ -388,7 +467,7 @@
     },
     {
       "name": "test",
-      "version": "1.26.3",
+      "version": "1.30.0",
       "dependencies": [
         "analyzer",
         "async",
@@ -397,7 +476,6 @@
         "coverage",
         "http_multi_server",
         "io",
-        "js",
         "matcher",
         "node_preamble",
         "package_config",
@@ -465,15 +543,6 @@
       ]
     },
     {
-      "name": "yaml",
-      "version": "3.1.3",
-      "dependencies": [
-        "collection",
-        "source_span",
-        "string_scanner"
-      ]
-    },
-    {
       "name": "xml",
       "version": "6.6.1",
       "dependencies": [
@@ -490,17 +559,6 @@
       ]
     },
     {
-      "name": "pubspec_parse",
-      "version": "1.5.0",
-      "dependencies": [
-        "checked_yaml",
-        "collection",
-        "json_annotation",
-        "pub_semver",
-        "yaml"
-      ]
-    },
-    {
       "name": "pub_updater",
       "version": "0.5.0",
       "dependencies": [
@@ -508,13 +566,6 @@
         "json_annotation",
         "process",
         "pub_semver"
-      ]
-    },
-    {
-      "name": "pub_semver",
-      "version": "2.2.0",
-      "dependencies": [
-        "collection"
       ]
     },
     {
@@ -536,11 +587,6 @@
     {
       "name": "platform",
       "version": "3.1.6",
-      "dependencies": []
-    },
-    {
-      "name": "mustache_template",
-      "version": "2.0.4",
       "dependencies": []
     },
     {
@@ -635,15 +681,72 @@
     },
     {
       "name": "material_color_utilities",
-      "version": "0.11.1",
+      "version": "0.13.0",
       "dependencies": [
         "collection"
       ]
     },
     {
       "name": "characters",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "dependencies": []
+    },
+    {
+      "name": "source_span",
+      "version": "1.10.2",
+      "dependencies": [
+        "collection",
+        "path",
+        "term_glyph"
+      ]
+    },
+    {
+      "name": "json_annotation",
+      "version": "4.9.0",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "checked_yaml",
+      "version": "2.0.4",
+      "dependencies": [
+        "json_annotation",
+        "source_span",
+        "yaml"
+      ]
+    },
+    {
+      "name": "console",
+      "version": "4.1.0",
+      "dependencies": [
+        "vector_math"
+      ]
+    },
+    {
+      "name": "image",
+      "version": "4.3.0",
+      "dependencies": [
+        "archive",
+        "meta",
+        "xml"
+      ]
+    },
+    {
+      "name": "get_it",
+      "version": "9.2.1",
+      "dependencies": [
+        "async",
+        "collection",
+        "meta"
+      ]
+    },
+    {
+      "name": "package_config",
+      "version": "2.2.0",
+      "dependencies": [
+        "path"
+      ]
     },
     {
       "name": "crypto",
@@ -716,7 +819,7 @@
     },
     {
       "name": "matcher",
-      "version": "0.12.17",
+      "version": "0.12.19",
       "dependencies": [
         "async",
         "meta",
@@ -727,7 +830,7 @@
     },
     {
       "name": "test_api",
-      "version": "0.7.7",
+      "version": "0.7.10",
       "dependencies": [
         "async",
         "boolean_selector",
@@ -1011,13 +1114,6 @@
       ]
     },
     {
-      "name": "json_annotation",
-      "version": "4.9.0",
-      "dependencies": [
-        "meta"
-      ]
-    },
-    {
       "name": "dart_style",
       "version": "3.1.3",
       "dependencies": [
@@ -1079,13 +1175,6 @@
       ]
     },
     {
-      "name": "package_config",
-      "version": "2.2.0",
-      "dependencies": [
-        "path"
-      ]
-    },
-    {
       "name": "web_socket_channel",
       "version": "3.0.3",
       "dependencies": [
@@ -1128,15 +1217,6 @@
         "path",
         "stack_trace",
         "stream_channel"
-      ]
-    },
-    {
-      "name": "io",
-      "version": "1.0.5",
-      "dependencies": [
-        "meta",
-        "path",
-        "string_scanner"
       ]
     },
     {
@@ -1213,7 +1293,7 @@
     },
     {
       "name": "test_core",
-      "version": "0.6.12",
+      "version": "0.6.16",
       "dependencies": [
         "analyzer",
         "args",
@@ -1239,15 +1319,6 @@
       ]
     },
     {
-      "name": "source_span",
-      "version": "1.10.2",
-      "dependencies": [
-        "collection",
-        "path",
-        "term_glyph"
-      ]
-    },
-    {
       "name": "shelf_static",
       "version": "1.1.3",
       "dependencies": [
@@ -1270,11 +1341,6 @@
     {
       "name": "node_preamble",
       "version": "2.0.2",
-      "dependencies": []
-    },
-    {
-      "name": "js",
-      "version": "0.7.2",
       "dependencies": []
     },
     {
@@ -1329,15 +1395,6 @@
       ]
     },
     {
-      "name": "checked_yaml",
-      "version": "2.0.4",
-      "dependencies": [
-        "json_annotation",
-        "source_span",
-        "yaml"
-      ]
-    },
-    {
       "name": "process",
       "version": "5.0.5",
       "dependencies": [
@@ -1362,6 +1419,11 @@
       ]
     },
     {
+      "name": "term_glyph",
+      "version": "1.2.2",
+      "dependencies": []
+    },
+    {
       "name": "shell_uikit",
       "version": "0.3.0",
       "dependencies": []
@@ -1379,22 +1441,6 @@
         "pubspec_parse",
         "qiniu_sdk_base",
         "shell_executor"
-      ]
-    },
-    {
-      "name": "flutter_app_packager",
-      "version": "0.6.5",
-      "dependencies": [
-        "archive",
-        "io",
-        "liquid_engine",
-        "msix",
-        "mustache_template",
-        "path",
-        "pub_semver",
-        "pubspec_parse",
-        "shell_executor",
-        "yaml"
       ]
     },
     {
@@ -1451,11 +1497,6 @@
         "path",
         "vm_service"
       ]
-    },
-    {
-      "name": "term_glyph",
-      "version": "1.2.2",
-      "dependencies": []
     },
     {
       "name": "uuid",
@@ -1624,28 +1665,6 @@
       ]
     },
     {
-      "name": "msix",
-      "version": "3.16.13",
-      "dependencies": [
-        "args",
-        "cli_util",
-        "console",
-        "get_it",
-        "image",
-        "package_config",
-        "path",
-        "pub_semver",
-        "yaml"
-      ]
-    },
-    {
-      "name": "liquid_engine",
-      "version": "0.2.2",
-      "dependencies": [
-        "string_scanner"
-      ]
-    },
-    {
       "name": "recase",
       "version": "4.1.0",
       "dependencies": []
@@ -1659,6 +1678,11 @@
         "meta",
         "web"
       ]
+    },
+    {
+      "name": "js",
+      "version": "0.7.2",
+      "dependencies": []
     },
     {
       "name": "http_client_helper",
@@ -1706,31 +1730,6 @@
       "dependencies": [
         "http",
         "http_parser",
-        "meta"
-      ]
-    },
-    {
-      "name": "console",
-      "version": "4.1.0",
-      "dependencies": [
-        "vector_math"
-      ]
-    },
-    {
-      "name": "image",
-      "version": "4.3.0",
-      "dependencies": [
-        "archive",
-        "meta",
-        "xml"
-      ]
-    },
-    {
-      "name": "get_it",
-      "version": "9.2.1",
-      "dependencies": [
-        "async",
-        "collection",
         "meta"
       ]
     }

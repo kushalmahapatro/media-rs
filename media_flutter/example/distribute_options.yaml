@@ -12,13 +12,12 @@ output: ../../dist/
 artifact_name: 'media-{{build_name}}-{{platform}}.{{ext}}'
 
 # macOS DMG: YAML under macos/packaging/dmg/make_config.yaml. `media_cli dist`
-# prepends tool/shims for `appdmg` / `npx --yes appdmg` (needs Node.js).
+# prepends tool/shims/appdmg → Homebrew `create-dmg` (installs via brew if missing).
 #
-# Do NOT use Fastforge `macos-pkg`: flutter_app_packager passes `Foo.app` to
-# `productbuild --root`, which flattens `Contents/` into /Applications. Use:
-#   dart run melos run dist-macos-pkg --no-select
-# (`media_cli package-macos-pkg` — root = Release folder containing *.app).
-# Optional: macos/packaging/pkg/make_config.yaml `install-path` for that command.
+# macOS `.pkg`: upstream flutter_app_packager used a broken `productbuild --root`;
+# this repo overrides it (see root pubspec `dependency_overrides`). You can add a
+# `macos-pkg` job here or use `melos run dist-macos-pkg` (`media_cli package-macos-pkg`).
+# Optional: macos/packaging/pkg/make_config.yaml `install-path`.
 # Replace DEB/MSIX
 # maintainer and signing options for real releases.
 

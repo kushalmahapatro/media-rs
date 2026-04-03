@@ -1,5 +1,5 @@
 # flutter_app_packager / Fastforge — see https://fastforge.dev
-# Window layout for `appdmg` (install: `pnpm install -g appdmg`).
+# Window layout (JSON for appdmg schema); packaged via `brew install create-dmg` + tool/shims/appdmg.
 title: Media
 contents:
   - x: 448

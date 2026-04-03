@@ -1,16 +1,146 @@
 #!/usr/bin/env bash
-# flutter_app_packager / Fastforge call `appdmg` on PATH. Use a global install if present;
-# otherwise run via npx (downloads the package on first use; requires Node.js).
+# flutter_app_packager / Fastforge invoke `appdmg <make_config.json> <output.dmg>`.
+# We translate that to Homebrew `create-dmg`, which avoids the Node appdmg stack and
+# supports `--skip-jenkins` so Finder/AppleScript layout steps do not hang under melos/IDE.
 #
-# Always attach stdin to /dev/null. Fastforge runs appdmg via Dart Process.start (pipes);
-# without this, Node/npx or appdmg can block on stdin even when the parent closes its end.
+# If create-dmg is missing, we try: brew install create-dmg (see below).
+# Set MEDIA_SKIP_CREATE_DMG_BREW_INSTALL=1 to only print install instructions.
 set -euo pipefail
-if command -v appdmg >/dev/null 2>&1; then
-  exec appdmg "$@" </dev/null
+exec </dev/null
+
+# Same paths [dist_command] adds for Dart; needed before we invoke brew.
+export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH:-}"
+
+if [[ $# -lt 2 ]]; then
+  echo "usage: appdmg <make_config.json> <output.dmg>" >&2
+  exit 2
 fi
-if ! command -v npx >/dev/null 2>&1; then
-  echo "appdmg: not on PATH and npx not found." >&2
-  echo "  Install Node.js, or run: npm install -g appdmg" >&2
-  exit 127
+
+CONFIG_JSON="$1"
+OUTPUT_DMG="$2"
+STAGING="$(cd "$(dirname "$CONFIG_JSON")" && pwd)"
+
+# Melos / GUI-launched Dart often inherit a minimal PATH without Homebrew.
+find_create_dmg() {
+  if [[ -n "${CREATE_DMG:-}" ]]; then
+    if [[ -x "$CREATE_DMG" ]]; then
+      echo "$CREATE_DMG"
+      return 0
+    fi
+    if command -v "$CREATE_DMG" >/dev/null 2>&1; then
+      command -v "$CREATE_DMG"
+      return 0
+    fi
+  fi
+  if command -v create-dmg >/dev/null 2>&1; then
+    command -v create-dmg
+    return 0
+  fi
+  for p in /opt/homebrew/bin/create-dmg /usr/local/bin/create-dmg; do
+    if [[ -x "$p" ]]; then
+      echo "$p"
+      return 0
+    fi
+  done
+  return 1
+}
+
+if ! CREATE_DMG_BIN="$(find_create_dmg)"; then
+  if [[ -n "${MEDIA_SKIP_CREATE_DMG_BREW_INSTALL:-}" ]]; then
+    echo "create-dmg not found. Install: brew install create-dmg" >&2
+    echo "  Or set CREATE_DMG to the full path." >&2
+    exit 127
+  fi
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "create-dmg not found and Homebrew (brew) is not on PATH." >&2
+    echo "  Install Homebrew, then: brew install create-dmg" >&2
+    echo "  Or set CREATE_DMG to the full path to create-dmg." >&2
+    exit 127
+  fi
+  echo "create-dmg not found; running: brew install create-dmg" >&2
+  # Non-interactive / CI friendly where supported
+  export HOMEBREW_NO_INSTALL_CLEANUP=1
+  brew install create-dmg
+  if ! CREATE_DMG_BIN="$(find_create_dmg)"; then
+    echo "create-dmg still not found after brew install." >&2
+    exit 127
+  fi
 fi
-exec npx --yes appdmg "$@" </dev/null
+
+exec python3 - "$CONFIG_JSON" "$STAGING" "$OUTPUT_DMG" "$CREATE_DMG_BIN" <<'PY'
+import json, os, subprocess, sys
+
+cfg_path, staging, out_dmg, create_dmg_bin = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+
+with open(cfg_path, encoding="utf-8") as f:
+    cfg = json.load(f)
+
+title = cfg.get("title") or "Application"
+icon_size = int(cfg.get("icon-size") or 100)
+win = cfg.get("window") or {}
+pos = win.get("position") or {}
+size = win.get("size") or {}
+wx, wy = int(pos.get("x", 200)), int(pos.get("y", 120))
+ww, wh = int(size.get("width", 800)), int(size.get("height", 400))
+
+app_name = None
+ax = ay = None
+dpx = dpy = None
+for item in cfg.get("contents", []):
+    t = item.get("type")
+    if t == "file":
+        app_name = os.path.basename(item["path"])
+        ax, ay = int(item["x"]), int(item["y"])
+    elif t == "link" and "/Applications" in str(item.get("path", "")):
+        dpx, dpy = int(item["x"]), int(item["y"])
+
+if not app_name or ax is None:
+    sys.exit("make_config.json: expected a contents[] entry with type=file for the .app")
+if dpx is None:
+    sys.exit("make_config.json: expected a contents[] link to /Applications")
+
+app_path = os.path.join(staging, app_name)
+if not os.path.isdir(app_path):
+    sys.exit(f"missing app bundle (copy step failed?): {app_path}")
+
+cmd = [
+    create_dmg_bin,
+    "--volname",
+    title,
+    "--window-pos",
+    str(wx),
+    str(wy),
+    "--window-size",
+    str(ww),
+    str(wh),
+    "--icon-size",
+    str(icon_size),
+    "--icon",
+    app_name,
+    str(ax),
+    str(ay),
+    "--hide-extension",
+    app_name,
+    "--app-drop-link",
+    str(dpx),
+    str(dpy),
+    "--skip-jenkins",
+]
+
+bg = cfg.get("background")
+if bg:
+    cmd.extend(["--background", os.path.join(staging, bg)])
+
+volicon = cfg.get("icon")
+if volicon:
+    cmd.extend(["--volicon", os.path.join(staging, volicon)])
+
+cmd.extend([out_dmg, staging])
+
+# create-dmg / hdiutil convert fails with "File exists" if a previous run left the DMG.
+out_abs = os.path.abspath(out_dmg)
+if os.path.lexists(out_abs):
+    os.unlink(out_abs)
+
+subprocess.check_call(cmd, stdin=subprocess.DEVNULL)
+PY

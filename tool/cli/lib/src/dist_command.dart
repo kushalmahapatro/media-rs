@@ -19,18 +19,13 @@ class DistCommand extends Command<void> {
         help: 'Name of the release block in distribute_options.yaml.',
         defaultsTo: 'media-example',
       )
-      ..addFlag(
-        'skip-clean',
-        help: 'Forward --skip-clean to fastforge.',
-      )
+      ..addFlag('skip-clean', help: 'Forward --skip-clean to fastforge.')
       ..addOption(
         'jobs',
-        help: 'Comma-separated fastforge job names (see distribute_options.yaml).',
+        help:
+            'Comma-separated fastforge job names (see distribute_options.yaml).',
       )
-      ..addOption(
-        'skip-jobs',
-        help: 'Comma-separated job names to skip.',
-      );
+      ..addOption('skip-jobs', help: 'Comma-separated job names to skip.');
   }
 
   @override
@@ -40,7 +35,8 @@ class DistCommand extends Command<void> {
   String get description =>
       'Run `dart run fastforge:main release` in the example app (see distribute_options.yaml).';
 
-  /// DMG packaging runs `appdmg` (npm). Prepend [tool/shims] so a fallback can use `npx`.
+  /// DMG packaging runs `appdmg` on PATH; [tool/shims/appdmg] wraps Homebrew `create-dmg`
+  /// (auto `brew install create-dmg` if missing unless `MEDIA_SKIP_CREATE_DMG_BREW_INSTALL=1`).
   static Map<String, String> _distEnvironment(String appDir) {
     final env = Map<String, String>.from(Platform.environment);
     if (!Platform.isMacOS) return env;
@@ -50,11 +46,9 @@ class DistCommand extends Command<void> {
     if (!File(shim).existsSync()) return env;
     final pathVar = env['PATH'] ?? '';
     final sep = Platform.isWindows ? ';' : ':';
-    env['PATH'] = '$shimDir$sep$pathVar';
-    // Fewer npx/npm stalls when stdio is not a TTY (progress spinners, audit prompts).
-    env.putIfAbsent('npm_config_progress', () => 'false');
-    env.putIfAbsent('npm_config_audit', () => 'false');
-    env.putIfAbsent('npm_config_fund', () => 'false');
+    // Homebrew binaries (create-dmg) live here; IDE/melos often omit them from PATH.
+    const brewBins = '/opt/homebrew/bin:/usr/local/bin';
+    env['PATH'] = '$shimDir$sep$brewBins$sep$pathVar';
     return env;
   }
 
@@ -94,6 +88,7 @@ class DistCommand extends Command<void> {
       workingDirectory: appDir,
       environment: _distEnvironment(appDir),
       mode: ProcessStartMode.inheritStdio,
+      runInShell: true,
     );
     exitCode = await code.exitCode;
   }

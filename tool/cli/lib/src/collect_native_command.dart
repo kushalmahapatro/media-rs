@@ -354,7 +354,8 @@ class CollectNativeCommand extends Command<void> {
     }
 
     final libFile = mediaDynamicLibraryFileNameForRustTriple(triple);
-    final builtLib = path.join(cargoTargetRoot, triple, libFile);
+    final profile = release ? 'release' : 'debug';
+    final builtLib = path.join(cargoTargetRoot, triple, profile, libFile);
     if (!File(builtLib).existsSync()) {
       throw StateError('Expected artifact missing: $builtLib');
     }

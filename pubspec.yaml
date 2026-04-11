@@ -2,7 +2,7 @@ name: media
 description: >
   Compatibility entrypoint: re-exports media_flutter so apps can use
   `package:media/media.dart` with `path: packages/media`.
-version: 0.1.0
+version: 0.1.1
 publish_to: "none"
 
 environment:
@@ -19,7 +19,7 @@ workspace:
 dependencies:
   flutter:
     sdk: flutter
-  media_flutter: ^0.1.0
+  media_flutter: ^0.1.1
 
 dev_dependencies:
   melos: ^7.0.0
@@ -72,12 +72,12 @@ melos:
         concurrency: 1
     release-assets-macos:
       description: >
-        macOS thin + universal libmedia zips and {triple}-ffmpeg.zip under release-assets/v0.1.0/
+        macOS thin + universal libmedia zips and {triple}-ffmpeg.zip under release-assets/v0.1.1/
         (keep in sync with media_dart/hook/build.dart `version`).
       run: >
         cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart
         -t aarch64-apple-darwin -t x86_64-apple-darwin
-        --archive-format zip --archive-version v0.1.0
+        --archive-format zip --archive-version v0.1.1
         --macos-universal --archive-ffmpeg zip 2>&1
       packageFilters:
         scope: media_cli
@@ -90,12 +90,23 @@ melos:
         scope: media_cli
       exec:
         concurrency: 1
-    release-assets-ios:
+    release-assets-android:
       description: >
-        Zip existing platform-builds/ios/* → release-assets/v0.1.0/ (no FFmpeg; iOS uses system / AVFoundation).
+        Build Android prebuilts and zip → release-assets/v0.1.1/ (needs ANDROID_NDK_HOME, rustup android targets).
       run: >
         cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart
-        --archive-only --archive-format zip --archive-version v0.1.0
+        -t aarch64-linux-android -t x86_64-linux-android -t armv7-linux-androideabi
+        --archive-format zip --archive-version v0.1.1 2>&1
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    release-assets-ios:
+      description: >
+        Zip existing platform-builds/ios/* → release-assets/v0.1.1/ (no FFmpeg; iOS uses system / AVFoundation).
+      run: >
+        cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart
+        --archive-only --archive-format zip --archive-version v0.1.1
         -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios 2>&1
       packageFilters:
         scope: media_cli
@@ -226,7 +237,7 @@ melos:
         concurrency: 1
     publish-github-release:
       description: >
-        Native + FFmpeg zips, tests, 3× macOS DMG/PKG, upload to GitHub (needs gh auth; tag v0.1.0 matches hook).
+        Native + FFmpeg zips, tests, 3× macOS DMG/PKG, Android APK, upload to GitHub (needs gh auth; tag matches hook).
       run: bash tool/scripts/publish_media_rs_release.sh 2>&1
     dist-windows-exe:
       description: Fastforge Windows .exe → dist/

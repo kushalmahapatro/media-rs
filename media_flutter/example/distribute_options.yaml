@@ -6,7 +6,7 @@
 # Or: dart run media_cli dist --jobs android-apk
 #
 # Output dir must end with `/` so the packager forms `dist/<version>/` (otherwise
-# you get `dist0.1.0`). `artifact_name` is a Mustache template — include `.{{ext}}`
+# you get `dist0.1.1`). `artifact_name` is a Mustache template — include `.{{ext}}`
 # or the file has no .apk/.dmg suffix.
 output: ../../dist/
 artifact_name: 'media-{{build_name}}-{{platform}}.{{ext}}'

@@ -42,55 +42,59 @@ typedef struct wire_cst_video_probe {
   struct wire_cst_list_prim_u_8_strict *audio_codec;
 } wire_cst_video_probe;
 
-void frbgen_media_wire__crate__api__probe_video(int64_t port_,
-                                                         struct wire_cst_list_prim_u_8_strict *path);
+void frbgen_media_dart_wire__crate__api__probe_video(int64_t port_,
+                                                     struct wire_cst_list_prim_u_8_strict *path);
 
-void frbgen_media_wire__crate__api__thumbnail_image(int64_t port_,
+void frbgen_media_dart_wire__crate__api__thumbnail_image(int64_t port_,
+                                                         struct wire_cst_list_prim_u_8_strict *path,
+                                                         double time_sec,
+                                                         uint32_t max_edge,
+                                                         int32_t format);
+
+void frbgen_media_dart_wire__crate__api__thumbnail_save_to_path(int64_t port_,
+                                                                struct wire_cst_list_prim_u_8_strict *path,
+                                                                struct wire_cst_list_prim_u_8_strict *output_path,
+                                                                double time_sec,
+                                                                uint32_t max_edge,
+                                                                int32_t format);
+
+void frbgen_media_dart_wire__crate__api__timeline_thumbnails(int64_t port_,
                                                              struct wire_cst_list_prim_u_8_strict *path,
-                                                             double time_sec,
+                                                             uint32_t frame_count,
                                                              uint32_t max_edge,
-                                                             int32_t format);
-
-void frbgen_media_wire__crate__api__thumbnail_save_to_path(int64_t port_,
-                                                                    struct wire_cst_list_prim_u_8_strict *path,
-                                                                    struct wire_cst_list_prim_u_8_strict *output_path,
-                                                                    double time_sec,
-                                                                    uint32_t max_edge,
-                                                                    int32_t format);
-
-void frbgen_media_wire__crate__api__timeline_thumbnails(int64_t port_,
-                                                                 struct wire_cst_list_prim_u_8_strict *path,
-                                                                 uint32_t frame_count,
-                                                                 uint32_t max_edge,
-                                                                 int32_t format,
-                                                                 struct wire_cst_list_prim_u_8_strict *sink);
-
-void frbgen_media_wire__crate__api__transcode_video(int64_t port_,
-                                                             struct wire_cst_list_prim_u_8_strict *input_path,
-                                                             struct wire_cst_list_prim_u_8_strict *output_path,
-                                                             uint32_t video_bitrate_kbps,
-                                                             uint32_t max_width,
-                                                             uint32_t audio_bitrate_kbps,
+                                                             int32_t format,
                                                              struct wire_cst_list_prim_u_8_strict *sink);
 
-double *frbgen_media_cst_new_box_autoadd_f_64(double value);
+void frbgen_media_dart_wire__crate__api__transcode_video(int64_t port_,
+                                                         struct wire_cst_list_prim_u_8_strict *input_path,
+                                                         struct wire_cst_list_prim_u_8_strict *output_path,
+                                                         uint32_t video_bitrate_kbps,
+                                                         uint32_t max_width,
+                                                         uint32_t audio_bitrate_kbps,
+                                                         struct wire_cst_list_prim_u_8_strict *sink);
 
-int64_t *frbgen_media_cst_new_box_autoadd_i_64(int64_t value);
+double *frbgen_media_dart_cst_new_box_autoadd_f_64(double value);
 
-uint32_t *frbgen_media_cst_new_box_autoadd_u_32(uint32_t value);
+int64_t *frbgen_media_dart_cst_new_box_autoadd_i_64(int64_t value);
 
-struct wire_cst_list_prim_u_8_strict *frbgen_media_cst_new_list_prim_u_8_strict(int32_t len);
+uint32_t *frbgen_media_dart_cst_new_box_autoadd_u_32(uint32_t value);
+
+struct wire_cst_list_prim_u_8_strict *frbgen_media_dart_cst_new_list_prim_u_8_strict(int32_t len);
+
+void media_dylib_path_anchor(void);
+
+extern jint JNI_GetCreatedJavaVMs(JavaVM **vm_buf, jsize buf_len, jsize *n_vms);
 static int64_t dummy_method_to_enforce_bundling(void) {
     int64_t dummy_var = 0;
-    dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_f_64);
-    dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_i_64);
-    dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_box_autoadd_u_32);
-    dummy_var ^= ((int64_t) (void*) frbgen_media_cst_new_list_prim_u_8_strict);
-    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__probe_video);
-    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__thumbnail_image);
-    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__thumbnail_save_to_path);
-    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__timeline_thumbnails);
-    dummy_var ^= ((int64_t) (void*) frbgen_media_wire__crate__api__transcode_video);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_cst_new_box_autoadd_f_64);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_cst_new_box_autoadd_i_64);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_cst_new_box_autoadd_u_32);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_cst_new_list_prim_u_8_strict);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__probe_video);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__thumbnail_image);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__thumbnail_save_to_path);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__timeline_thumbnails);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__transcode_video);
     dummy_var ^= ((int64_t) (void*) store_dart_post_cobject);
     return dummy_var;
 }

@@ -10,7 +10,7 @@ environment:
   sdk: ^3.10.0
 
 dependencies:
-  flutter_rust_bridge: 2.11.1
+  flutter_rust_bridge: 2.12.0
   media_native_build:
     path: ../tool/native_build
   path: ^1.9.1

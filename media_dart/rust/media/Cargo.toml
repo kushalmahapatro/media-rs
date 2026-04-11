@@ -9,7 +9,7 @@ crate-type = ["cdylib", "staticlib"]
 name = "media"
 
 [dependencies]
-flutter_rust_bridge = "=2.11.1"
+flutter_rust_bridge = "=2.12.0"
 tokio = { version = "1.41", features = [
     "rt-multi-thread",
     "macros",
@@ -60,7 +60,11 @@ objc2-av-foundation = { version = "0.3.2", default-features = false, features = 
 ] }
 objc2-core-media = { version = "0.3.2", features = ["CMTime", "objc2"] }
 objc2-core-foundation = { version = "0.3.2", features = ["CFCGTypes", "objc2"] }
-objc2-core-graphics = { version = "0.3.2", features = ["CGImage", "CGDataProvider", "objc2"] }
+objc2-core-graphics = { version = "0.3.2", features = [
+    "CGImage",
+    "CGDataProvider",
+    "objc2",
+] }
 objc2-ui-kit = { version = "0.3.2", default-features = false, features = [
     "std",
     "objc2-core-foundation",
@@ -77,4 +81,7 @@ lto = "thin"
 codegen-units = 1
 
 [lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)', 'cfg(media_embed_macos_ffmpeg)'] }
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(frb_expand)',
+    'cfg(media_embed_macos_ffmpeg)',
+] }

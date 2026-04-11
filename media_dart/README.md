@@ -54,6 +54,8 @@ dart run melos run collect-native --no-select
 
 Or from `tool/cli`: `dart run media_cli collect-native`.
 
+**GitHub releases (thin + universal macOS, FFmpeg zips, `gh upload`, slim FFmpeg):** see **[RELEASE_ASSETS.md](../RELEASE_ASSETS.md)**.
+
 Omit `localBuild` or set **`true`** for the default on-machine Rust build.
 
 ## Distribution builds ([Fastforge](https://pub.dev/packages/fastforge))

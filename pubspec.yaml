@@ -65,14 +65,38 @@ melos:
         concurrency: 1
     mac-lib:
       description: Build macOS prebuilts (arm64 + x86_64) into platform-builds/
-      run: dart run media_cli collect-native -t aarch64-apple-darwin -t x86_64-apple-darwin
+      run: cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart -t aarch64-apple-darwin -t x86_64-apple-darwin
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    release-assets-macos:
+      description: >
+        macOS thin + universal libmedia zips and {triple}-ffmpeg.zip under release-assets/v0.1.0/
+        (keep in sync with media_dart/hook/build.dart `version`).
+      run: >
+        cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart
+        -t aarch64-apple-darwin -t x86_64-apple-darwin
+        --archive-format zip --archive-version v0.1.0
+        --macos-universal --archive-ffmpeg zip 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     ios-lib:
-      description: Build iOS prebuilts (arm64 + x86_64) into platform-builds/
-      run: dart run media_cli collect-native -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios
+      description: Build iOS prebuilts (device + simulators) into platform-builds/
+      run: cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    release-assets-ios:
+      description: >
+        Zip existing platform-builds/ios/* → release-assets/v0.1.0/ (no FFmpeg; iOS uses system / AVFoundation).
+      run: >
+        cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart
+        --archive-only --archive-format zip --archive-version v0.1.0
+        -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios 2>&1
       packageFilters:
         scope: media_cli
       exec:
@@ -200,6 +224,10 @@ melos:
         scope: media_cli
       exec:
         concurrency: 1
+    publish-github-release:
+      description: >
+        Native + FFmpeg zips, tests, 3× macOS DMG/PKG, upload to GitHub (needs gh auth; tag v0.1.0 matches hook).
+      run: bash tool/scripts/publish_media_rs_release.sh 2>&1
     dist-windows-exe:
       description: Fastforge Windows .exe → dist/
       run: dart run media_cli dist --jobs windows-exe --skip-clean 2>&1

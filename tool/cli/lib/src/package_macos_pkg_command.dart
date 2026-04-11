@@ -70,12 +70,22 @@ class PackageMacosPkgCommand extends Command<void> {
     }
 
     if (!noBuild) {
-      stdout.writeln('Running flutter build macos --release...');
-      final flutter = await Process.run(
-        'flutter',
-        const ['build', 'macos', '--release'],
-        workingDirectory: appDir,
-      );
+      final flutterTool =
+          Platform.environment['FLUTTER_TOOL']?.trim().isNotEmpty == true
+              ? Platform.environment['FLUTTER_TOOL']!.trim()
+              : 'flutter';
+      stdout.writeln('Running $flutterTool build macos --release...');
+      final flutter = flutterTool.contains(' ')
+          ? await Process.run(
+              'sh',
+              ['-c', '$flutterTool build macos --release'],
+              workingDirectory: appDir,
+            )
+          : await Process.run(
+              flutterTool,
+              const ['build', 'macos', '--release'],
+              workingDirectory: appDir,
+            );
       stdout.write(flutter.stdout);
       stderr.write(flutter.stderr);
       if (flutter.exitCode != 0) {

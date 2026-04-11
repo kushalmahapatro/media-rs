@@ -11,7 +11,9 @@ hooks:
   user_defines:
     media_dart:
       localBuild: false
-      usePrebuild: false
+      # Omit usePrebuild → use ../platform-builds/ when present, else GitHub release.
+      # Force GitHub only: usePrebuild: false
+      # Optional: macosUniversalPrebuild: true  # universal-apple-darwin zips for Flutter universal .app
 
 environment:
   sdk: ^3.10.0

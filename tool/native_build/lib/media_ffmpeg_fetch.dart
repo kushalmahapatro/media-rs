@@ -10,8 +10,18 @@ import 'package:path/path.dart' as path;
 /// eugeneware/ffmpeg-static release tag (keep in sync if you change download URLs).
 const mediaFfmpegStaticTag = 'b6.1.1';
 
-const _staticBase =
+const _defaultStaticBase =
     'https://github.com/eugeneware/ffmpeg-static/releases/download/$mediaFfmpegStaticTag';
+
+/// Base URL for static FFmpeg/ffprobe downloads (asset names unchanged).
+///
+/// Override with **`MEDIA_FFMPEG_STATIC_BASE_URL`** to point at your own mirror or
+/// a release that contains **slim** builds (same file names as upstream, or replace
+/// files under `native/ffmpeg/` after download).
+String get mediaFfmpegStaticBaseUrl =>
+    Platform.environment['MEDIA_FFMPEG_STATIC_BASE_URL']?.trim().isNotEmpty == true
+        ? Platform.environment['MEDIA_FFMPEG_STATIC_BASE_URL']!.trim()
+        : _defaultStaticBase;
 
 const _btbnWinArm64Zip =
     'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-winarm64-gpl.zip';
@@ -209,8 +219,14 @@ Future<void> _downloadUnixPair({
   final fpPartial = File('$fp.partial');
   try {
     logger.config('Downloading bundled ffmpeg/ffprobe for $subdir…');
-    await _httpDownloadToFile(Uri.parse('$_staticBase/$ffAsset'), ffPartial);
-    await _httpDownloadToFile(Uri.parse('$_staticBase/$fpAsset'), fpPartial);
+    await _httpDownloadToFile(
+      Uri.parse('$mediaFfmpegStaticBaseUrl/$ffAsset'),
+      ffPartial,
+    );
+    await _httpDownloadToFile(
+      Uri.parse('$mediaFfmpegStaticBaseUrl/$fpAsset'),
+      fpPartial,
+    );
     if (File(ff).existsSync()) File(ff).deleteSync();
     if (File(fp).existsSync()) File(fp).deleteSync();
     ffPartial.renameSync(ff);
@@ -239,11 +255,11 @@ Future<void> _downloadWindowsX64({
   try {
     logger.config('Downloading bundled ffmpeg.exe/ffprobe.exe for $subdir…');
     await _httpDownloadToFile(
-      Uri.parse('$_staticBase/ffmpeg-win32-x64'),
+      Uri.parse('$mediaFfmpegStaticBaseUrl/ffmpeg-win32-x64'),
       ffPartial,
     );
     await _httpDownloadToFile(
-      Uri.parse('$_staticBase/ffprobe-win32-x64'),
+      Uri.parse('$mediaFfmpegStaticBaseUrl/ffprobe-win32-x64'),
       fpPartial,
     );
     if (File(ff).existsSync()) File(ff).deleteSync();

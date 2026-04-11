@@ -11,7 +11,7 @@ import 'package:native_toolchain_rust/native_toolchain_rust.dart';
 import 'package:path/path.dart' as path;
 
 const _frbAssetName = 'lib/src/bindings/frb_generated.io.dart';
-const version = 'v0.0.1';
+const version = 'v0.1.0';
 
 /// Release asset base name: `{triple}.zip`
 String releaseUrl(String tripleArchiveBase) =>
@@ -47,17 +47,53 @@ void main(List<String> args) async {
   });
 }
 
+/// Workspace apps set `hooks.user_defines.media_dart: { ... }`; merge also exposes top-level keys.
+dynamic _userDefineAny(BuildInput input, String key) {
+  final nested = input.userDefines['media_dart'];
+  if (nested is Map && nested.containsKey(key)) {
+    return nested[key];
+  }
+  return input.userDefines[key];
+}
+
 bool _parseLocalBuild(BuildInput input) {
-  final v = input.userDefines['localBuild'];
+  final v = _userDefineAny(input, 'localBuild');
   if (v == true) return true;
   if (v is String && v.toLowerCase() == 'true') return true;
   return false;
 }
 
-/// With `localBuild: false`, set `usePrebuild: true` to copy from repo `platform-builds/`.
-/// If both are false/unset, prebuilts are downloaded from the GitHub release.
+/// Explicit `usePrebuild: false` → GitHub download. `true` → `platform-builds/`.
+/// If unset, use `platform-builds/` when the expected library file already exists (in-repo dev);
+/// otherwise GitHub (CI / clean clones).
 bool _parseUsePrebuild(BuildInput input) {
-  final v = input.userDefines['usePrebuild'];
+  final v = _userDefineAny(input, 'usePrebuild');
+  if (v == false) return false;
+  if (v is String && v.toLowerCase() == 'false') return false;
+  if (v == true) return true;
+  if (v is String && v.toLowerCase() == 'true') return true;
+  return _prebuiltLayoutExists(input);
+}
+
+bool _prebuiltLayoutExists(BuildInput input) {
+  final packageRoot = path.fromUri(input.packageRoot);
+  final code = input.config.code;
+  final triple = mediaMacOsEffectivePrebuildTriple(
+    code,
+    useUniversalMacOsPrebuild: _parseMacosUniversalPrebuild(input),
+  );
+  final srcDir = mediaPlatformBuildSourceDir(
+    packageRoot: packageRoot,
+    rustTriple: triple,
+  );
+  final libFile = mediaNativeLibraryFileName(code);
+  return File(path.join(srcDir, libFile)).existsSync();
+}
+
+/// When true, macOS prebuilts use [mediaUniversalAppleDarwinTriple] (fat dylib + FFmpeg)
+/// from GitHub / `platform-builds`, matching Flutter’s default universal macOS app.
+bool _parseMacosUniversalPrebuild(BuildInput input) {
+  final v = _userDefineAny(input, 'macosUniversalPrebuild');
   if (v == true) return true;
   if (v is String && v.toLowerCase() == 'true') return true;
   return false;
@@ -92,7 +128,10 @@ Future<void> _buildFromPlatformBuilds({
   required Logger logger,
 }) async {
   final packageRoot = path.fromUri(input.packageRoot);
-  final triple = mediaRustTargetTriple(input.config.code);
+  final triple = mediaMacOsEffectivePrebuildTriple(
+    input.config.code,
+    useUniversalMacOsPrebuild: _parseMacosUniversalPrebuild(input),
+  );
   final srcDir = mediaPlatformBuildSourceDir(
     packageRoot: packageRoot,
     rustTriple: triple,
@@ -112,7 +151,10 @@ Future<void> _buildFromGithubRelease({
   required Logger logger,
 }) async {
   final code = input.config.code;
-  final tripleTarget = mediaRustTargetTriple(code);
+  final tripleTarget = mediaMacOsEffectivePrebuildTriple(
+    code,
+    useUniversalMacOsPrebuild: _parseMacosUniversalPrebuild(input),
+  );
   final url = Uri.parse(releaseUrl(tripleTarget));
   logger.config(
     'Downloading prebuilt library $version for $tripleTarget from release URL $url',
@@ -490,9 +532,8 @@ Future<void> _downloadFfmpegForMacOS({
   required String tripleTarget,
 }) async {
   final packageRoot = path.fromUri(input.packageRoot);
-  final isArm64 = tripleTarget == 'aarch64-apple-darwin';
-  final folder = isArm64 ? 'darwin-arm64' : 'darwin-x64';
-  
+  final folder = mediaFfmpegBundleDirForRustTriple(tripleTarget)!;
+
   final ffmpegDir = path.join(packageRoot, 'native', 'ffmpeg', folder);
   final srcFfmpeg = path.join(ffmpegDir, 'ffmpeg');
   final srcFfprobe = path.join(ffmpegDir, 'ffprobe');

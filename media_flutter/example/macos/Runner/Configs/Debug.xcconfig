@@ -1,2 +1,4 @@
 #include "../../Flutter/Flutter-Debug.xcconfig"
 #include "Warnings.xcconfig"
+// Optional single-arch builds: tool/scripts/write_macos_arch_override.sh
+#include? "ArchOverride.xcconfig"

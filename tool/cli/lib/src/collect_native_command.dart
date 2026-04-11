@@ -4,6 +4,8 @@ import 'package:args/command_runner.dart';
 import 'package:logging/logging.dart';
 import 'package:media_native_build/media_android_ndk.dart';
 import 'package:media_native_build/media_ffmpeg_fetch.dart';
+import 'package:media_native_build/media_ffmpeg_release_zip.dart';
+import 'package:media_native_build/media_macos_universal.dart';
 import 'package:media_native_build/media_platform_paths.dart';
 import 'package:media_native_build/media_prebuilt_archive.dart';
 import 'package:media_native_build/media_rust_target.dart';
@@ -56,6 +58,23 @@ class CollectNativeCommand extends Command<void> {
         help:
             'Skip cargo; only create archives from existing platform-builds/. '
             'Without --target, archives every triple that has files.',
+      )
+      ..addFlag(
+        'macos-universal',
+        negatable: false,
+        help:
+            'On macOS, after thin aarch64 + x86_64 macOS artifacts exist, run lipo '
+            'to add platform-builds/macos/universal-apple-darwin/ and '
+            'native/ffmpeg/darwin-universal/. Implies archiving that triple when '
+            '--archive-format is set.',
+      )
+      ..addOption(
+        'archive-ffmpeg',
+        help:
+            'Also write {triple}-ffmpeg.zip next to library archives (for GitHub). '
+            'none: skip.',
+        allowed: ['none', 'zip'],
+        defaultsTo: 'none',
       );
   }
 
@@ -93,6 +112,11 @@ class CollectNativeCommand extends Command<void> {
     final rawTargets = argResults!['target'] as List<String>;
     final targets = _expandTargets(rawTargets);
 
+    final macosUniversal = argResults!['macos-universal'] as bool;
+    final archiveFfmpeg = _parseArchiveFfmpeg(
+      argResults!['archive-ffmpeg'] as String,
+    );
+
     if (archiveOnly) {
       if (archiveFormat == null) {
         throw UsageException(
@@ -129,6 +153,23 @@ class CollectNativeCommand extends Command<void> {
           exitCode = 1;
         }
       }
+      await _maybeMacOsUniversal(
+        packageRoot: packageRoot,
+        workspaceRoot: workspaceRoot,
+        macosUniversal: macosUniversal,
+        archiveFormat: archiveFormat,
+        archiveDir: archiveDir,
+        archiveVersion: archiveVersion,
+        release: release,
+        logger: logger,
+      );
+      await _maybeArchiveFfmpeg(
+        packageRoot: packageRoot,
+        workspaceRoot: workspaceRoot,
+        archiveFfmpeg: archiveFfmpeg,
+        archiveDir: archiveDir,
+        archiveVersion: archiveVersion,
+      );
       return;
     }
 
@@ -178,7 +219,27 @@ class CollectNativeCommand extends Command<void> {
         exitCode = 1;
       }
     }
+
+    await _maybeMacOsUniversal(
+      packageRoot: packageRoot,
+      workspaceRoot: workspaceRoot,
+      macosUniversal: macosUniversal,
+      archiveFormat: archiveFormat,
+      archiveDir: archiveDir,
+      archiveVersion: archiveVersion,
+      release: release,
+      logger: logger,
+    );
+    await _maybeArchiveFfmpeg(
+      packageRoot: packageRoot,
+      workspaceRoot: workspaceRoot,
+      archiveFfmpeg: archiveFfmpeg,
+      archiveDir: archiveDir,
+      archiveVersion: archiveVersion,
+    );
   }
+
+  bool _parseArchiveFfmpeg(String raw) => raw == 'zip';
 
   MediaPrebuiltArchiveFormat? _parseArchiveFormat(String raw) {
     return switch (raw) {
@@ -391,6 +452,95 @@ class CollectNativeCommand extends Command<void> {
         ]);
       }
       stdout.writeln('Copied $ffmpegName and $ffprobeName into $destDir');
+    }
+  }
+
+  Future<void> _maybeMacOsUniversal({
+    required String packageRoot,
+    required String workspaceRoot,
+    required bool macosUniversal,
+    required MediaPrebuiltArchiveFormat? archiveFormat,
+    required String archiveDir,
+    required String? archiveVersion,
+    required bool release,
+    required Logger logger,
+  }) async {
+    if (!macosUniversal || !Platform.isMacOS) return;
+
+    final macRoot = path.join(workspaceRoot, 'platform-builds', 'macos');
+    final armDir = path.join(macRoot, 'aarch64-apple-darwin');
+    final intelDir = path.join(macRoot, 'x86_64-apple-darwin');
+    final armLib = path.join(armDir, 'libmedia.dylib');
+    final intelLib = path.join(intelDir, 'libmedia.dylib');
+    if (!File(armLib).existsSync() || !File(intelLib).existsSync()) {
+      stderr.writeln(
+        'Skipping --macos-universal: need thin $armLib and $intelLib '
+        '(build both macOS triples on a Mac, then re-run).',
+      );
+      return;
+    }
+
+    try {
+      await mediaLipoMacOsUniversalLib(
+        workspaceRoot: workspaceRoot,
+        logger: logger,
+      );
+    } catch (e, st) {
+      stderr.writeln('macOS universal lipo (lib) failed: $e\n$st');
+      return;
+    }
+
+    try {
+      await mediaLipoMacOsUniversalFfmpeg(
+        packageRoot: packageRoot,
+        logger: logger,
+      );
+    } catch (e) {
+      stdout.writeln(
+        'Note: universal FFmpeg lipo skipped (need darwin-arm64 + darwin-x64 under native/ffmpeg/): $e',
+      );
+    }
+
+    if (archiveFormat != null) {
+      await mediaArchivePlatformBuildFolder(
+        workspaceRoot: workspaceRoot,
+        rustTriple: mediaUniversalAppleDarwinTriple,
+        format: archiveFormat,
+        outputDirectory: archiveDir,
+        release: release,
+        versionSubdirectory: archiveVersion,
+      );
+      stdout.writeln(
+        'Archive: ${_archiveOutputPath(archiveDir: archiveDir, archiveVersion: archiveVersion, triple: mediaUniversalAppleDarwinTriple, release: release, extension: archiveFormat.fileExtension)}',
+      );
+    }
+  }
+
+  Future<void> _maybeArchiveFfmpeg({
+    required String packageRoot,
+    required String workspaceRoot,
+    required bool archiveFfmpeg,
+    required String archiveDir,
+    required String? archiveVersion,
+  }) async {
+    if (!archiveFfmpeg) return;
+    final triples = mediaDiscoverFfmpegReleaseTriples(
+      packageRoot: packageRoot,
+      workspaceRoot: workspaceRoot,
+    );
+    for (final t in triples) {
+      await mediaWriteFfmpegReleaseZip(
+        packageRoot: packageRoot,
+        workspaceRoot: workspaceRoot,
+        rustTriple: t,
+        outputDirectory: archiveDir,
+        versionSubdirectory: archiveVersion,
+      );
+      var root = path.normalize(archiveDir);
+      if (archiveVersion != null && archiveVersion.isNotEmpty) {
+        root = path.join(root, archiveVersion);
+      }
+      stdout.writeln('Wrote FFmpeg zip: ${path.join(root, '$t-ffmpeg.zip')}');
     }
   }
 }

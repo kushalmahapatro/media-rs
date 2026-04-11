@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:logging/logging.dart';
-import 'package:media_native_build/media_platform_paths.dart';
+import 'package:media_native_build/media_rust_target.dart';
 import 'package:path/path.dart' as path;
 
 /// Copies FFmpeg binaries directly to macOS app bundle (bypassing CodeAssets).
@@ -51,14 +51,11 @@ Future<void> copyMacosFfmpegToAppBundle({
   logger.config('Copied ffmpeg/ffprobe to $destDir');
 }
 
-/// Returns the FFmpeg bundle directory name for a rust triple.
+/// Returns the FFmpeg bundle directory name under `native/ffmpeg/` for a rust triple.
 String mediaFfmpegBundleDirName(String rustTriple) {
-  switch (rustTriple) {
-    case 'aarch64-apple-darwin':
-      return 'darwin-arm64';
-    case 'x86_64-apple-darwin':
-      return 'darwin-x64';
-    default:
-      throw UnsupportedError('No FFmpeg bundle for $rustTriple');
+  final d = mediaFfmpegBundleDirForRustTriple(rustTriple);
+  if (d == null) {
+    throw UnsupportedError('No FFmpeg bundle for $rustTriple');
   }
+  return d;
 }

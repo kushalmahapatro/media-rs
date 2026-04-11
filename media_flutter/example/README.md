@@ -42,6 +42,20 @@ dart run melos run build-example-ios --no-select
 2. **Optional** manual Rust check: `cd ../../media_dart/rust/media && cargo build`.
 3. **macOS:** if you do **not** use bundled tools and rely on **`PATH`**, sandboxed apps may need entitlements to spawn **`ffmpeg`** / **`ffprobe`**.
 
+#### macOS: `NativeAssetsManifest` / `objective_c` build error
+
+**`path_provider_foundation`** (via **`path_provider`**) depends on **`objective_c`**, which registers native assets. If **`flutter_assets/NativeAssetsManifest.json`** still lists **`objective_c`** but **`build/native_assets/macos/`** is empty or stale (common after a **`pub upgrade`** or switching Flutter SDKs), the Xcode **Thin Binary** step fails.
+
+From **`media_flutter/example`** run **`flutter clean`**, then **`flutter pub get`**, then build again. If it persists, delete **`build/`** and **`.dart_tool/`** in the example and retry.
+
+#### Smaller macOS downloads (DMG / PKG)
+
+- **Architectures:** ship **both** **arm64** and **x86_64** when you support Apple Silicon and Intel. For **Flutter’s default universal** `.app`, publish **`universal-apple-darwin.zip`** + **`universal-apple-darwin-ffmpeg.zip`** and set **`macosUniversalPrebuild: true`** under **`hooks.user_defines.media_dart`** (see **[RELEASE_ASSETS.md](../../RELEASE_ASSETS.md)**).
+- **One FFmpeg copy:** the plugin copies **`ffmpeg`** / **`ffprobe`** only into **`Contents/Frameworks/`** (not duplicated inside **`media.framework`**). Prefer **`native/ffmpeg/darwin-universal/`** when you have fat binaries; **`copy_ffmpeg.sh`** checks that first.
+- **Strip:** the copy script runs **`strip -x`** on the bundled FFmpeg tools to shave redundant symbol table size.
+- **Gallery plugins:** this example pulls **`wechat_assets_picker`** → **`photo_manager`** for mobile; those macOS pods add weight. A **desktop-only** product can drop that dependency and use **`file_picker`** only to shrink the app substantially.
+- **Minimal FFmpeg:** replace binaries under **`media_dart/native/ffmpeg/`** or set **`MEDIA_FFMPEG_STATIC_BASE_URL`**, then regenerate **`{triple}-ffmpeg.zip`** with **`dart run media_cli collect-native … --archive-ffmpeg zip`** (see **[RELEASE_ASSETS.md](../../RELEASE_ASSETS.md)**).
+
 ### Android / iOS
 
 Use **`flutter run`** as usual. Thumbnails and transcode use **platform APIs** (Media3 on Android when the plugin is linked), not FFmpeg.

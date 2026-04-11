@@ -20,7 +20,12 @@ Pod::Spec.new do |s|
     {
       :name => 'Copy FFmpeg Binaries',
       :script => 'bash "${PODS_TARGET_SRCROOT}/copy_ffmpeg.sh" "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}" || true',
-      :execution_position => :after_compile
+      :execution_position => :after_compile,
+      # Lets Xcode skip the phase when outputs are up to date (reduces “run every build” noise).
+      :output_files => [
+        '${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/ffmpeg',
+        '${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/ffprobe',
+      ],
     }
   ]
 end

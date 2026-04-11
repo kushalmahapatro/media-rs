@@ -1,3 +1,0 @@
-cargo:rustc-cfg=media_embed_macos_ffmpeg
-cargo:rerun-if-changed=bundled/current/ffmpeg
-cargo:rerun-if-changed=bundled/current/ffprobe

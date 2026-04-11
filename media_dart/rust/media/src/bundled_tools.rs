@@ -89,12 +89,13 @@ fn sibling_tool(name: &str) -> PathBuf {
             return p;
         }
         
-        // Second try: look in Contents/Frameworks/ (for Flutter app bundle)
-        // Frameworks are at: MyApp.app/Contents/Frameworks/
-        if let Some(frameworks_dir) = dir.parent().map(|p| p.join("Frameworks")) {
-            let frameworks_p = frameworks_dir.join(name);
-            if frameworks_p.is_file() {
-                return frameworks_p;
+        // Second try: Flutter / CocoaPods copy ffmpeg next to *.framework, not inside it.
+        // dylib dir is .../media.framework/Versions/A — the container that holds
+        // media.framework is MyApp.app/Contents/Frameworks/ (or build/native_assets/macos/).
+        if let Some(container) = dir.parent().and_then(|v| v.parent()).and_then(|fw| fw.parent()) {
+            let sibling = container.join(name);
+            if sibling.is_file() {
+                return sibling;
             }
         }
     }

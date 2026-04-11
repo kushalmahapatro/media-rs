@@ -36,7 +36,29 @@ target 'Runner' do
 end
 
 post_install do |installer|
+  # Match Runner ArchOverride.xcconfig / MEDIA_MACOS_SINGLE_ARCH (arm64 | x86_64) for Pods.
+  single_arch = ENV['MEDIA_MACOS_SINGLE_ARCH']&.strip
   installer.pods_project.targets.each do |target|
     flutter_additional_macos_build_settings(target)
+    target.build_configurations.each do |config|
+      # Ad-hoc sign pod frameworks so Release embed passes CodeSign (no Apple dev team needed).
+      config.build_settings['CODE_SIGN_IDENTITY'] = '-'
+      config.build_settings['CODE_SIGNING_REQUIRED'] = 'YES'
+      config.build_settings['CODE_SIGNING_ALLOWED'] = 'YES'
+      case single_arch
+      when 'arm64'
+        config.build_settings['EXCLUDED_ARCHS[sdk=macosx*]'] = 'x86_64'
+      when 'x86_64'
+        config.build_settings['EXCLUDED_ARCHS[sdk=macosx*]'] = 'arm64'
+      end
+    end
+    # photo_manager lists PrivacyInfo.xcprivacy as a source file; Xcode has no rule for
+    # text.xml in Compile Sources → warning. Remove from sources (manifest is optional for macOS).
+    next unless target.respond_to?(:source_build_phase)
+    target.source_build_phase.files.to_a.each do |build_file|
+      ref = build_file.file_ref
+      next unless ref && ref.path&.end_with?('PrivacyInfo.xcprivacy')
+      target.source_build_phase.files.delete(build_file)
+    end
   end
 end

@@ -1,5 +1,11 @@
 import 'package:code_assets/code_assets.dart';
 
+/// Fat-binary macOS triple for GitHub release zips (`universal-apple-darwin.zip`).
+///
+/// Not emitted by [mediaRustTargetTriple] (Dart uses [Architecture.arm64] or
+/// [Architecture.x64]); use [mediaMacOsEffectivePrebuildTriple] when consuming prebuilts.
+const String mediaUniversalAppleDarwinTriple = 'universal-apple-darwin';
+
 /// Rust target triple for [code], matching [native_toolchain_rust] / the build hook.
 String mediaRustTargetTriple(CodeConfig code) {
   return switch ((code.targetOS, code.targetArchitecture)) {
@@ -48,8 +54,8 @@ String mediaFfmpegBundleDir(CodeConfig code) {
   return switch ((code.targetOS, code.targetArchitecture)) {
     (OS.linux, Architecture.x64) => 'linux-x86_64',
     (OS.linux, Architecture.arm64) => 'linux-aarch64',
-    (OS.macOS, Architecture.x64) => 'darwin-x86_64',
-    (OS.macOS, Architecture.arm64) => 'darwin-aarch64',
+    (OS.macOS, Architecture.x64) => 'darwin-x64',
+    (OS.macOS, Architecture.arm64) => 'darwin-arm64',
     (OS.windows, Architecture.x64) => 'windows-x86_64',
     (OS.windows, Architecture.arm64) => 'windows-aarch64',
     _ => throw UnsupportedError(
@@ -63,8 +69,9 @@ String? mediaFfmpegBundleDirForRustTriple(String rustTriple) {
   return switch (rustTriple) {
     'aarch64-unknown-linux-gnu' => 'linux-aarch64',
     'x86_64-unknown-linux-gnu' => 'linux-x86_64',
-    'aarch64-apple-darwin' => 'darwin-aarch64',
-    'x86_64-apple-darwin' => 'darwin-x86_64',
+    'aarch64-apple-darwin' => 'darwin-arm64',
+    'x86_64-apple-darwin' => 'darwin-x64',
+    mediaUniversalAppleDarwinTriple => 'darwin-universal',
     'aarch64-pc-windows-msvc' => 'windows-aarch64',
     'x86_64-pc-windows-msvc' => 'windows-x86_64',
     _ => null,
@@ -101,7 +108,21 @@ OS mediaOsForRustTriple(String rustTriple) {
 /// Whether [rustTriple] is macOS desktop (needs ffmpeg in `bundled/current` before cargo).
 bool mediaRustTripleIsMacOsDesktop(String rustTriple) {
   return rustTriple == 'aarch64-apple-darwin' ||
-      rustTriple == 'x86_64-apple-darwin';
+      rustTriple == 'x86_64-apple-darwin' ||
+      rustTriple == mediaUniversalAppleDarwinTriple;
+}
+
+/// When [useUniversalMacOsPrebuild] is true, GitHub / `platform-builds` use the fat
+/// [mediaUniversalAppleDarwinTriple] asset for any macOS [code] config; otherwise the
+/// per-arch triple from [mediaRustTargetTriple].
+String mediaMacOsEffectivePrebuildTriple(
+  CodeConfig code, {
+  required bool useUniversalMacOsPrebuild,
+}) {
+  if (code.targetOS == OS.macOS && useUniversalMacOsPrebuild) {
+    return mediaUniversalAppleDarwinTriple;
+  }
+  return mediaRustTargetTriple(code);
 }
 
 /// Dynamic library filename for crate `media` (matches hook / [RustBuilder] with bundled dynamic link).

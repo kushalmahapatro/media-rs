@@ -1,2 +1,0 @@
-cargo:rerun-if-changed=bundled/current/ffmpeg
-cargo:rerun-if-changed=bundled/current/ffprobe

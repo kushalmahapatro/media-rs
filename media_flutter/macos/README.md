@@ -47,10 +47,16 @@ s.script_phases = [
   {
     :name => 'Copy FFmpeg Binaries',
     :script => 'bash "${PODS_TARGET_SRCROOT}/copy_ffmpeg.sh" "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}" || true',
-    :execution_position => :after_compile
+    :execution_position => :after_compile,
+    :output_files => [
+      '${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/ffmpeg',
+      '${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Frameworks/ffprobe',
+    ],
   }
 ]
 ```
+
+The copy script runs **`strip -x`** on the binaries and places them only under **`Contents/Frameworks/`** (Rust **`bundled_tools`** resolves them from there; duplicating inside **`media.framework`** was removed to save space).
 
 ### Smart FFmpeg Detection
 

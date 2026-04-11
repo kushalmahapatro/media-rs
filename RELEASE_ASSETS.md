@@ -3,7 +3,7 @@
 This repo publishes **per–Rust-triple** zips that `media_dart`’s hook downloads from  
 `https://github.com/kushalmahapatro/media-rs/releases/download/<version>/`.
 
-Version string must match `const version` in `media_dart/hook/build.dart` (currently **`v0.1.0`**, aligned with the example app `version:`).
+Version string must match `const version` in `media_dart/hook/build.dart` (currently **`v0.1.1`**, aligned with the example app `version:`).
 
 ## What to upload
 
@@ -21,6 +21,14 @@ Version string must match `const version` in `media_dart/hook/build.dart` (curre
 | `aarch64-apple-ios.zip` | Physical device (arm64) |
 | `aarch64-apple-ios-sim.zip` | Apple Silicon simulator |
 | `x86_64-apple-ios.zip` | Intel simulator (Rosetta / older Macs) |
+
+**Android** (per-ABI **`libmedia.so`** plus **`ffmpeg`** / **`ffprobe`** inside the same `{triple}.zip`; hook copies the library; FFmpeg ships in the archive for local/prebuild layouts):
+
+| Asset | Role |
+|--------|------|
+| `aarch64-linux-android.zip` | Phones / emulators (arm64) |
+| `x86_64-linux-android.zip` | Emulator (x86_64) |
+| `armv7-linux-androideabi.zip` | Older arm32 devices |
 
 Thin macOS triples (still useful for CI, smaller per-arch downloads):
 
@@ -41,7 +49,7 @@ On a **Mac**, build both thin macOS slices, merge with **`lipo`**, write library
 dart pub get
 ( cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart \
   -t aarch64-apple-darwin -t x86_64-apple-darwin \
-  --archive-format zip --archive-version v0.1.0 \
+  --archive-format zip --archive-version v0.1.1 \
   --macos-universal --archive-ffmpeg zip )
 ```
 
@@ -49,17 +57,17 @@ Add Linux / Windows triples to the same command (repeat `-t …`) or run separat
 
 ```bash
 ( cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart \
-  --archive-only --archive-format zip --archive-version v0.1.0 \
+  --archive-only --archive-format zip --archive-version v0.1.1 \
   --macos-universal --archive-ffmpeg zip )
 ```
 
-Artifacts land under **`release-assets/v0.1.0/`** (override with `--archive-dir`).
+Artifacts land under **`release-assets/v0.1.1/`** (override with `--archive-dir`).
 
 Zip **existing** `platform-builds/ios/*` (after `melos run ios-lib` or a manual `collect-native` build):
 
 ```bash
 ( cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart \
-  --archive-only --archive-format zip --archive-version v0.1.0 \
+  --archive-only --archive-format zip --archive-version v0.1.1 \
   -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios )
 ```
 
@@ -67,22 +75,22 @@ Or: `dart run melos run release-assets-ios --no-select`.
 
 **`dist/`** is for **Flutter/Fastforge app installers** (DMG/PKG from the example app), not these Rust prebuilt zips. Native release zips live only under **`release-assets/<tag>/`**.
 
-### End-to-end (tests + GitHub zips + 3× macOS DMG/PKG)
+### End-to-end (tests + GitHub zips + Android APK + 3× macOS DMG/PKG)
 
-From the repo root (macOS, `gh` authenticated):
+From the repo root (macOS, `gh` authenticated, Android NDK for Android steps):
 
 ```bash
 bash tool/scripts/publish_media_rs_release.sh
 ```
 
-Or: `dart run melos run publish-github-release`. Use `SKIP_NATIVE=1` or `SKIP_TESTS=1` / `SKIP_GH=1` to skip steps.
+Or: `dart run melos run publish-github-release`. Use `SKIP_NATIVE=1`, `SKIP_TESTS=1`, `SKIP_GH=1`, `SKIP_ANDROID_NATIVE=1`, `SKIP_IOS_NATIVE=1`, or `SKIP_ANDROID_APK=1` to skip steps.
 
 ## Upload with GitHub CLI
 
 Install [GitHub CLI](https://cli.github.com/) (`gh auth login` once).
 
 ```bash
-VER=v0.1.0
+VER=v0.1.1
 gh release create "$VER" --title "$VER" --notes "media-rs native + FFmpeg" --draft
 gh release upload "$VER" "release-assets/$VER"/* --clobber
 ```

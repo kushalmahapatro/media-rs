@@ -582,7 +582,7 @@ dependencies = [
 
 [[package]]
 name = "media"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "block2",
  "flutter_rust_bridge",

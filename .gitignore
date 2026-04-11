@@ -12,3 +12,6 @@ release-assets/
 platform-builds/
 dist/
 test_linux/
+build/*
+.idea/*
+.dart_tool/*

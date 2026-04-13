@@ -11,7 +11,7 @@ import 'package:native_toolchain_rust/native_toolchain_rust.dart';
 import 'package:path/path.dart' as path;
 
 const _frbAssetName = 'lib/src/bindings/frb_generated.io.dart';
-const version = 'v0.1.1';
+const version = 'v0.1.2';
 
 /// Release asset base name: `{triple}.zip`
 String releaseUrl(String tripleArchiveBase) =>

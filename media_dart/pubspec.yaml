@@ -2,7 +2,7 @@ name: media_dart
 description: >
   Video probe, thumbnails, transcode (Rust + flutter_rust_bridge). Pure Dart package —
   no Flutter SDK; use media_flutter for the Android plugin (Media3).
-version: 0.1.1
+version: 0.1.2
 publish_to: "none"
 resolution: workspace
 

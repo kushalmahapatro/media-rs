@@ -1,20 +1,33 @@
 
-# FVM Version Cache
-.fvm/
-native/target/*
-example/.dart_tool/
-example/build/
-media/.dart_tool/
-media/build/
-native/temp
+# Dart / Flutter (workspace + packages)
 .dart_tool/
+.packages
+.flutter-plugins-dependencies
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+
+# FVM
+.fvm/
+
+# Flutter build outputs
+build/
+**/build/
+
+# Native / tooling
+native/target/
+native/temp
 release-assets/
 platform-builds/
 dist/
 test_linux/
-build/*
-.idea/*
-.dart_tool/*
-.flutter-plugins-dependencies
-melos_media.iml
-workspace.xml
+
+# Legacy example paths (if present)
+example/.dart_tool/
+example/build/
+media/.dart_tool/
+media/build/

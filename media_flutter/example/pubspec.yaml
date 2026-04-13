@@ -1,7 +1,7 @@
 name: media_example
 description: Example for the media package (probe / thumbnails / transcode).
 publish_to: none
-version: 0.1.1
+version: 0.1.2
 resolution: workspace
 
 # Native hook options for `media_dart` belong in the workspace root `pubspec.yaml`
@@ -20,7 +20,7 @@ dependencies:
   file_picker: ^8.0.0
   path: ^1.9.0
   path_provider: ^2.1.5
-  media_flutter: ^0.1.1
+  media_flutter: ^0.1.2
   # Same gallery UX on Android + iOS (photo_manager). Desktop still uses file_picker.
   wechat_assets_picker: ^9.4.0
   video_player: ^2.9.2

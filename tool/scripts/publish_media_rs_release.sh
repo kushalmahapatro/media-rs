@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build native zips + FFmpeg zips, run tests, build Android release APK, macOS installers
-# (universal + arm64 + x86_64), upload to GitHub release RELEASE_TAG (default v0.1.1 — must match
+# (universal + arm64 + x86_64), upload to GitHub release RELEASE_TAG (default v0.1.2 — must match
 # media_dart/hook/build.dart).
 #
 # Prerequisites: Xcode, CocoaPods, Android NDK (ANDROID_NDK_HOME), Rust targets (e.g.
@@ -20,7 +20,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO_ROOT"
 
-RELEASE_TAG="${RELEASE_TAG:-v0.1.1}"
+RELEASE_TAG="${RELEASE_TAG:-v0.1.2}"
 SKIP_NATIVE="${SKIP_NATIVE:-0}"
 SKIP_TESTS="${SKIP_TESTS:-0}"
 SKIP_GH="${SKIP_GH:-0}"

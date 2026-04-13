@@ -3,7 +3,7 @@ description: >
   Shared paths, FFmpeg fetch, and Rust triple helpers for media_dart hooks and
   media_cli. No hook/build.dart — safe to depend on from tool/cli without
   triggering native asset builds for media_dart.
-version: 0.1.1
+version: 0.1.2
 publish_to: none
 resolution: workspace
 

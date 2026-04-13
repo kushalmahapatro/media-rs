@@ -3,7 +3,7 @@
 This repo publishes **per–Rust-triple** zips that `media_dart`’s hook downloads from  
 `https://github.com/kushalmahapatro/media-rs/releases/download/<version>/`.
 
-Version string must match `const version` in `media_dart/hook/build.dart` (currently **`v0.1.1`**, aligned with the example app `version:`).
+Version string must match `const version` in `media_dart/hook/build.dart` (currently **`v0.1.2`**, aligned with the example app `version:`).
 
 ## What to upload
 
@@ -49,7 +49,7 @@ On a **Mac**, build both thin macOS slices, merge with **`lipo`**, write library
 dart pub get
 ( cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart \
   -t aarch64-apple-darwin -t x86_64-apple-darwin \
-  --archive-format zip --archive-version v0.1.1 \
+  --archive-format zip --archive-version v0.1.2 \
   --macos-universal --archive-ffmpeg zip )
 ```
 
@@ -57,17 +57,17 @@ Add Linux / Windows triples to the same command (repeat `-t …`) or run separat
 
 ```bash
 ( cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart \
-  --archive-only --archive-format zip --archive-version v0.1.1 \
+  --archive-only --archive-format zip --archive-version v0.1.2 \
   --macos-universal --archive-ffmpeg zip )
 ```
 
-Artifacts land under **`release-assets/v0.1.1/`** (override with `--archive-dir`).
+Artifacts land under **`release-assets/v0.1.2/`** (override with `--archive-dir`).
 
 Zip **existing** `platform-builds/ios/*` (after `melos run ios-lib` or a manual `collect-native` build):
 
 ```bash
 ( cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart \
-  --archive-only --archive-format zip --archive-version v0.1.1 \
+  --archive-only --archive-format zip --archive-version v0.1.2 \
   -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios )
 ```
 
@@ -90,7 +90,7 @@ Or: `dart run melos run publish-github-release`. Use `SKIP_NATIVE=1`, `SKIP_TEST
 Install [GitHub CLI](https://cli.github.com/) (`gh auth login` once).
 
 ```bash
-VER=v0.1.1
+VER=v0.1.2
 gh release create "$VER" --title "$VER" --notes "media-rs native + FFmpeg" --draft
 gh release upload "$VER" "release-assets/$VER"/* --clobber
 ```

@@ -10,7 +10,7 @@
   "packages": [
     {
       "name": "media",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": [
         "flutter",
         "media_flutter"
@@ -21,7 +21,7 @@
     },
     {
       "name": "media_dart",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": [
         "archive",
         "code_assets",
@@ -43,7 +43,7 @@
     },
     {
       "name": "media_flutter",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": [
         "flutter",
         "media_dart"
@@ -52,7 +52,7 @@
     },
     {
       "name": "media_example",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": [
         "file_picker",
         "flutter",
@@ -72,7 +72,7 @@
     },
     {
       "name": "media_cli",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": [
         "args",
         "logging",
@@ -83,7 +83,7 @@
     },
     {
       "name": "media_native_build",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": [
         "archive",
         "code_assets",

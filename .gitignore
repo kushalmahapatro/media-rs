@@ -15,3 +15,6 @@ test_linux/
 build/*
 .idea/*
 .dart_tool/*
+.flutter-plugins-dependencies
+melos_media.iml
+workspace.xml

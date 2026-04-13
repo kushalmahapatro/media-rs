@@ -21,6 +21,17 @@ dependencies:
     sdk: flutter
   media_flutter: ^0.1.1
 
+# `package:hooks_runner` loads [hooks.user_defines] only from the pubspec next to
+# the workspace `.dart_tool/package_config.json` (this file), not from
+# `media_flutter/example/pubspec.yaml`. Keep `media_dart` options here so they
+# apply to `flutter run` / Gradle from the example app. See `media_dart/hook/build.dart`.
+hooks:
+  user_defines:
+    media_dart:
+      localBuild: true
+      # usePrebuild: false   # force GitHub release download
+      # macosUniversalPrebuild: true
+
 dev_dependencies:
   melos: ^7.0.0
 

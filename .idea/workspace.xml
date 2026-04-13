@@ -5,77 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8fd165a8-de45-4e9d-a434-18ffb9f32cac" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.dart_tool/package_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/package_config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.dart_tool/package_graph.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/package_graph.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.dart_tool/version" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/version" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/media/src/bundled_tools.rs" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/media/src/bundled_tools.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/.rustc_info.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/.fingerprint/media-703055f05d0eb06c/dep-lib-media" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/.fingerprint/media-703055f05d0eb06c/dep-lib-media" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/dart-sys-471a0aebae7628b2/out/libdart_api_dl.a" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/dart-sys-471a0aebae7628b2/out/libdart_api_dl.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/dart-sys-471a0aebae7628b2/output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/dart-sys-471a0aebae7628b2/output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/dart-sys-471a0aebae7628b2/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/dart-sys-471a0aebae7628b2/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/dart-sys-92d35acc3326a46b/build_script_build-92d35acc3326a46b.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/dart-sys-92d35acc3326a46b/build_script_build-92d35acc3326a46b.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/flutter_rust_bridge-008d3ebf92964c9a/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/flutter_rust_bridge-008d3ebf92964c9a/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/flutter_rust_bridge-afd44824568a19ba/build_script_build-afd44824568a19ba.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/flutter_rust_bridge-afd44824568a19ba/build_script_build-afd44824568a19ba.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/generic-array-6de08afde610f112/build_script_build-6de08afde610f112.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/generic-array-6de08afde610f112/build_script_build-6de08afde610f112.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/generic-array-a2b1486479bfbb27/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/generic-array-a2b1486479bfbb27/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/object-1eb0e5f6668d5727/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/object-1eb0e5f6668d5727/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/oslog-6f1cd3e10551b81b/out/libwrapper.a" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/oslog-6f1cd3e10551b81b/out/libwrapper.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/oslog-6f1cd3e10551b81b/output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/oslog-6f1cd3e10551b81b/output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/oslog-6f1cd3e10551b81b/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/oslog-6f1cd3e10551b81b/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/oslog-b18efacfe4011f34/build_script_build-b18efacfe4011f34.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/oslog-b18efacfe4011f34/build_script_build-b18efacfe4011f34.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/parking_lot_core-7824711999a41925/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/parking_lot_core-7824711999a41925/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/serde-38f8b19ce6b3bd83/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/serde-38f8b19ce6b3bd83/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/serde_core-1934350fa34bab97/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/serde_core-1934350fa34bab97/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/serde_json-b36ada1d315e1193/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/serde_json-b36ada1d315e1193/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/build/zmij-18f804663394d5f0/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/build/zmij-18f804663394d5f0/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/addr2line-d9e19a1d0454a0df.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/addr2line-d9e19a1d0454a0df.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/allo_isolate-633bb2b87f9ebd3d.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/allo_isolate-633bb2b87f9ebd3d.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/backtrace-d387dc1ceaf631b3.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/backtrace-d387dc1ceaf631b3.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/block_buffer-3bdd7923f911407b.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/block_buffer-3bdd7923f911407b.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/cc-014fc4ecbcfee75d.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/cc-014fc4ecbcfee75d.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/crypto_common-b1d0e0d832b59f64.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/crypto_common-b1d0e0d832b59f64.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/dart_sys-fb08d20a594a609e.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/dart_sys-fb08d20a594a609e.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/dashmap-ad6d5135c6b0f9fb.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/dashmap-ad6d5135c6b0f9fb.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/delegate_attr-667ace863d921c5c.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/delegate_attr-667ace863d921c5c.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/digest-91b110bfc885c5ac.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/digest-91b110bfc885c5ac.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/errno-a7e60ead3eaefa08.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/errno-a7e60ead3eaefa08.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/flutter_rust_bridge-a5a3f682de405259.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/flutter_rust_bridge-a5a3f682de405259.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/flutter_rust_bridge_macros-84099228cd9c31cc.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/flutter_rust_bridge_macros-84099228cd9c31cc.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures-3f5a906c66878bf4.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures-3f5a906c66878bf4.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures_channel-a4bd1c082e20d7c7.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures_channel-a4bd1c082e20d7c7.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures_executor-6575e9cdeee35b95.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures_executor-6575e9cdeee35b95.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures_macro-7659a58e5755dd15.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures_macro-7659a58e5755dd15.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures_util-24438050a95048df.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/futures_util-24438050a95048df.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/generic_array-b1336902cde4dfdc.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/generic_array-b1336902cde4dfdc.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libdelegate_attr-667ace863d921c5c.dylib" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libdelegate_attr-667ace863d921c5c.dylib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libflutter_rust_bridge_macros-84099228cd9c31cc.dylib" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libflutter_rust_bridge_macros-84099228cd9c31cc.dylib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libfutures_macro-7659a58e5755dd15.dylib" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libfutures_macro-7659a58e5755dd15.dylib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libserde-5aed428126717d62.rmeta" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libserde-5aed428126717d62.rmeta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libserde_core-e5150d61a69beeac.rmeta" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libserde_core-e5150d61a69beeac.rmeta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libserde_derive-6c1236bbfe652602.dylib" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libserde_derive-6c1236bbfe652602.dylib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libserde_json-9286e47c394471bd.rmeta" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libserde_json-9286e47c394471bd.rmeta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libtokio_macros-08194b74c6643d04.dylib" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/libtokio_macros-08194b74c6643d04.dylib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/lock_api-0505e0f5062627a1.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/lock_api-0505e0f5062627a1.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/md5-ae28f5a013c23eb1.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/md5-ae28f5a013c23eb1.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/object-cc2b4308fb80bec7.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/object-cc2b4308fb80bec7.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/oslog-dede55e61b241716.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/oslog-dede55e61b241716.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/parking_lot_core-dee7ff42b30a3f40.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/parking_lot_core-dee7ff42b30a3f40.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/proc_macro2-ebae5084726c18f9.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/proc_macro2-ebae5084726c18f9.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/quote-9425c3b27d2cbe95.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/quote-9425c3b27d2cbe95.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/serde-5aed428126717d62.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/serde-5aed428126717d62.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/serde_core-e5150d61a69beeac.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/serde_core-e5150d61a69beeac.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/serde_derive-6c1236bbfe652602.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/serde_derive-6c1236bbfe652602.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/serde_json-9286e47c394471bd.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/serde_json-9286e47c394471bd.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/signal_hook_registry-1949e1fd39bcf82b.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/signal_hook_registry-1949e1fd39bcf82b.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/syn-7eae15a90d73590d.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/syn-7eae15a90d73590d.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/tokio-e445b8a854e97461.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/tokio-e445b8a854e97461.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/tokio_macros-08194b74c6643d04.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/tokio_macros-08194b74c6643d04.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/zmij-ce9db1b21d01c2e2.d" beforeDir="false" afterPath="$PROJECT_DIR$/media_dart/rust/target/debug/deps/zmij-ce9db1b21d01c2e2.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_flutter/example/macos/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/media_flutter/example/macos/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/media_flutter/macos/copy_ffmpeg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/media_flutter/macos/copy_ffmpeg.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/melos_media.iml" beforeDir="false" afterPath="$PROJECT_DIR$/melos_media.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,10 +43,11 @@
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "feat/windows-linux-mac-support",
+    "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/km/Projects/media-rs",
-    "settings.editor.selected.configurable": "dart.settings",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>

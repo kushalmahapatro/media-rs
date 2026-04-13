@@ -347,6 +347,67 @@ fn get_frame_bitmap<'local>(
     Err("getFrameAtTime returned null (exhausted fallbacks)".into())
 }
 
+/// Camera JPEGs often store pixels in sensor orientation; [BitmapFactory.decodeFile] ignores EXIF.
+/// Match iOS [crate::platform::ios] upright normalization so thumbnails encode display-correct pixels.
+///
+/// Delegates to Kotlin [MediaJni.applyExifOrientation]: calling [android.graphics.Matrix.postRotate]
+/// via Rust `jni` has triggered `NoSuchMethodError` on some ART builds; JVM dispatch from Kotlin is reliable.
+fn apply_exif_orientation<'local>(
+    env: &mut JNIEnv<'local>,
+    jpath: &JString<'local>,
+    bitmap: JObject<'local>,
+) -> Result<JObject<'local>, String> {
+    let app = match application_context(env) {
+        Ok(a) => a,
+        Err(_) => {
+            return env
+                .new_local_ref(&bitmap)
+                .map_err(|e| format!("new_local_ref: {e}"));
+        }
+    };
+    let cls = match find_app_class(env, &app, "dev.flutter.packages.media_flutter.MediaJni") {
+        Ok(c) => c,
+        Err(_) => {
+            return env
+                .new_local_ref(&bitmap)
+                .map_err(|e| format!("new_local_ref: {e}"));
+        }
+    };
+
+    let out = match env.call_static_method(
+        cls,
+        "applyExifOrientation",
+        "(Ljava/lang/String;Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;",
+        &[
+            JValue::Object(jpath.as_ref()),
+            JValue::Object(&bitmap),
+        ],
+    ) {
+        Ok(v) => v
+            .l()
+            .map_err(|_| "applyExifOrientation: return value not object")?,
+        Err(_) => {
+            let _ = env.exception_describe();
+            let _ = env.exception_clear();
+            return env
+                .new_local_ref(&bitmap)
+                .map_err(|e| format!("applyExifOrientation failed; local_ref: {e}"));
+        }
+    };
+
+    if out.is_null() {
+        let _ = env.exception_clear();
+        return env
+            .new_local_ref(&bitmap)
+            .map_err(|e| format!("new_local_ref: {e}"));
+    }
+
+    if !env.is_same_object(&bitmap, &out).unwrap_or(false) {
+        let _ = env.call_method(&bitmap, "recycle", "()V", &[]);
+    }
+    Ok(out)
+}
+
 fn maybe_scale_bitmap<'local>(
     env: &mut JNIEnv<'local>,
     bitmap: &JObject<'local>,
@@ -495,7 +556,8 @@ fn static_image_thumbnail(
         if bitmap.is_null() {
             return Err("BitmapFactory.decodeFile returned null".into());
         }
-        let scaled = maybe_scale_bitmap(env, &bitmap, max_edge)?;
+        let oriented = apply_exif_orientation(env, &jpath, bitmap)?;
+        let scaled = maybe_scale_bitmap(env, &oriented, max_edge)?;
         let out = compress_bitmap(env, &scaled, format)?;
         let _ = env.call_method(&scaled, "recycle", "()V", &[]);
         Ok(out)

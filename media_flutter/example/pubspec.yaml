@@ -4,16 +4,10 @@ publish_to: none
 version: 0.1.1
 resolution: workspace
 
-# Prebuilts: `usePrebuild: true` copies from repo `platform-builds/` (populate via
-# `dart run media_cli collect-native`). Omit both or set `usePrebuild: false` to
-# download from the GitHub release instead.
-hooks:
-  user_defines:
-    media_dart:
-      localBuild: false
-      # Omit usePrebuild → use ../platform-builds/ when present, else GitHub release.
-      # Force GitHub only: usePrebuild: false
-      # Optional: macosUniversalPrebuild: true  # universal-apple-darwin zips for Flutter universal .app
+# Native hook options for `media_dart` belong in the workspace root `pubspec.yaml`
+# (`../../pubspec.yaml`): hooks_runner reads user_defines only from that file when
+# using a Dart workspace. Prebuilts: `usePrebuild: true` + `platform-builds/`, or
+# GitHub release; see `media_dart/hook/build.dart`.
 
 environment:
   sdk: ^3.10.0

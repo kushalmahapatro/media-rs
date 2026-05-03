@@ -134,7 +134,7 @@ impl ANativeWindow {
 
 #[derive(Debug)]
 pub struct NativeWindow {
-    inner: *mut ANativeWindow,
+    pub inner: *mut ANativeWindow,
 }
 
 impl NativeWindow {

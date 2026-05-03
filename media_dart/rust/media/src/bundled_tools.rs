@@ -7,7 +7,25 @@
 //! compile time and extracted to a cache directory on first use. Otherwise we fall back to
 //! siblings next to the dylib (e.g. non-Flutter loads).
 
+use std::path::Path;
 use std::path::PathBuf;
+
+/// Flutter’s Linux desktop bundle copies native CodeAssets into `bundle/lib/` without preserving
+/// the executable bit, so `execve` fails with `EACCES` (reported as `Permission denied (os error 13)`).
+#[cfg(unix)]
+fn ensure_bundled_tool_executable(path: &Path) {
+    use std::fs;
+    use std::os::unix::fs::PermissionsExt;
+    let Ok(meta) = fs::metadata(path) else {
+        return;
+    };
+    let mut perms = meta.permissions();
+    if perms.mode() & 0o100 != 0 {
+        return;
+    }
+    perms.set_mode(0o755);
+    let _ = fs::set_permissions(path, perms);
+}
 
 #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 #[no_mangle]
@@ -74,6 +92,8 @@ fn sibling_tool(name: &str) -> PathBuf {
             p.display()
         );
     }
+    #[cfg(unix)]
+    ensure_bundled_tool_executable(&p);
     p
 }
 
@@ -86,6 +106,7 @@ fn sibling_tool(name: &str) -> PathBuf {
     if let Some(dir) = dylib_parent_dir() {
         let p = dir.join(name);
         if p.is_file() {
+            ensure_bundled_tool_executable(&p);
             return p;
         }
         
@@ -95,6 +116,7 @@ fn sibling_tool(name: &str) -> PathBuf {
         if let Some(container) = dir.parent().and_then(|v| v.parent()).and_then(|fw| fw.parent()) {
             let sibling = container.join(name);
             if sibling.is_file() {
+                ensure_bundled_tool_executable(&sibling);
                 return sibling;
             }
         }

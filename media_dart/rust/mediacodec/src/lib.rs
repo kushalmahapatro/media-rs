@@ -120,6 +120,7 @@ mod error;
 mod extractor;
 mod format;
 mod muxer;
+#[cfg(target_os = "android")]
 mod native_window;
 mod samples;
 
@@ -129,5 +130,6 @@ pub use error::*;
 pub use extractor::*;
 pub use format::*;
 pub use muxer::*;
+#[cfg(target_os = "android")]
 pub use native_window::*;
 pub use samples::*;

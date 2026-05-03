@@ -1,20 +1,28 @@
 #!/usr/bin/env bash
-# Build native zips + FFmpeg zips, run tests, build Android release APK, macOS installers
-# (universal + arm64 + x86_64), upload to GitHub release RELEASE_TAG (default v0.1.2 — must match
+# Build native zips + FFmpeg zips, run tests, build Android release APK, optional Linux .deb,
+# macOS installers (Darwin only), upload to GitHub release RELEASE_TAG (default v0.1.2 — must match
 # media_dart/hook/build.dart).
 #
-# Prerequisites: Xcode, CocoaPods, Android NDK (ANDROID_NDK_HOME), Rust targets (e.g.
-# darwin + iOS + Android: rustup target add aarch64-apple-darwin x86_64-apple-darwin
-# aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios aarch64-linux-android
-# x86_64-linux-android armv7-linux-androideabi),
-# gh auth login, create-dmg (brew) for DMG jobs, Flutter on PATH (or set FLUTTER_TOOL=fvm\ flutter).
+# Hosts:
+#   - Darwin: macOS + iOS native zips, Android (with NDK), macOS DMG/PKG, Android APK.
+#   - Linux: Linux desktop native zips (see LINUX_NATIVE_TRIPLES), Android zips/APK, .deb.
+#   - Windows (Git Bash / MSYS): Windows MSVC native zips (+ FFmpeg); Android steps are skipped
+#     unless you set up NDK + Flutter for Windows.
+#
+# Windows MSVC libraries are not cross-built from Linux (Flutter expects *-pc-windows-msvc); use a
+# Windows host or `melos run release-assets-windows` / the same collect-native invocation there.
+#
+# Prerequisites (typical macOS release): Xcode, CocoaPods, Android NDK (ANDROID_NDK_HOME), Rust
+# targets, gh auth, create-dmg (brew) for DMG jobs, Flutter on PATH (or FLUTTER_TOOL=fvm\ flutter).
+# Linux desktop: rustup target add …; set LINUX_NATIVE_TRIPLES to both GNU triples if you have cross gcc.
+# Linux .deb: sudo apt install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 #
 # Usage (from repo root):
-#   chmod +x tool/scripts/publish_media_rs_release.sh
 #   ./tool/scripts/publish_media_rs_release.sh
-#   SKIP_NATIVE=1 SKIP_TESTS=1 ./tool/scripts/publish_media_rs_release.sh   # installers only
-#   SKIP_ANDROID_NATIVE=1   # skip Android .so zips (no NDK)
-#   SKIP_IOS_NATIVE=1       # skip iOS zips (use after `melos run ios-lib` + archive-only, or no Xcode)
+#   SKIP_NATIVE=1 SKIP_TESTS=1 ./tool/scripts/publish_media_rs_release.sh
+#   SKIP_ANDROID_NATIVE=1 SKIP_IOS_NATIVE=1
+#   SKIP_LINUX_NATIVE=1 SKIP_LINUX_DEB=1
+#   LINUX_NATIVE_TRIPLES="aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu"   # override Linux triples
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -27,6 +35,9 @@ SKIP_GH="${SKIP_GH:-0}"
 SKIP_ANDROID_NATIVE="${SKIP_ANDROID_NATIVE:-0}"
 SKIP_IOS_NATIVE="${SKIP_IOS_NATIVE:-0}"
 SKIP_ANDROID_APK="${SKIP_ANDROID_APK:-0}"
+SKIP_LINUX_NATIVE="${SKIP_LINUX_NATIVE:-0}"
+SKIP_WINDOWS_NATIVE="${SKIP_WINDOWS_NATIVE:-0}"
+SKIP_LINUX_DEB="${SKIP_LINUX_DEB:-0}"
 
 if command -v fvm >/dev/null 2>&1; then
   export FLUTTER_TOOL="${FLUTTER_TOOL:-fvm flutter}"
@@ -37,7 +48,10 @@ fi
 EXAMPLE="$REPO_ROOT/media_flutter/example"
 APP_VER="$(grep -E '^version:' "$EXAMPLE/pubspec.yaml" | head -1 | awk '{print $2}' | tr -d \" | cut -d+ -f1)"
 
+HOST="$(uname -s)"
+
 echo "==> Repo: $REPO_ROOT"
+echo "==> Host: $HOST"
 echo "==> Release tag: $RELEASE_TAG (hook + GitHub assets)"
 echo "==> App version: $APP_VER"
 echo "==> Flutter: $FLUTTER_TOOL"
@@ -45,31 +59,35 @@ echo "==> Flutter: $FLUTTER_TOOL"
 dart pub get
 
 if [[ "$SKIP_NATIVE" != "1" ]]; then
-  echo "=== [1/8] collect-native (macOS thin + universal + FFmpeg zips) ==="
-  (cd "$REPO_ROOT/tool/cli" && dart run media_cli collect-native \
-    --package-root ../../media_dart \
-    -t aarch64-apple-darwin \
-    -t x86_64-apple-darwin \
-    --archive-format zip \
-    --archive-version "$RELEASE_TAG" \
-    --macos-universal \
-    --archive-ffmpeg zip)
-
-  if [[ "$SKIP_IOS_NATIVE" != "1" ]]; then
-    echo "=== [2/8] collect-native (iOS device + simulator: build + zip) ==="
+  if [[ "$HOST" == Darwin ]]; then
+    echo "=== collect-native (macOS thin + universal + FFmpeg zips) ==="
     (cd "$REPO_ROOT/tool/cli" && dart run media_cli collect-native \
       --package-root ../../media_dart \
-      -t aarch64-apple-ios \
-      -t aarch64-apple-ios-sim \
-      -t x86_64-apple-ios \
+      -t aarch64-apple-darwin \
+      -t x86_64-apple-darwin \
       --archive-format zip \
-      --archive-version "$RELEASE_TAG")
+      --archive-version "$RELEASE_TAG" \
+      --macos-universal \
+      --archive-ffmpeg zip)
+
+    if [[ "$SKIP_IOS_NATIVE" != "1" ]]; then
+      echo "=== collect-native (iOS device + simulator: build + zip) ==="
+      (cd "$REPO_ROOT/tool/cli" && dart run media_cli collect-native \
+        --package-root ../../media_dart \
+        -t aarch64-apple-ios \
+        -t aarch64-apple-ios-sim \
+        -t x86_64-apple-ios \
+        --archive-format zip \
+        --archive-version "$RELEASE_TAG")
+    else
+      echo "=== skip iOS native (SKIP_IOS_NATIVE=1) ==="
+    fi
   else
-    echo "=== [2/8] skip iOS native (SKIP_IOS_NATIVE=1) ==="
+    echo "=== skip macOS / iOS native (requires Darwin + Xcode) ==="
   fi
 
-  if [[ "$SKIP_ANDROID_NATIVE" != "1" ]]; then
-    echo "=== [3/8] collect-native (Android ABIs: build + zip) ==="
+  if [[ "$SKIP_ANDROID_NATIVE" != "1" ]] && { [[ "$HOST" == Darwin ]] || [[ "$HOST" == Linux ]]; }; then
+    echo "=== collect-native (Android ABIs: build + zip) ==="
     (cd "$REPO_ROOT/tool/cli" && dart run media_cli collect-native \
       --package-root ../../media_dart \
       -t aarch64-linux-android \
@@ -77,38 +95,87 @@ if [[ "$SKIP_NATIVE" != "1" ]]; then
       -t armv7-linux-androideabi \
       --archive-format zip \
       --archive-version "$RELEASE_TAG")
+  elif [[ "$SKIP_ANDROID_NATIVE" != "1" ]]; then
+    echo "=== skip Android native on host $HOST (use Darwin or Linux + NDK) ==="
   else
-    echo "=== [3/8] skip Android native (SKIP_ANDROID_NATIVE=1) ==="
+    echo "=== skip Android native (SKIP_ANDROID_NATIVE=1) ==="
   fi
+
+  if [[ "$HOST" == Linux ]] && [[ "$SKIP_LINUX_NATIVE" != "1" ]]; then
+    if [[ -z "${LINUX_NATIVE_TRIPLES:-}" ]]; then
+      case "$(uname -m)" in
+        x86_64) LINUX_NATIVE_TRIPLES="x86_64-unknown-linux-gnu" ;;
+        aarch64) LINUX_NATIVE_TRIPLES="aarch64-unknown-linux-gnu" ;;
+        *) LINUX_NATIVE_TRIPLES="" ;;
+      esac
+    fi
+    if [[ -n "$LINUX_NATIVE_TRIPLES" ]]; then
+      echo "=== collect-native (Linux desktop: $LINUX_NATIVE_TRIPLES) ==="
+      args=(collect-native --package-root ../../media_dart)
+      for t in $LINUX_NATIVE_TRIPLES; do
+        args+=(-t "$t")
+      done
+      args+=(--archive-format zip --archive-version "$RELEASE_TAG" --archive-ffmpeg zip)
+      (cd "$REPO_ROOT/tool/cli" && dart run media_cli "${args[@]}")
+    else
+      echo "=== skip Linux native (unknown uname -m; set LINUX_NATIVE_TRIPLES) ==="
+    fi
+  elif [[ "$HOST" == Linux ]]; then
+    echo "=== skip Linux native (SKIP_LINUX_NATIVE=1) ==="
+  fi
+
+  case "$HOST" in
+    MINGW* | MSYS* | CYGWIN*)
+      if [[ "$SKIP_WINDOWS_NATIVE" != "1" ]]; then
+        echo "=== collect-native (Windows MSVC: build + zip) ==="
+        (cd "$REPO_ROOT/tool/cli" && dart run media_cli collect-native \
+          --package-root ../../media_dart \
+          -t aarch64-pc-windows-msvc \
+          -t x86_64-pc-windows-msvc \
+          --archive-format zip \
+          --archive-version "$RELEASE_TAG" \
+          --archive-ffmpeg zip)
+      else
+        echo "=== skip Windows native (SKIP_WINDOWS_NATIVE=1) ==="
+      fi
+      ;;
+  esac
 else
-  echo "=== [1-3/8] skip native (SKIP_NATIVE=1) ==="
+  echo "=== skip all native collect (SKIP_NATIVE=1) ==="
 fi
 
 ASSET_DIR="$REPO_ROOT/release-assets/$RELEASE_TAG"
 if [[ ! -d "$ASSET_DIR" ]]; then
-  echo "Missing $ASSET_DIR — run without SKIP_NATIVE first." >&2
+  echo "Missing $ASSET_DIR — run without SKIP_NATIVE first (or populate release-assets manually)." >&2
   exit 1
 fi
 
 if [[ "$SKIP_GH" != "1" ]]; then
-  echo "=== [4/8] GitHub release + upload native/FFmpeg zips ==="
+  echo "=== GitHub release + upload native/FFmpeg zips ==="
   if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
     gh release create "$RELEASE_TAG" \
       --title "$RELEASE_TAG" \
       --notes "media-rs native libraries + FFmpeg ([RELEASE_ASSETS.md](https://github.com/kushalmahapatro/media-rs/blob/main/RELEASE_ASSETS.md))."
   fi
+  shopt -s nullglob
+  assets=( "$ASSET_DIR"/* )
+  shopt -u nullglob
+  if [[ ${#assets[@]} -eq 0 ]]; then
+    echo "No files under $ASSET_DIR to upload." >&2
+    exit 1
+  fi
   gh release upload "$RELEASE_TAG" "$ASSET_DIR"/* --clobber
 else
-  echo "=== [4/8] skip gh upload (SKIP_GH=1) ==="
+  echo "=== skip gh upload (SKIP_GH=1) ==="
 fi
 
 if [[ "$SKIP_TESTS" != "1" ]]; then
-  echo "=== [5/8] dart test (media_dart) ==="
+  echo "=== dart test (media_dart) ==="
   (cd "$REPO_ROOT/media_dart" && dart test)
-  echo "=== [6/8] flutter test (example) ==="
+  echo "=== flutter test (example) ==="
   (cd "$EXAMPLE" && $FLUTTER_TOOL test)
 else
-  echo "=== [5-6/8] skip tests (SKIP_TESTS=1) ==="
+  echo "=== skip tests (SKIP_TESTS=1) ==="
 fi
 
 write_arch() {
@@ -138,7 +205,6 @@ package_installers() {
   mkdir -p "$dist"
   echo "=== DMG ($suffix) ==="
   (cd "$EXAMPLE" && dart run media_cli dist --jobs macos-dmg --skip-clean)
-  # Fastforge writes under dist/<version>/ — take newest .dmg if name varies.
   shopt -s nullglob
   local dmgs=( "$dist"/*.dmg )
   shopt -u nullglob
@@ -155,32 +221,47 @@ package_installers() {
     --output "$dist/media-$APP_VER-macos-$suffix.pkg")
 }
 
-if [[ "$SKIP_ANDROID_APK" != "1" ]]; then
-  echo "=== [7/8] Android release APK (Fastforge; hook should resolve prebuilts from $RELEASE_TAG) ==="
+if [[ "$SKIP_ANDROID_APK" != "1" ]] && { [[ "$HOST" == Darwin ]] || [[ "$HOST" == Linux ]]; }; then
+  echo "=== Android release APK (Fastforge; hook should resolve prebuilts from $RELEASE_TAG) ==="
   (cd "$EXAMPLE" && $FLUTTER_TOOL pub get)
   (cd "$EXAMPLE" && $FLUTTER_TOOL clean)
   (cd "$EXAMPLE" && dart run media_cli dist --jobs android-apk --skip-clean)
+elif [[ "$SKIP_ANDROID_APK" != "1" ]]; then
+  echo "=== skip Android APK on host $HOST ==="
 else
-  echo "=== [7/8] skip Android APK (SKIP_ANDROID_APK=1) ==="
+  echo "=== skip Android APK (SKIP_ANDROID_APK=1) ==="
 fi
 
-echo "=== [8/8] macOS .app builds + installers (3 variants) ==="
-export PATH="$REPO_ROOT/tool/shims:/opt/homebrew/bin:/usr/local/bin:$PATH"
+if [[ "$HOST" == Linux ]] && [[ "$SKIP_LINUX_DEB" != "1" ]]; then
+  echo "=== Linux .deb (Fastforge; linux/packaging/deb/make_config.yaml) ==="
+  (cd "$EXAMPLE" && $FLUTTER_TOOL pub get)
+  (cd "$EXAMPLE" && $FLUTTER_TOOL clean)
+  (cd "$EXAMPLE" && dart run media_cli dist --jobs linux-deb --skip-clean)
+elif [[ "$HOST" == Linux ]]; then
+  echo "=== skip Linux .deb (SKIP_LINUX_DEB=1) ==="
+fi
 
-build_macos_variant universal ""
-package_installers universal
+if [[ "$HOST" == Darwin ]]; then
+  echo "=== macOS .app builds + installers (3 variants) ==="
+  export PATH="$REPO_ROOT/tool/shims:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
-build_macos_variant arm64 arm64
-package_installers arm64
+  build_macos_variant universal ""
+  package_installers universal
 
-build_macos_variant x86_64 x86_64
-package_installers x86_64
+  build_macos_variant arm64 arm64
+  package_installers arm64
 
-write_arch universal ""
-unset MEDIA_MACOS_SINGLE_ARCH || true
-(cd "$EXAMPLE/macos" && pod install)
+  build_macos_variant x86_64 x86_64
+  package_installers x86_64
 
-echo "=== Upload macOS DMG/PKG + Android APK ==="
+  write_arch universal ""
+  unset MEDIA_MACOS_SINGLE_ARCH || true
+  (cd "$EXAMPLE/macos" && pod install)
+else
+  echo "=== skip macOS DMG/PKG (Darwin host only) ==="
+fi
+
+echo "=== Upload installers (DMG/PKG/APK/.deb when present) ==="
 DIST="$REPO_ROOT/dist/$APP_VER"
 if [[ "$SKIP_GH" != "1" ]]; then
   uploads=()
@@ -197,13 +278,16 @@ if [[ "$SKIP_GH" != "1" ]]; then
   for apk in "$DIST"/*.apk; do
     [[ -f "$apk" ]] && uploads+=("$apk")
   done
+  for deb in "$DIST"/*.deb; do
+    [[ -f "$deb" ]] && uploads+=("$deb")
+  done
   shopt -u nullglob
   if [[ ${#uploads[@]} -gt 0 ]]; then
     gh release upload "$RELEASE_TAG" "${uploads[@]}" --clobber
   fi
 else
-  echo "Skipping DMG/PKG/APK upload (SKIP_GH=1). Artifacts under $DIST/"
+  echo "Skipping installer upload (SKIP_GH=1). Artifacts under $DIST/"
 fi
 
-echo "Done. Installers and APK: $DIST/"
+echo "Done. Installers / APK / DEB: $DIST/"
 echo "Native zips: $ASSET_DIR/"

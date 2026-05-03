@@ -1,0 +1,38 @@
+# flutter_app_packager / Fastforge — https://fastforge.dev
+# Built with: dart run media_cli dist --jobs linux-deb
+# Adjust maintainer and dependencies for production releases.
+
+display_name: Media
+package_name: media-example
+
+maintainer:
+  name: media-rs
+  email: media-rs@users.noreply.github.com
+
+priority: optional
+section: video
+
+# Approximate installed size (KiB) for Debian Installed-Size field.
+installed_size: 120000
+
+generic_name: Media utilities
+
+categories:
+  - AudioVideo
+  - Video
+
+keywords:
+  - media
+  - video
+  - ffmpeg
+
+dependencies:
+  - libgtk-3-0
+  - libblkid1
+  - liblzma5
+  - libsecret-1-0
+  - libnotify4
+  - libstdc++6
+  - libgcc-s1 | libgcc1
+
+startup_notify: true

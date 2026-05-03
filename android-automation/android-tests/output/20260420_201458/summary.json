@@ -1,0 +1,22 @@
+{
+    "timestamp": "2026-04-20T20:15:01+04:00",
+    "total_tests": 16,
+    "passed": 15,
+    "failed": 0,
+    "skipped": 1,
+    "success_rate": 93.75,
+    "platform": "linux",
+    "test_videos": [
+        "test_video.mp4",
+        "resolution_480p.mp4",
+        "h265_test.mp4"
+    ],
+    "output_directory": "/home/kushal/Documents/Projects/media-rs/android-automation/android-tests/output/20260420_201458",
+    "logs_directory": "/home/kushal/Documents/Projects/media-rs/android-automation/android-tests/logs",
+    "dashboards": {
+        "linux": "/home/kushal/Documents/Projects/media-rs/android-automation/android-tests/output/20260420_201458/dashboard",
+        "android": "android-tests/dashboard",
+        "windows": "windows-tests/dashboard (not created)",
+        "macos": "macos-tests/dashboard (not created)"
+    }
+}

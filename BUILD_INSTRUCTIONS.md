@@ -153,6 +153,8 @@ EOF
 dpkg-deb --build media-deb media-0.1.0-amd64.deb
 ```
 
+**Fastforge / repo CLI (recommended for the example app):** from `media_flutter/example` run `dart run media_cli dist --jobs linux-deb` (Fastforge runs `flutter build linux` as needed). Packaging metadata is in `linux/packaging/deb/make_config.yaml`. Artifacts land under `dist/<version>/` (see `distribute_options.yaml`).
+
 **Files in bundle:**
 - `media` - The executable
 - `lib/libmedia.so` - Your native library

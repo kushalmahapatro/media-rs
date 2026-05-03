@@ -146,7 +146,11 @@ dart run melos run release-assets-ios --no-select
 ## CI matrix (optional)
 
 - **macOS runner**: produce all mac zips (thin + universal + FFmpeg).  
-- **Linux runner**: `collect-native -t x86_64-unknown-linux-gnu` (and arm if needed).  
-- **Windows runner**: Windows triples.  
+- **Linux runner**: `collect-native -t x86_64-unknown-linux-gnu` (and `aarch64-unknown-linux-gnu` if you install an aarch64 cross linker, or build on an arm64 runner).  
+- **Windows runner**: `collect-native -t x86_64-pc-windows-msvc` (and `aarch64-pc-windows-msvc` on arm64 Windows). **Do not** expect `*-pc-windows-msvc` artifacts from a Linux host without a MSVC linker; use `melos run release-assets-windows` on Windows or a Windows CI job.
 
 Upload all artifacts to the **same** GitHub release tag.
+
+### `publish_media_rs_release.sh` on Linux
+
+On **Linux**, the script skips macOS/iOS native builds, runs Android + Linux desktop `collect-native` (default: host GNU triple only; set `LINUX_NATIVE_TRIPLES="aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu"` for both), can build a **`.deb`** for the example app (`dist` job `linux-deb`), and uploads `.deb` files next to APKs. Use `SKIP_LINUX_NATIVE=1` / `SKIP_LINUX_DEB=1` to skip those steps.

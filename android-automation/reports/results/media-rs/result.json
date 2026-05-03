@@ -1,0 +1,31 @@
+{
+  "name": "media-rs",
+  "path": "/home/kushal/Documents/Projects/media-rs",
+  "branch": "main",
+  "type": "flutter",
+  "total": 1,
+  "passed": 0,
+  "failed": 1,
+  "errored": 0,
+  "skipped": 0,
+  "success_rate": 0.0,
+  "duration_seconds": 0.001,
+  "duration_human": "1ms",
+  "start": "2026-04-22T23:33:09.382507",
+  "end": "2026-04-22T23:33:09.383334",
+  "status_label": "fail",
+  "tests": [
+    {
+      "name": "flutter test",
+      "repo": "media-rs",
+      "status": "fail",
+      "duration_seconds": 0.001,
+      "duration_human": "1ms",
+      "exit_code": 127,
+      "stdout_length": 31,
+      "stderr_length": 0,
+      "timestamp": "2026-04-22T23:33:09.383309",
+      "log_id": "956933668ed9"
+    }
+  ]
+}

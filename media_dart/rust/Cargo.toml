@@ -1,3 +1,9 @@
 [workspace]
 members = ["media"]
 resolver = "2"
+
+# Workspace-level release profile (member [profile.release] is ignored with a warning).
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1

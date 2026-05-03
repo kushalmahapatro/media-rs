@@ -3,6 +3,11 @@ name = "media"
 version = "0.1.2"
 edition = "2021"
 build = "build.rs"
+default-features = false
+
+[features]
+default = []
+android = ["dep:mediacodec", "dep:jni"]
 
 [lib]
 crate-type = ["cdylib", "staticlib"]
@@ -72,13 +77,6 @@ objc2-ui-kit = { version = "0.3.2", default-features = false, features = [
     "UIImage",
     "UIGraphics",
 ] }
-
-[profile.release]
-# Drop Rust symbol tables from the cdylib (smaller on-disk size; stack traces harder).
-strip = true
-# Dedup / dead-code elimination across crates (slower release builds, somewhat smaller .so/.dylib).
-lto = "thin"
-codegen-units = 1
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = [

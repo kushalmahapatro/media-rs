@@ -338,6 +338,70 @@ class CollectNativeCommand extends Command<void> {
     ).hasMatch(f.readAsStringSync());
   }
 
+  /// dart-sys uses cc-rs for the target triple; cross GNU builds need a matching `*-linux-gnu-gcc`.
+  void _assertLinuxGnuCrossCompilerIfNeeded(String triple) {
+    if (!Platform.isLinux) return;
+    if (!triple.endsWith('-unknown-linux-gnu')) return;
+
+    String? unameM;
+    try {
+      final r = Process.runSync('uname', ['-m']);
+      if (r.exitCode == 0) unameM = (r.stdout as String).trim();
+    } catch (_) {
+      return;
+    }
+    if (unameM == null || unameM.isEmpty) return;
+
+    final wantsX86 = triple.startsWith('x86_64');
+    final wantsAarch64 = triple.startsWith('aarch64');
+    final hostX86 = unameM == 'x86_64';
+    final hostAarch = unameM == 'aarch64' || unameM == 'arm64';
+
+    if (wantsX86 && hostAarch) {
+      if (_firstLinuxCrossGcc(const [
+            'x86_64-linux-gnu-gcc',
+            'x86_64-linux-gnu-gcc-13',
+            'x86_64-linux-gnu-gcc-12',
+          ]) ==
+          null) {
+        throw StateError(
+          'Building for x86_64-unknown-linux-gnu on an aarch64/arm64 host needs a '
+          'cross C compiler (dart-sys / cc-rs). On Debian/Ubuntu:\n'
+          '  sudo apt install gcc-x86-64-linux-gnu\n'
+          'Then ensure x86_64-linux-gnu-gcc is on PATH.',
+        );
+      }
+    } else if (wantsAarch64 && hostX86) {
+      if (_firstLinuxCrossGcc(const [
+            'aarch64-linux-gnu-gcc',
+            'aarch64-linux-gnu-gcc-13',
+            'aarch64-linux-gnu-gcc-12',
+          ]) ==
+          null) {
+        throw StateError(
+          'Building for aarch64-unknown-linux-gnu on an x86_64 host needs a '
+          'cross C compiler. On Debian/Ubuntu:\n'
+          '  sudo apt install gcc-aarch64-linux-gnu\n'
+          'Then ensure aarch64-linux-gnu-gcc is on PATH.',
+        );
+      }
+    }
+  }
+
+  String? _firstLinuxCrossGcc(List<String> names) {
+    for (final n in names) {
+      try {
+        final r = Process.runSync('/bin/sh', ['-c', 'command -v $n']);
+        if (r.exitCode != 0) continue;
+        final p = (r.stdout as String).trim();
+        if (p.isNotEmpty && File(p).existsSync()) return p;
+      } catch (_) {
+        continue;
+      }
+    }
+    return null;
+  }
+
   String _defaultHostTriple() {
     if (Platform.isMacOS) {
       final r = Process.runSync('uname', ['-m']);
@@ -368,6 +432,8 @@ class CollectNativeCommand extends Command<void> {
     required bool release,
     required Logger logger,
   }) async {
+    _assertLinuxGnuCrossCompilerIfNeeded(triple);
+
     if (mediaRustTripleIsMacOsDesktop(triple)) {
       await mediaSyncMacosFfmpegIntoRustCrate(
         packageRoot: packageRoot,

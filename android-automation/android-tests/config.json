@@ -1,0 +1,33 @@
+{
+    "test_videos_dir": "/home/kushal/Documents/Projects/media-rs/android-automation/android-tests/test_videos",
+    "output_dir": "/home/kushal/Documents/Projects/media-rs/android-automation/android-tests/output",
+    "logs_dir": "/home/kushal/Documents/Projects/media-rs/android-automation/android-tests/logs",
+    "dashboard_dir": "/home/kushal/Documents/Projects/media-rs/android-automation/android-tests/dashboard",
+    "max_workers": 4,
+    "log_level": "INFO",
+    "video_download_urls": {
+        "big_buck_bunny": "https://sample-videos.com/video123/mp4/720/Big_Buck_Bunny.mp4",
+        "sintel": "https://sample-videos.com/video123/mp4/720/Sintel.mp4",
+        "tears_of_steel": "https://sample-videos.com/video123/mp4/720/Tears_of_Steel.mp4",
+        "bear_river": "https://sample-videos.com/video123/mp4/720/Bear_River.mp4",
+        "tiger": "https://sample-videos.com/video123/mp4/720/Tiger.mp4"
+    },
+    "onboarding": {
+        "show_download_screen": true,
+        "allow_file_selection": true,
+        "auto_download_on_first_run": false
+    },
+    "test_scenarios": {
+        "thumbnail_generation": {
+            "formats": ["jpg", "png", "webp"],
+            "quality_options": [75, 85, 95, 100],
+            "sizes": ["1920x1080", "1280x720", "640x360"]
+        },
+        "transcoding": {
+            "input_formats": ["mp4", "avi", "mkv", "webm", "mov", "3gp"],
+            "output_formats": ["mp4", "avi", "mkv"],
+            "codecs": ["h264", "h265"],
+            "resolutions": ["480p", "720p", "1080p"]
+        }
+    }
+}

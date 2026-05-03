@@ -1,0 +1,42 @@
+# Automation Suite Configuration
+# Define repos to track and their test configurations
+
+global:
+  base_path: "/home/kushal/Documents/Projects"
+  output_dir: "/home/kushal/Documents/Projects/media-rs/android-automation/reports"
+  log_dir: "/home/kushal/Documents/Projects/media-rs/android-automation/logs"
+  report_format: ["html", "json", "pdf"]
+  auto_run: false
+  notification_email: ""
+
+repos:
+  - name: "media-rs"
+    path: "/home/kushal/Documents/Projects/media-rs"
+    branch: "android-automation"
+    test_commands:
+      - name: "Linux Test Suite"
+        command: "cd /home/kushal/Documents/Projects/media-rs/android-automation/android-tests && ./linux_test.sh"
+        platform: "linux"
+        timeout: 600
+      - name: "Simple Test"
+        command: "cd /home/kushal/Documents/Projects/media-rs/android-automation/android-tests && ./simple_test.sh"
+        platform: "linux"
+        timeout: 300
+    test_files:
+      - "android-tests/test_cases/*.py"
+      - "android-tests/*.sh"
+    artifacts:
+      - "android-tests/output/**/summary.json"
+      - "android-tests/output/**/test_results.log"
+
+  # Add more repos here
+  # - name: "example-repo"
+  #   path: "/home/kushal/Documents/Projects/example-repo"
+  #   branch: "main"
+  #   test_commands:
+  #     - name: "Unit Tests"
+  #       command: "cd /home/kushal/Documents/Projects/example-repo && npm test"
+  #       platform: "linux"
+  #       timeout: 300
+  #   artifacts:
+  #     - "reports/coverage.json"

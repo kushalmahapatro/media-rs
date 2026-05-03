@@ -1,7 +1,10 @@
+#[cfg(target_os = "android")]
 use std::{ffi::c_void, ops::BitOr, ptr::null_mut};
 
+#[cfg(target_os = "android")]
 use jni::{objects::JObject, JNIEnv};
 
+#[cfg(target_os = "android")]
 /// Represents an image buffer (or a Surface in Java)
 #[repr(C)]
 #[derive(Debug)]
@@ -35,12 +38,14 @@ pub enum NativeWindowFormat {
     Other,
 }
 
+#[cfg(target_os = "android")]
 impl NativeWindowFormat {
     fn values() -> Vec<Self> {
         vec![Self::Rgba8, Self::Rgb8, Self::Rgb565, Self::Yuv420]
     }
 }
 
+#[cfg(target_os = "android")]
 impl From<isize> for NativeWindowFormat {
     fn from(value: isize) -> Self {
         let values = Self::values();
@@ -67,6 +72,7 @@ pub enum NativeWindowTransform {
         NativeWindowTransform::Rotate180 as isize | NativeWindowTransform::Rotate90 as isize,
 }
 
+#[cfg(target_os = "android")]
 impl BitOr for NativeWindowTransform {
     type Output = isize;
 
@@ -88,6 +94,7 @@ pub struct NativeWindowBuffer {
     window: *mut ANativeWindow,
 }
 
+#[cfg(target_os = "android")]
 impl NativeWindowBuffer {
     fn new(window: *mut ANativeWindow) -> Self {
         // Acquire a reference to this window so that it doesn't get dropped when we drop the parent
@@ -104,6 +111,7 @@ impl NativeWindowBuffer {
     }
 }
 
+#[cfg(target_os = "android")]
 impl Drop for NativeWindowBuffer {
     fn drop(&mut self) {
         if !self.window.is_null() {
@@ -126,6 +134,7 @@ pub struct ARect {
 // Functions start
 
 #[link(name = "android")]
+#[cfg(target_os = "android")]
 extern "C" {
     fn ANativeWindow_fromSurface(env: JNIEnv, surface: JObject) -> *mut ANativeWindow;
 
@@ -161,11 +170,13 @@ extern "C" {
 
 // Functions end
 
+#[cfg(target_os = "android")]
 #[derive(Debug)]
 pub struct NativeWindow {
     pub(crate) inner: *mut ANativeWindow,
 }
 
+#[cfg(target_os = "android")]
 impl NativeWindow {
     pub fn from_raw(inner: *mut ANativeWindow) -> Self {
         Self { inner }
@@ -218,6 +229,7 @@ impl NativeWindow {
     }
 }
 
+#[cfg(target_os = "android")]
 impl Clone for NativeWindow {
     fn clone(&self) -> Self {
         unsafe {
@@ -227,6 +239,7 @@ impl Clone for NativeWindow {
     }
 }
 
+#[cfg(target_os = "android")]
 impl Drop for NativeWindow {
     fn drop(&mut self) {
         unsafe {

@@ -76,7 +76,7 @@ melos:
         concurrency: 1
     mac-lib:
       description: Build macOS prebuilts (arm64 + x86_64) into platform-builds/
-      run: cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart -t aarch64-apple-darwin -t x86_64-apple-darwin
+      run: dart run media_cli collect-native --package-root ../../media_dart -t aarch64-apple-darwin -t x86_64-apple-darwin
       packageFilters:
         scope: media_cli
       exec:
@@ -86,7 +86,7 @@ melos:
         macOS thin + universal libmedia zips and {triple}-ffmpeg.zip under release-assets/v0.1.2/
         (keep in sync with media_dart/hook/build.dart `version`).
       run: >
-        cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart
+        dart run media_cli collect-native --package-root ../../media_dart
         -t aarch64-apple-darwin -t x86_64-apple-darwin
         --archive-format zip --archive-version v0.1.2
         --macos-universal --archive-ffmpeg zip 2>&1
@@ -96,7 +96,7 @@ melos:
         concurrency: 1
     ios-lib:
       description: Build iOS prebuilts (device + simulators) into platform-builds/
-      run: cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios
+      run: dart run media_cli collect-native --package-root ../../media_dart -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios
       packageFilters:
         scope: media_cli
       exec:
@@ -105,7 +105,7 @@ melos:
       description: >
         Build Android prebuilts and zip → release-assets/v0.1.2/ (needs ANDROID_NDK_HOME, rustup android targets).
       run: >
-        cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart
+        dart run media_cli collect-native --package-root ../../media_dart
         -t aarch64-linux-android -t x86_64-linux-android -t armv7-linux-androideabi
         --archive-format zip --archive-version v0.1.2 2>&1
       packageFilters:
@@ -116,7 +116,7 @@ melos:
       description: >
         Zip existing platform-builds/ios/* → release-assets/v0.1.2/ (no FFmpeg; iOS uses system / AVFoundation).
       run: >
-        cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart
+        dart run media_cli collect-native --package-root ../../media_dart
         --archive-only --archive-format zip --archive-version v0.1.2
         -t aarch64-apple-ios -t aarch64-apple-ios-sim -t x86_64-apple-ios 2>&1
       packageFilters:
@@ -131,17 +131,50 @@ melos:
       exec:
         concurrency: 1
     linux-lib:
-      description: Build Linux prebuilts (arm64 + x86_64) into platform-builds/
-      # run: dart run media_cli collect-native -t aarch64-unknown-linux-gnu -t x86_64-unknown-linux-gnu
-      run: dart run media_cli collect-native -t x86_64-unknown-linux-gnu
+      description: >
+        Build Linux GNU prebuilts (aarch64 + x86_64) into platform-builds/; needs cross linkers for the non-host arch.
+      run: >
+        bash -c 'cd tool/cli && dart run media_cli collect-native --package-root ../../media_dart -t aarch64-unknown-linux-gnu -t x86_64-unknown-linux-gnu 2>&1'
+      packageFilters:
+        scope: media_cli
+    release-assets-linux:
+      description: >
+        Linux aarch64 + x86_64 desktop libmedia + FFmpeg zips → release-assets/v0.1.2/ (match media_dart/hook/build.dart).
+      run: >
+        dart run media_cli collect-native --package-root ../../media_dart
+        -t aarch64-unknown-linux-gnu -t x86_64-unknown-linux-gnu
+        --archive-format zip --archive-version v0.1.2 --archive-ffmpeg zip 2>&1
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    release-assets-linux-aarch64:
+      description: >
+        Linux arm64-only libmedia + FFmpeg zip → release-assets/v0.1.2/ (use release-assets-linux for both triples).
+      run: >
+        dart run media_cli collect-native --package-root ../../media_dart
+        -t aarch64-unknown-linux-gnu
+        --archive-format zip --archive-version v0.1.2 --archive-ffmpeg zip 2>&1
       packageFilters:
         scope: media_cli
       exec:
         concurrency: 1
     windows-lib:
-      description: Build Windows prebuilts (arm64 + x86_64) into platform-builds/
-      # run: dart run media_cli collect-native -t aarch64-pc-windows-msvc -t x86_64-pc-windows-msvc
-      run: dart run media_cli collect-native -t x86_64-pc-windows-msvc
+      description: Build Windows MSVC prebuilts (host must be Windows); into platform-builds/
+      run: >
+        dart run media_cli collect-native --package-root ../../media_dart
+        -t aarch64-pc-windows-msvc -t x86_64-pc-windows-msvc 2>&1
+      packageFilters:
+        scope: media_cli
+      exec:
+        concurrency: 1
+    release-assets-windows:
+      description: >
+        Windows MSVC libmedia + FFmpeg zips under release-assets/v0.1.2/ (run on Windows only).
+      run: >
+        dart run media_cli collect-native --package-root ../../media_dart
+        -t aarch64-pc-windows-msvc -t x86_64-pc-windows-msvc
+        --archive-format zip --archive-version v0.1.2 --archive-ffmpeg zip 2>&1
       packageFilters:
         scope: media_cli
       exec:
@@ -248,7 +281,8 @@ melos:
         concurrency: 1
     publish-github-release:
       description: >
-        Native + FFmpeg zips, tests, 3× macOS DMG/PKG, Android APK, upload to GitHub (needs gh auth; tag matches hook).
+        Native + FFmpeg zips, tests, Android APK; on Darwin also macOS/iOS natives + 3× DMG/PKG; on Linux also
+        Linux desktop natives + example .deb. Uploads to GitHub (gh auth; tag matches hook).
       run: bash tool/scripts/publish_media_rs_release.sh 2>&1
     dist-windows-exe:
       description: Fastforge Windows .exe → dist/

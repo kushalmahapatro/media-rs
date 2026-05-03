@@ -1,0 +1,32 @@
+  Status: PASS
+  Message: Thumbnail extracted successfully
+  Status: PASS
+  Message: Thumbnail extracted successfully
+  Status: PASS
+  Message: Thumbnail extracted successfully (H.265)
+  Status: PASS
+  Message: ImageMagick thumbnail created
+  Status: PASS
+  Message: Transcoded successfully
+  Status: PASS
+  Message: Transcoded successfully
+  Status: PASS
+  Message: Transcoded to AVI format
+  Status: PASS
+  Message: Transcoded to MKV format
+  Status: PASS
+  Message: Test image created
+  Status: PASS
+  Message: Test image created
+  Status: PASS
+  Message: Test image created
+  Status: SKIP
+  Message: ImageMagick not installed
+  Status: PASS
+  Message: Processed 3 videos in 538ms
+  Status: PASS
+  Message: Processed 3 videos in 399ms
+  Status: PASS
+  Message: Handled missing file gracefully
+  Status: PASS
+  Message: Error handled gracefully (ffmpeg not run)

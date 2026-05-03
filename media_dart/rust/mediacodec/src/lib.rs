@@ -122,6 +122,8 @@ mod format;
 mod muxer;
 #[cfg(target_os = "android")]
 mod native_window;
+#[cfg(not(target_os = "android"))]
+mod stub;
 mod samples;
 
 pub use codec::*;
@@ -132,4 +134,6 @@ pub use format::*;
 pub use muxer::*;
 #[cfg(target_os = "android")]
 pub use native_window::*;
+#[cfg(not(target_os = "android"))]
+pub use stub::*;
 pub use samples::*;

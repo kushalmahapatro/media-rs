@@ -12,6 +12,15 @@ use tokio::process::Command;
 
 use crate::api::{ThumbnailFormat, TimelineThumbnail, TranscodeProgress, VideoProbe};
 
+/// On Windows, suppress the console window that appears when spawning a console-subsystem
+/// binary (ffmpeg/ffprobe). This also removes the ~10-30 ms latency from window creation
+/// and teardown that compounds across multiple calls.
+#[cfg(windows)]
+fn suppress_console(cmd: &mut tokio::process::Command) {
+    // CREATE_NO_WINDOW = 0x08000000
+    cmd.creation_flags(0x08000000);
+}
+
 /// Coded size vs display size: phone/camera files often store landscape dimensions with 90°/270°
 /// rotation metadata. Match Android `MediaFormat` `rotation-degrees` swap so probe matches players.
 fn display_size_for_rotation(width: u32, height: u32, rotation_degrees: i32) -> (u32, u32) {
@@ -54,7 +63,9 @@ fn ffprobe_stream_rotation_degrees(stream: &Value) -> i32 {
 }
 
 pub async fn probe_ffprobe(path: &str) -> Result<VideoProbe, String> {
-    let out = Command::new(ffprobe_path())
+    let mut cmd = Command::new(ffprobe_path());
+    suppress_console(cmd);
+    let out = cmd
         .args([
             "-v",
             "quiet",
@@ -209,6 +220,8 @@ pub async fn thumbnail_ffmpeg(
 ) -> Result<Vec<u8>, String> {
     let vf = scale_long_edge_vf(max_edge);
     let mut cmd = Command::new(ffmpeg_path());
+    #[cfg(windows)]
+    suppress_console(cmd);
     cmd.args(["-hide_banner", "-loglevel", "error"]);
     if looks_like_static_image(path) {
         cmd.args(["-i", path, "-frames:v", "1", "-vf", &vf]);
@@ -216,7 +229,7 @@ pub async fn thumbnail_ffmpeg(
         let ss = format!("{time_sec:.3}");
         cmd.args(["-ss", &ss, "-i", path, "-frames:v", "1", "-vf", &vf]);
     }
-    append_thumbnail_output_args(&mut cmd, format, true);
+    append_thumbnail_output_args(cmd, format, true);
     let out = cmd
         .output()
         .await
@@ -245,6 +258,8 @@ pub async fn thumbnail_save_ffmpeg(
 ) -> Result<String, String> {
     let vf = scale_long_edge_vf(max_edge);
     let mut cmd = Command::new(ffmpeg_path());
+    #[cfg(windows)]
+    suppress_console(cmd);
     cmd.args(["-hide_banner", "-loglevel", "error"]);
     if looks_like_static_image(path) {
         cmd.args(["-i", path, "-frames:v", "1", "-vf", &vf]);
@@ -403,6 +418,8 @@ pub async fn transcode_ffmpeg(
     ];
 
     let mut cmd = Command::new(ffmpeg_path());
+    #[cfg(windows)]
+    suppress_console(cmd);
     cmd.args([
         "-hide_banner",
         "-nostats",

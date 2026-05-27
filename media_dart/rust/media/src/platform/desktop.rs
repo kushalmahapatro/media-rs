@@ -64,7 +64,8 @@ fn ffprobe_stream_rotation_degrees(stream: &Value) -> i32 {
 
 pub async fn probe_ffprobe(path: &str) -> Result<VideoProbe, String> {
     let mut cmd = Command::new(ffprobe_path());
-    suppress_console(cmd);
+    #[cfg(windows)]
+    suppress_console(&mut cmd);
     let out = cmd
         .args([
             "-v",
@@ -221,7 +222,7 @@ pub async fn thumbnail_ffmpeg(
     let vf = scale_long_edge_vf(max_edge);
     let mut cmd = Command::new(ffmpeg_path());
     #[cfg(windows)]
-    suppress_console(cmd);
+    suppress_console(&mut cmd);
     cmd.args(["-hide_banner", "-loglevel", "error"]);
     if looks_like_static_image(path) {
         cmd.args(["-i", path, "-frames:v", "1", "-vf", &vf]);
@@ -229,7 +230,7 @@ pub async fn thumbnail_ffmpeg(
         let ss = format!("{time_sec:.3}");
         cmd.args(["-ss", &ss, "-i", path, "-frames:v", "1", "-vf", &vf]);
     }
-    append_thumbnail_output_args(cmd, format, true);
+    append_thumbnail_output_args(&mut cmd, format, true);
     let out = cmd
         .output()
         .await
@@ -259,7 +260,7 @@ pub async fn thumbnail_save_ffmpeg(
     let vf = scale_long_edge_vf(max_edge);
     let mut cmd = Command::new(ffmpeg_path());
     #[cfg(windows)]
-    suppress_console(cmd);
+    suppress_console(&mut cmd);
     cmd.args(["-hide_banner", "-loglevel", "error"]);
     if looks_like_static_image(path) {
         cmd.args(["-i", path, "-frames:v", "1", "-vf", &vf]);
@@ -419,7 +420,7 @@ pub async fn transcode_ffmpeg(
 
     let mut cmd = Command::new(ffmpeg_path());
     #[cfg(windows)]
-    suppress_console(cmd);
+    suppress_console(&mut cmd);
     cmd.args([
         "-hide_banner",
         "-nostats",

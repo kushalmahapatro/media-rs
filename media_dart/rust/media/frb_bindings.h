@@ -73,6 +73,15 @@ void frbgen_media_dart_wire__crate__api__transcode_video(int64_t port_,
                                                          uint32_t audio_bitrate_kbps,
                                                          struct wire_cst_list_prim_u_8_strict *sink);
 
+void frbgen_media_dart_wire__crate__api__video_to_gif(int64_t port_,
+                                                      struct wire_cst_list_prim_u_8_strict *input_path,
+                                                      struct wire_cst_list_prim_u_8_strict *output_path,
+                                                      uint32_t fps,
+                                                      uint32_t max_edge,
+                                                      double *start_sec,
+                                                      double *duration_sec,
+                                                      struct wire_cst_list_prim_u_8_strict *sink);
+
 double *frbgen_media_dart_cst_new_box_autoadd_f_64(double value);
 
 int64_t *frbgen_media_dart_cst_new_box_autoadd_i_64(int64_t value);
@@ -95,6 +104,7 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__thumbnail_save_to_path);
     dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__timeline_thumbnails);
     dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__transcode_video);
+    dummy_var ^= ((int64_t) (void*) frbgen_media_dart_wire__crate__api__video_to_gif);
     dummy_var ^= ((int64_t) (void*) store_dart_post_cobject);
     return dummy_var;
 }

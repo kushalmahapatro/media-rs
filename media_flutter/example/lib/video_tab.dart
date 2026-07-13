@@ -60,6 +60,14 @@ class _VideoExampleTabState extends State<VideoExampleTab>
   int? _lastTranscodeBytes;
   int? _lastTranscodeWallMs;
 
+  // GIF conversion state
+  String? _lastGifPath;
+  int? _lastGifBytes;
+  bool _gifBusy = false;
+  double _gifProgress = 0;
+  final TextEditingController _gifFpsCtrl = TextEditingController(text: '10');
+  final TextEditingController _gifMaxEdgeCtrl = TextEditingController(text: '480');
+
   final List<TimelineThumbnail> _timelineFrames = [];
   bool _timelineBusy = false;
   bool _timelineExportAllBusy = false;
@@ -72,6 +80,8 @@ class _VideoExampleTabState extends State<VideoExampleTab>
     _thumbCustomWidthCtrl.dispose();
     _timelineCustomWidthCtrl.dispose();
     _timelineCountCtrl.dispose();
+    _gifFpsCtrl.dispose();
+    _gifMaxEdgeCtrl.dispose();
     super.dispose();
   }
 
@@ -147,6 +157,9 @@ class _VideoExampleTabState extends State<VideoExampleTab>
     _lastTranscodePath = null;
     _lastTranscodeBytes = null;
     _lastTranscodeWallMs = null;
+    _lastGifPath = null;
+    _lastGifBytes = null;
+    _gifProgress = 0;
     _timelineFrames.clear();
   }
 
@@ -383,6 +396,79 @@ class _VideoExampleTabState extends State<VideoExampleTab>
           _transcodePastEstimate = false;
         });
       }
+    }
+  }
+
+  Future<String> _gifOutputPath(String sourcePath) async {
+    var base = p.basenameWithoutExtension(sourcePath);
+    if (base.isEmpty) base = 'out';
+    if (_isMobile || sourcePath.startsWith('content://')) {
+      final dir = await getTemporaryDirectory();
+      return p.join(dir.path, '$base.gif');
+    }
+    return p.join(p.dirname(sourcePath), '$base.gif');
+  }
+
+  Future<void> _runVideoToGif() async {
+    final path = _path;
+    if (path == null) return;
+    final fps = int.tryParse(_gifFpsCtrl.text.trim());
+    final maxEdge = int.tryParse(_gifMaxEdgeCtrl.text.trim());
+    if (fps == null || fps < 1 || fps > 50) {
+      setState(() => _error = 'GIF: FPS must be between 1 and 50.');
+      return;
+    }
+    if (maxEdge == null || maxEdge < 16) {
+      setState(() => _error = 'GIF: max edge must be at least 16 px.');
+      return;
+    }
+    final out = await _gifOutputPath(path);
+    if (File(out).existsSync()) await File(out).delete();
+    setState(() {
+      _gifBusy = true;
+      _gifProgress = 0;
+      _error = null;
+    });
+    try {
+      final stream = Media.videoToGifStream(
+        inputPath: path,
+        outputPath: out,
+        fps: fps,
+        maxEdge: maxEdge,
+      );
+      DateTime? lastUi;
+      await for (final TranscodeProgress ev in stream) {
+        final now = DateTime.now();
+        final prevUi = lastUi;
+        final dt = prevUi == null ? 9999 : now.difference(prevUi).inMilliseconds;
+        if (dt >= 120 || ev.fraction >= 0.999) {
+          lastUi = now;
+          if (mounted) {
+            setState(() => _gifProgress = ev.fraction);
+            await Future<void>.delayed(Duration.zero);
+          }
+        }
+      }
+      final len = await File(out).length();
+      if (mounted) {
+        setState(() {
+          _gifProgress = 1.0;
+          _lastGifPath = out;
+          _lastGifBytes = len;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('GIF saved: $out')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'GIF conversion failed: $e';
+          _gifProgress = 0;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _gifBusy = false);
     }
   }
 
@@ -986,6 +1072,100 @@ class _VideoExampleTabState extends State<VideoExampleTab>
                   ],
                 );
               },
+            ),
+          ],
+          const ExampleSectionDivider(),
+          Text(
+            'Video to GIF',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          Text(
+            'Convert the video (or a segment) to an animated GIF with palette optimization.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _gifFpsCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'FPS',
+                    isDense: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _gifMaxEdgeCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Max edge (px)',
+                    isDense: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          FilledButton.tonal(
+            onPressed: (_busy || _gifBusy) ? null : _runVideoToGif,
+            child: const Text('Convert to GIF'),
+          ),
+          if (_gifBusy) ...[
+            const SizedBox(height: 8),
+            LinearProgressIndicator(
+              value: _gifProgress > 0 ? _gifProgress : null,
+            ),
+            Text(
+              '${(_gifProgress * 100).clamp(0, 100).toStringAsFixed(0)}%',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+          if (_lastGifPath != null) ...[
+            const SizedBox(height: 8),
+            if (_lastGifBytes != null)
+              Text(
+                'GIF size: ${formatAdaptiveFileSize(_lastGifBytes!)}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            const SizedBox(height: 4),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'GIF output',
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                      const SizedBox(height: 2),
+                      revealableFilePathText(
+                        context,
+                        path: _lastGifPath!,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  tooltip: _isMobile ? 'Share' : 'Show in explorer',
+                  icon: const Icon(Icons.ios_share_outlined, size: 20),
+                  onPressed: () => shareOrRevealFile(
+                    context,
+                    _lastGifPath!,
+                    subject: 'Animated GIF',
+                  ),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
             ),
           ],
           const ExampleSectionDivider(),

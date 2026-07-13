@@ -213,6 +213,51 @@ pub async fn timeline_thumbnails(
     }
 }
 
+pub async fn video_to_gif(
+    input_path: String,
+    output_path: String,
+    fps: u32,
+    max_edge: u32,
+    start_sec: Option<f64>,
+    duration_sec: Option<f64>,
+    sink: StreamSink<TranscodeProgress>,
+) -> Result<(), String> {
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+    {
+        return crate::platform::desktop::video_to_gif_ffmpeg(
+            &input_path,
+            &output_path,
+            fps,
+            max_edge,
+            start_sec,
+            duration_sec,
+            sink,
+        )
+        .await;
+    }
+    #[cfg(target_os = "android")]
+    {
+        let _ = (input_path, output_path, fps, max_edge, start_sec, duration_sec, sink);
+        return Err("video_to_gif: not yet supported on Android".to_string());
+    }
+    #[cfg(target_os = "ios")]
+    {
+        let _ = (input_path, output_path, fps, max_edge, start_sec, duration_sec, sink);
+        return Err("video_to_gif: not yet supported on iOS".to_string());
+    }
+    #[cfg(not(any(
+        target_os = "linux",
+        target_os = "macos",
+        target_os = "windows",
+        target_os = "android",
+        target_os = "ios"
+    )))]
+    {
+        let _ = (input_path, output_path, fps, max_edge, start_sec, duration_sec, sink);
+        Err("video_to_gif: unsupported OS".to_string())
+    }
+}
+
 pub async fn transcode_video(
     input_path: String,
     output_path: String,

@@ -64,7 +64,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 793834831;
+  int get rustContentHash => -617070432;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -106,6 +106,15 @@ abstract class RustLibApi extends BaseApi {
     required int videoBitrateKbps,
     required int maxWidth,
     required int audioBitrateKbps,
+  });
+
+  Stream<TranscodeProgress> crateApiVideoToGif({
+    required String inputPath,
+    required String outputPath,
+    required int fps,
+    required int maxEdge,
+    double? startSec,
+    double? durationSec,
   });
 }
 
@@ -320,6 +329,72 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       "videoBitrateKbps",
       "maxWidth",
       "audioBitrateKbps",
+      "sink",
+    ],
+  );
+
+  @override
+  Stream<TranscodeProgress> crateApiVideoToGif({
+    required String inputPath,
+    required String outputPath,
+    required int fps,
+    required int maxEdge,
+    double? startSec,
+    double? durationSec,
+  }) {
+    final sink = RustStreamSink<TranscodeProgress>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_String(inputPath);
+            var arg1 = cst_encode_String(outputPath);
+            var arg2 = cst_encode_u_32(fps);
+            var arg3 = cst_encode_u_32(maxEdge);
+            var arg4 = cst_encode_opt_box_autoadd_f_64(startSec);
+            var arg5 = cst_encode_opt_box_autoadd_f_64(durationSec);
+            var arg6 = cst_encode_StreamSink_transcode_progress_Dco(sink);
+            return wire.wire__crate__api__video_to_gif(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+              arg4,
+              arg5,
+              arg6,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_String,
+          ),
+          constMeta: kCrateApiVideoToGifConstMeta,
+          argValues: [
+            inputPath,
+            outputPath,
+            fps,
+            maxEdge,
+            startSec,
+            durationSec,
+            sink,
+          ],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateApiVideoToGifConstMeta => const TaskConstMeta(
+    debugName: "video_to_gif",
+    argNames: [
+      "inputPath",
+      "outputPath",
+      "fps",
+      "maxEdge",
+      "startSec",
+      "durationSec",
       "sink",
     ],
   );

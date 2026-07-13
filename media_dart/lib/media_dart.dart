@@ -8,6 +8,7 @@ export 'src/bindings/api.dart'
         thumbnailSaveToPath,
         timelineThumbnails,
         transcodeVideo,
+        videoToGif,
         VideoProbe,
         TranscodeProgress,
         ThumbnailFormat,

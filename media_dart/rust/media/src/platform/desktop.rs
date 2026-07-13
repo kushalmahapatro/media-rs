@@ -375,6 +375,92 @@ async fn read_stderr_to_string(stderr: Option<tokio::process::ChildStderr>) -> S
     }
 }
 
+pub async fn video_to_gif_ffmpeg(
+    input_path: &str,
+    output_path: &str,
+    fps: u32,
+    max_edge: u32,
+    start_sec: Option<f64>,
+    duration_sec: Option<f64>,
+    sink: StreamSink<TranscodeProgress>,
+) -> Result<(), String> {
+    let _ = sink.add(TranscodeProgress {
+        phase: "starting".into(),
+        fraction: 0.0,
+        message: Some("Probing input".into()),
+    });
+
+    let probe = probe_ffprobe(input_path).await?;
+    let total_ms = match (start_sec, duration_sec) {
+        (_, Some(d)) => (d * 1000.0) as f64,
+        (Some(s), None) => {
+            let full = probe.duration_ms.unwrap_or(0).max(1) as f64;
+            (full - s * 1000.0).max(1.0)
+        }
+        _ => probe.duration_ms.unwrap_or(0).max(1) as f64,
+    };
+
+    let fps_str = format!("{}", fps.max(1).min(50));
+    let scale = scale_long_edge_vf(max_edge.max(2));
+    let vf = format!(
+        "fps={fps_str},{scale},split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5"
+    );
+
+    let mut cmd = Command::new(ffmpeg_path());
+    #[cfg(windows)]
+    suppress_console(&mut cmd);
+
+    cmd.args(["-hide_banner", "-nostats", "-progress", "pipe:1", "-loglevel", "error"]);
+
+    if let Some(ss) = start_sec {
+        let ss_str = format!("{ss:.3}");
+        cmd.args(["-ss", &ss_str]);
+    }
+    cmd.args(["-i", input_path]);
+    if let Some(d) = duration_sec {
+        let d_str = format!("{d:.3}");
+        cmd.args(["-t", &d_str]);
+    }
+
+    cmd.args([
+        "-filter_complex", &vf,
+        "-loop", "0",
+        "-y", output_path,
+    ]);
+    cmd.stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .kill_on_drop(true);
+
+    let _ = sink.add(TranscodeProgress {
+        phase: "encoding".into(),
+        fraction: 0.0,
+        message: Some("Generating GIF".into()),
+    });
+
+    let mut child = cmd
+        .spawn()
+        .map_err(|e| format!("ffmpeg gif spawn: {e}"))?;
+
+    let stdout = child
+        .stdout
+        .take()
+        .ok_or_else(|| "ffmpeg: no stdout for -progress".to_string())?;
+    let stderr = child.stderr.take();
+
+    let progress_fut = drain_progress_stdout(stdout, sink, total_ms);
+    let stderr_fut = read_stderr_to_string(stderr);
+    let (progress_res, stderr_text, status) =
+        tokio::join!(progress_fut, stderr_fut, child.wait());
+    progress_res?;
+
+    let status = status.map_err(|e| format!("ffmpeg wait: {e}"))?;
+    if status.success() {
+        Ok(())
+    } else {
+        Err(format!("ffmpeg gif failed ({status}): {stderr_text}"))
+    }
+}
+
 pub async fn transcode_ffmpeg(
     input_path: &str,
     output_path: &str,

@@ -651,6 +651,58 @@ class RustLibWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__video_to_gif(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> input_path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> output_path,
+    int fps,
+    int max_edge,
+    ffi.Pointer<ffi.Double> start_sec,
+    ffi.Pointer<ffi.Double> duration_sec,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> sink,
+  ) {
+    return _wire__crate__api__video_to_gif(
+      port_,
+      input_path,
+      output_path,
+      fps,
+      max_edge,
+      start_sec,
+      duration_sec,
+      sink,
+    );
+  }
+
+  late final _wire__crate__api__video_to_gifPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
+            ffi.Uint32,
+            ffi.Pointer<ffi.Double>,
+            ffi.Pointer<ffi.Double>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_media_dart_wire__crate__api__video_to_gif');
+  late final _wire__crate__api__video_to_gif =
+      _wire__crate__api__video_to_gifPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              int,
+              int,
+              ffi.Pointer<ffi.Double>,
+              ffi.Pointer<ffi.Double>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
   ffi.Pointer<ffi.Double> cst_new_box_autoadd_f_64(double value) {
     return _cst_new_box_autoadd_f_64(value);
   }

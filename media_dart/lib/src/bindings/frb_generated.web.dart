@@ -476,6 +476,26 @@ class RustLibWire implements BaseWire {
     audio_bitrate_kbps,
     sink,
   );
+
+  void wire__crate__api__video_to_gif(
+    NativePortType port_,
+    String input_path,
+    String output_path,
+    int fps,
+    int max_edge,
+    double? start_sec,
+    double? duration_sec,
+    String sink,
+  ) => wasmModule.wire__crate__api__video_to_gif(
+    port_,
+    input_path,
+    output_path,
+    fps,
+    max_edge,
+    start_sec,
+    duration_sec,
+    sink,
+  );
 }
 
 @JS('wasm_bindgen')
@@ -522,6 +542,17 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     int video_bitrate_kbps,
     int max_width,
     int audio_bitrate_kbps,
+    String sink,
+  );
+
+  external void wire__crate__api__video_to_gif(
+    NativePortType port_,
+    String input_path,
+    String output_path,
+    int fps,
+    int max_edge,
+    double? start_sec,
+    double? duration_sec,
     String sink,
   );
 }

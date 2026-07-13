@@ -49,6 +49,22 @@ Stream<TimelineThumbnail> timelineThumbnails({
   format: format,
 );
 
+Stream<TranscodeProgress> videoToGif({
+  required String inputPath,
+  required String outputPath,
+  required int fps,
+  required int maxEdge,
+  double? startSec,
+  double? durationSec,
+}) => RustLib.instance.api.crateApiVideoToGif(
+  inputPath: inputPath,
+  outputPath: outputPath,
+  fps: fps,
+  maxEdge: maxEdge,
+  startSec: startSec,
+  durationSec: durationSec,
+);
+
 Stream<TranscodeProgress> transcodeVideo({
   required String inputPath,
   required String outputPath,

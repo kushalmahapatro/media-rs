@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 793834831;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -617070432;
 
 // Section: executor
 
@@ -219,6 +219,53 @@ fn wire__crate__api__transcode_video_impl(
                             api_video_bitrate_kbps,
                             api_max_width,
                             api_audio_bitrate_kbps,
+                            api_sink,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__video_to_gif_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    input_path: impl CstDecode<String>,
+    output_path: impl CstDecode<String>,
+    fps: impl CstDecode<u32>,
+    max_edge: impl CstDecode<u32>,
+    start_sec: impl CstDecode<Option<f64>>,
+    duration_sec: impl CstDecode<Option<f64>>,
+    sink: impl CstDecode<
+        StreamSink<crate::api::TranscodeProgress, flutter_rust_bridge::for_generated::DcoCodec>,
+    >,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "video_to_gif",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_input_path = input_path.cst_decode();
+            let api_output_path = output_path.cst_decode();
+            let api_fps = fps.cst_decode();
+            let api_max_edge = max_edge.cst_decode();
+            let api_start_sec = start_sec.cst_decode();
+            let api_duration_sec = duration_sec.cst_decode();
+            let api_sink = sink.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, String>(
+                    (move || async move {
+                        let output_ok = crate::api::video_to_gif(
+                            api_input_path,
+                            api_output_path,
+                            api_fps,
+                            api_max_edge,
+                            api_start_sec,
+                            api_duration_sec,
                             api_sink,
                         )
                         .await?;
@@ -1008,6 +1055,29 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_media_dart_wire__crate__api__video_to_gif(
+        port_: i64,
+        input_path: *mut wire_cst_list_prim_u_8_strict,
+        output_path: *mut wire_cst_list_prim_u_8_strict,
+        fps: u32,
+        max_edge: u32,
+        start_sec: *mut f64,
+        duration_sec: *mut f64,
+        sink: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__video_to_gif_impl(
+            port_,
+            input_path,
+            output_path,
+            fps,
+            max_edge,
+            start_sec,
+            duration_sec,
+            sink,
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_media_dart_cst_new_box_autoadd_f_64(value: f64) -> *mut f64 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
@@ -1364,6 +1434,29 @@ mod web {
             video_bitrate_kbps,
             max_width,
             audio_bitrate_kbps,
+            sink,
+        )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__video_to_gif(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        input_path: String,
+        output_path: String,
+        fps: u32,
+        max_edge: u32,
+        start_sec: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        duration_sec: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        sink: String,
+    ) {
+        wire__crate__api__video_to_gif_impl(
+            port_,
+            input_path,
+            output_path,
+            fps,
+            max_edge,
+            start_sec,
+            duration_sec,
             sink,
         )
     }

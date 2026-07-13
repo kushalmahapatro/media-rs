@@ -131,6 +131,30 @@ class Media {
     );
   }
 
+  /// Converts a video (or a segment of it) to an animated GIF.
+  ///
+  /// [fps] controls the output frame rate (default 10). [maxEdge] caps the
+  /// longest side. Optional [startSec] and [durationSec] trim the source.
+  /// Progress events reuse [TranscodeProgress].
+  static Stream<api.TranscodeProgress> videoToGifStream({
+    required String inputPath,
+    required String outputPath,
+    int fps = 10,
+    int maxEdge = 480,
+    double? startSec,
+    double? durationSec,
+  }) {
+    _ensureInit();
+    return api.videoToGif(
+      inputPath: inputPath,
+      outputPath: outputPath,
+      fps: fps,
+      maxEdge: maxEdge,
+      startSec: startSec,
+      durationSec: durationSec,
+    );
+  }
+
   static Stream<api.TranscodeProgress> transcodeVideoStream({
     required String inputPath,
     required String outputPath,

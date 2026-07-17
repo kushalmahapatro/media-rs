@@ -4,6 +4,7 @@ mod frb_generated;
 pub mod api;
 #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
 mod bundled_tools;
+mod gif_encoder;
 mod platform;
 
 /// Android: ART calls this when `libmedia.so` is loaded so we can attach FRB worker threads to the JVM.

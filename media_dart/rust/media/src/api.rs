@@ -237,13 +237,35 @@ pub async fn video_to_gif(
     }
     #[cfg(target_os = "android")]
     {
-        let _ = (input_path, output_path, fps, max_edge, start_sec, duration_sec, sink);
-        return Err("video_to_gif: not yet supported on Android".to_string());
+        return tokio::task::spawn_blocking(move || {
+            crate::platform::android::video_to_gif(
+                &input_path,
+                &output_path,
+                fps,
+                max_edge,
+                start_sec,
+                duration_sec,
+                sink,
+            )
+        })
+        .await
+        .map_err(|e| format!("video_to_gif: {e}"))?;
     }
     #[cfg(target_os = "ios")]
     {
-        let _ = (input_path, output_path, fps, max_edge, start_sec, duration_sec, sink);
-        return Err("video_to_gif: not yet supported on iOS".to_string());
+        return tokio::task::spawn_blocking(move || {
+            crate::platform::ios::video_to_gif(
+                &input_path,
+                &output_path,
+                fps,
+                max_edge,
+                start_sec,
+                duration_sec,
+                sink,
+            )
+        })
+        .await
+        .map_err(|e| format!("video_to_gif: {e}"))?;
     }
     #[cfg(not(any(
         target_os = "linux",

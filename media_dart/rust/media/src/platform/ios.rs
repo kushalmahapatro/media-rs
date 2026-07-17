@@ -449,3 +449,75 @@ pub fn transcode_export(
         }
     })
 }
+
+pub fn video_to_gif(
+    input_path: &str,
+    output_path: &str,
+    fps: u32,
+    max_edge: u32,
+    start_sec: Option<f64>,
+    duration_sec: Option<f64>,
+    sink: StreamSink<TranscodeProgress>,
+) -> Result<(), String> {
+    use crate::gif_encoder::{GifFrame, assemble_gif};
+
+    let _ = sink.add(TranscodeProgress {
+        phase: "starting".into(),
+        fraction: 0.0,
+        message: Some("Probing video".into()),
+    });
+
+    let probe = probe_avasset(input_path)?;
+    let total_ms = probe.duration_ms.filter(|&ms| ms > 0)
+        .ok_or_else(|| "gif: unknown or zero duration".to_string())?;
+    let total_sec = total_ms as f64 / 1000.0;
+
+    let begin = start_sec.unwrap_or(0.0).max(0.0);
+    let end = match duration_sec {
+        Some(d) => (begin + d).min(total_sec),
+        None => total_sec,
+    };
+    let span = (end - begin).max(0.0);
+    if span <= 0.0 {
+        return Err("gif: zero-length segment after trim".into());
+    }
+
+    let fps = fps.max(1).min(50);
+    let frame_count = ((span * fps as f64).ceil() as u32).max(1);
+    let delay_ms = (1000.0 / fps as f64).round() as u32;
+
+    let _ = sink.add(TranscodeProgress {
+        phase: "encoding".into(),
+        fraction: 0.0,
+        message: Some(format!("Extracting {frame_count} frames")),
+    });
+
+    let mut frames = Vec::with_capacity(frame_count as usize);
+    for i in 0..frame_count {
+        let t = begin + span * (i as f64 / frame_count as f64);
+        let png_bytes = thumbnail_image(input_path, t, max_edge, ThumbnailFormat::Png)?;
+        frames.push(GifFrame { png_bytes });
+
+        let frac = (i as f64 + 1.0) / frame_count as f64 * 0.9;
+        let _ = sink.add(TranscodeProgress {
+            phase: "encoding".into(),
+            fraction: frac.clamp(0.0, 0.9),
+            message: None,
+        });
+    }
+
+    let _ = sink.add(TranscodeProgress {
+        phase: "encoding".into(),
+        fraction: 0.9,
+        message: Some("Assembling GIF".into()),
+    });
+
+    assemble_gif(output_path, &frames, delay_ms)?;
+
+    let _ = sink.add(TranscodeProgress {
+        phase: "done".into(),
+        fraction: 1.0,
+        message: None,
+    });
+    Ok(())
+}

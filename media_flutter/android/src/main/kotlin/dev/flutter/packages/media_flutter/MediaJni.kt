@@ -5,10 +5,24 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import java.io.IOException
 
-/** JNI entry points implemented in `libmedia.so` (Rust). */
+/**
+ * JNI entry points implemented in Rust.
+ *
+ * Connect embeds the media crate in `libconnect_bridge_flutter.so` (no app
+ * `libmedia.so`). Loading `"media"` on modern Android resolves the platform
+ * `/system/lib64/libmedia.so`, which is namespace-restricted and crashes at
+ * plugin registration (`UnsatisfiedLinkError` / `NoClassDefFoundError`).
+ *
+ * Prefer the Connect bridge; fall back to standalone `libmedia.so` for hosts
+ * that still ship the media_dart hook output.
+ */
 object MediaJni {
     init {
-        System.loadLibrary("media")
+        try {
+            System.loadLibrary("connect_bridge_flutter")
+        } catch (_: UnsatisfiedLinkError) {
+            System.loadLibrary("media")
+        }
     }
 
     @JvmStatic

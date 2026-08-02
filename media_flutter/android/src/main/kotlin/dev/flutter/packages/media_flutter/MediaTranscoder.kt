@@ -12,10 +12,10 @@ import androidx.media3.transformer.AudioEncoderSettings
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.DefaultEncoderFactory
 import androidx.media3.transformer.EditedMediaItem
+import androidx.media3.transformer.EditedMediaItemSequence
 import androidx.media3.transformer.Effects
 import androidx.media3.transformer.ExportException
 import androidx.media3.transformer.ExportResult
-import androidx.media3.transformer.TransformationRequest
 import androidx.media3.transformer.Transformer
 import androidx.media3.transformer.VideoEncoderSettings
 import java.io.File
@@ -79,13 +79,10 @@ object MediaTranscoder {
         val videoBps = videoBitrateKbps * 1000
         val audioBps = audioBitrateKbps * 1000
 
-        // Default is HDR_MODE_KEEP_HDR. For HDR sources (e.g. phone HEVC), Media3 then falls back
-        // to H.265 when H.264 has no HDR-capable encoder — which breaks on some devices (color
-        // format / encoder errors). Tone-map to SDR so we keep H.264 + BT.709 as requested.
-        val transformationRequest =
-            TransformationRequest.Builder()
-                .setVideoMimeType(MimeTypes.VIDEO_H264)
-                .setAudioMimeType(MimeTypes.AUDIO_AAC)
+        // Media3 1.9+: mime types on Transformer.Builder; HDR mode on Composition.Builder
+        // (legacy TransformationRequest API removed upstream).
+        val composition =
+            Composition.Builder(EditedMediaItemSequence.Builder(edited).build())
                 .setHdrMode(Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
                 .build()
 
@@ -107,7 +104,8 @@ object MediaTranscoder {
             try {
                 val transformer =
                     Transformer.Builder(context)
-                        .setTransformationRequest(transformationRequest)
+                        .setVideoMimeType(MimeTypes.VIDEO_H264)
+                        .setAudioMimeType(MimeTypes.AUDIO_AAC)
                         .setEncoderFactory(encoderFactory)
                         .addListener(
                             object : Transformer.Listener {
@@ -135,7 +133,7 @@ object MediaTranscoder {
                         .build()
                 MediaJni.transcodeProgress(progressPtr, 0.02)
                 File(outPath).parentFile?.mkdirs()
-                transformer.start(edited, outPath)
+                transformer.start(composition, outPath)
             } catch (e: Throwable) {
                 err.set(e.message ?: e.toString())
                 latch.countDown()

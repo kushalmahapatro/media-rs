@@ -349,3 +349,91 @@ pub async fn transcode_video(
         Err("transcode_video: unsupported OS".to_string())
     }
 }
+
+/// Host SDK (connect-media): collect timeline frames without a Dart [StreamSink].
+///
+/// Available when built with the `embed` feature (no `frb-ffi`). Uses a collecting
+/// stub sink over the existing platform timeline path.
+#[cfg(not(feature = "frb-ffi"))]
+pub async fn timeline_thumbnails_collect(
+    path: String,
+    frame_count: u32,
+    max_edge: u32,
+    format: ThumbnailFormat,
+) -> Result<Vec<TimelineThumbnail>, String> {
+    let sink = StreamSink::new();
+    timeline_thumbnails(path, frame_count, max_edge, format, sink.clone()).await?;
+    Ok(sink.take_items())
+}
+
+/// Host SDK: transcode without progress streaming.
+#[cfg(not(feature = "frb-ffi"))]
+pub async fn transcode_video_silent(
+    input_path: String,
+    output_path: String,
+    video_bitrate_kbps: u32,
+    max_width: u32,
+    audio_bitrate_kbps: u32,
+) -> Result<(), String> {
+    transcode_video_silent_ex(
+        input_path,
+        output_path,
+        video_bitrate_kbps,
+        max_width,
+        audio_bitrate_kbps,
+        None,
+        None,
+        false,
+    )
+    .await
+}
+
+/// Host SDK: transcode with optional trim/mute (no progress streaming).
+///
+/// Mobile backends currently ignore trim/mute and use a full-file re-encode;
+/// mute is approximated by zeroing the audio bitrate when requested.
+#[cfg(not(feature = "frb-ffi"))]
+pub async fn transcode_video_silent_ex(
+    input_path: String,
+    output_path: String,
+    video_bitrate_kbps: u32,
+    max_width: u32,
+    audio_bitrate_kbps: u32,
+    start_sec: Option<f64>,
+    duration_sec: Option<f64>,
+    mute: bool,
+) -> Result<(), String> {
+    let _ = (start_sec, duration_sec);
+    let audio_kbps = if mute { 0 } else { audio_bitrate_kbps };
+    transcode_video(
+        input_path,
+        output_path,
+        video_bitrate_kbps,
+        max_width,
+        audio_kbps,
+        StreamSink::new(),
+    )
+    .await
+}
+
+/// Host SDK: video→GIF without progress streaming.
+#[cfg(not(feature = "frb-ffi"))]
+pub async fn video_to_gif_silent(
+    input_path: String,
+    output_path: String,
+    fps: u32,
+    max_edge: u32,
+    start_sec: Option<f64>,
+    duration_sec: Option<f64>,
+) -> Result<(), String> {
+    video_to_gif(
+        input_path,
+        output_path,
+        fps,
+        max_edge,
+        start_sec,
+        duration_sec,
+        StreamSink::new(),
+    )
+    .await
+}
